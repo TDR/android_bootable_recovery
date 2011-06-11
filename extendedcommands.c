@@ -483,7 +483,7 @@ int is_safe_to_format(char* name)
 {
     char str[255];
     char* partition;
-    property_get("ro.cwm.forbid_format", str, "/misc,/radio,/bootloader,/recovery");
+    property_get("ro.cwm.forbid_format", str, "/misc,/radio,/bootloader,/recovery,/efs");
 
     partition = strtok(str, ", ");
     while (partition != NULL) {
@@ -1058,7 +1058,11 @@ int bml_check_volume(const char *path) {
 
 void process_volumes() {
     create_fstab();
-    
+
+    if (is_data_media()) {
+        setup_data_media();
+    }
+
     return;
 
     // dead code.
