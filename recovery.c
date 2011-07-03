@@ -730,6 +730,7 @@ void show_wipe_menu()
         {
             if (confirm_selection( "Confirm wipe?", "Yes - Wipe Battery Stats"))
                 wipe_battery_stats();
+                ui_print("Battery Stats wiped.\n");
             break;
 	    }
         }
