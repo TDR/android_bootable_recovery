@@ -731,7 +731,6 @@ void show_wipe_menu()
         {
             if (confirm_selection( "Confirm wipe?", "Yes - Wipe Battery Stats"))
                 wipe_battery_stats();
-                ui_print("Battery Stats wiped.\n");
             break;
 	    }
         }
@@ -742,6 +741,7 @@ void wipe_battery_stats()
     ensure_path_mounted("/data");
     remove("/data/system/batterystats.bin");
     ensure_path_unmounted("/data");
+    ui_print("Battery Stats wiped.\n");
 }
 
 static void
