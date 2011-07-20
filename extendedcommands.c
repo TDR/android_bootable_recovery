@@ -896,7 +896,8 @@ void show_advanced_menu()
             }
             case 4:
             {
-                static char* ext_sizes[] = { "128M",
+                static char* ext_sizes[] = { "0M",
+                                             "128M",
                                              "256M",
                                              "512M",
                                              "1024M",
