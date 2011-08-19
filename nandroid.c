@@ -286,7 +286,7 @@ int nandroid_backup(const char* backup_path)
 	ui_set_progress(0.8f);
 
     vol = volume_for_path("/sd-ext");
-    if (vol != NULL || 0 == stat(vol->device, &s))
+    if (vol != NULL && 0 == stat(vol->device, &s))
     {
         if (0 != ensure_path_mounted("/sd-ext"))
             ui_print("Could not mount sd-ext. sd-ext backup may not be supported on this device. Skipping backup of sd-ext.\n");
@@ -375,7 +375,7 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     if (sdext)
 	{
 		vol = volume_for_path("/sd-ext");
-		if (vol != NULL || 0 == stat(vol->device, &s))
+		if (vol != NULL && 0 == stat(vol->device, &s))
 		{
 			if (0 != ensure_path_mounted("/sd-ext"))
 				ui_print("Could not mount sd-ext. sd-ext backup may not be supported on this device. Skipping backup of sd-ext.\n");
