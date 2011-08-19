@@ -331,8 +331,10 @@ erase_volume(const char *volume) {
         // log.
         tmplog_offset = 0;
     }
-
-    return format_volume(volume);
+    int ret = format_volume(volume);
+	if (ret) ui_set_background(BACKGROUND_ICON_ERROR);
+	else ui_set_background(BACKGROUND_ICON_CLOCKWORK);
+	return ret;
 }
 
 static char*
