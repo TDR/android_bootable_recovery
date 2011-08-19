@@ -280,6 +280,7 @@ int nandroid_backup(const char* backup_path)
     if (0 != (ret = nandroid_backup_partition_extended(backup_path, "/cache", 0)))
         return ret;
 
+	/*
     vol = volume_for_path("/sd-ext");
     if (vol == NULL || 0 != stat(vol->device, &s))
     {
@@ -292,6 +293,7 @@ int nandroid_backup(const char* backup_path)
         else if (0 != (ret = nandroid_backup_partition(backup_path, "/sd-ext")))
             return ret;
     }
+	*/
 
     ui_print("Generating md5 sum...\n");
     sprintf(tmp, "nandroid-md5.sh %s", backup_path);
