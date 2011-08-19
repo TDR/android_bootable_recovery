@@ -93,8 +93,8 @@ static void compute_directory_stats(const char* directory)
     fclose(f);
     yaffs_files_count = 0;
     yaffs_files_total = atoi(count_text);
-    ui_reset_progress();
-    ui_show_progress(1, 0);
+    //ui_reset_progress();
+    //ui_show_progress(1, 0);
 }
 
 typedef void (*file_event_callback)(const char* filename);
@@ -217,7 +217,7 @@ int nandroid_backup_partition(const char* backup_path, const char* root) {
 int nandroid_backup(const char* backup_path)
 {
     ui_set_background(BACKGROUND_ICON_INSTALLING);
-	ui_set_progress(0.0);
+	ui_set_progress(0.0f);
     
     if (ensure_path_mounted("/sdcard") != 0)
         return print_and_error("Can't mount /sdcard\n");
@@ -240,11 +240,11 @@ int nandroid_backup(const char* backup_path)
 
     if (0 != (ret = nandroid_backup_partition(backup_path, "/boot")))
         return ret;
-	ui_set_progress(0.1);
+	ui_set_progress(0.1f);
 
     if (0 != (ret = nandroid_backup_partition(backup_path, "/recovery")))
         return ret;
-	ui_set_progress(0.2);
+	ui_set_progress(0.2f);
 		
     Volume *vol = volume_for_path("/wimax");
     if (vol != NULL && 0 == stat(vol->device, &s))
@@ -258,21 +258,21 @@ int nandroid_backup(const char* backup_path)
         if (0 != ret)
             return print_and_error("Error while dumping WiMAX image!\n");
     }
-	ui_set_progress(0.3);
+	ui_set_progress(0.3f);
 
     if (0 != (ret = nandroid_backup_partition(backup_path, "/system")))
         return ret;
-	ui_set_progress(0.45);
+	ui_set_progress(0.45f);
 
     if (0 != (ret = nandroid_backup_partition(backup_path, "/data")))
         return ret;
-	ui_set_progress(0.65);
+	ui_set_progress(0.65f);
 
     if (has_datadata()) {
         if (0 != (ret = nandroid_backup_partition(backup_path, "/datadata")))
             return ret;
     }
-	ui_set_progress(0.7);
+	ui_set_progress(0.7f);
 
     if (0 != stat("/sdcard/.android_secure", &s))
     {
@@ -283,11 +283,11 @@ int nandroid_backup(const char* backup_path)
         if (0 != (ret = nandroid_backup_partition_extended(backup_path, "/sdcard/.android_secure", 0)))
             return ret;
     }
-	ui_set_progress(0.8);
+	ui_set_progress(0.8f);
 
     if (0 != (ret = nandroid_backup_partition_extended(backup_path, "/cache", 0)))
         return ret;
-	ui_set_progress(0.9);
+	ui_set_progress(0.9f);
 
 	/*
     vol = volume_for_path("/sd-ext");
@@ -310,10 +310,10 @@ int nandroid_backup(const char* backup_path)
         ui_print("Error while generating md5 sum!\n");
         return ret;
     }
-    ui_set_progress(1.0);
+    ui_set_progress(1.0f);
 	
     sync();
-    ui_set_background(BACKGROUND_ICON_NONE);
+    ui_set_background(BACKGROUND_ICON_CLOCKWORK);
     ui_reset_progress();
     ui_print("\nBackup complete!\n");
     return 0;
@@ -408,7 +408,7 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     }
     
     sync();
-    ui_set_background(BACKGROUND_ICON_NONE);
+    ui_set_background(BACKGROUND_ICON_CLOCKWORK);
     ui_reset_progress();
     ui_print("\nBackup complete!\n");
     return 0;
@@ -628,7 +628,7 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
         return ret;
 
     sync();
-    ui_set_background(BACKGROUND_ICON_NONE);
+    ui_set_background(BACKGROUND_ICON_CLOCKWORK);
     ui_reset_progress();
     ui_print("\nRestore complete!\n");
     return 0;
