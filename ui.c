@@ -171,8 +171,9 @@ static void draw_text_line(int row, const char* t) {
 //#define MENU_TEXT_COLOR 255, 127, 0, 255 //orange
 #define MENU_TEXT_COLOR 0, 255, 255, 255 //cyan
 //#define MENU_TEXT_COLOR 164, 198, 57, 255 //android green
-#define NORMAL_TEXT_COLOR 0, 0, 0, 255
-#define HEADER_TEXT_COLOR 255, 255, 255, 255
+#define NORMAL_TEXT_COLOR 255, 255, 255, 255
+#define HEADER_TEXT_COLOR NORMAL_TEXT_COLOR
+#define SELECTED_TEXT_COLOR 0, 0, 0, 255
 
 // Redraw everything on the screen.  Does not flip pages.
 // Should only be called with gUpdateMutex locked.
@@ -208,7 +209,7 @@ static void draw_screen_locked(void)
             gr_color(MENU_TEXT_COLOR);
             for (i = menu_show_start + menu_top; i < (menu_show_start + menu_top + j); ++i) {
                 if (i == menu_top + menu_sel) {
-                    gr_color(255, 255, 255, 255);
+                    gr_color(SELECTED_TEXT_COLOR);
                     draw_text_line(i - menu_show_start , menu[i]);
                     gr_color(MENU_TEXT_COLOR);
                 } else {
