@@ -295,7 +295,7 @@ int clear_data (const char *dirname, int not_at_root) {
 	char path[PATH_MAX];
 
 	if (path == NULL) {
-		ui_print ("Out of memory. ");
+		ui_print ("Out of memory!");
 		return 1;
 	}	
 
@@ -314,7 +314,7 @@ int clear_data (const char *dirname, int not_at_root) {
 
 			if (strcmp(path, "/data/media") && -1 == (ret = remove (path))) {
 				ui_reset_text_col();
-				ui_print("Error removing %s", path);
+				ui_print("Error removing %s.", path);
 				return ret;
 			}
 			
@@ -340,10 +340,10 @@ int format_volume(const char* volume) {
         LOGE("unknown volume \"%s\"\n", volume);
         return -1;
     }
-    if (0 != stat("/sdcard/clockworkmod/eraseData", &file_info) && strcmp(v->mount_point, "/data") == 0){
-	int ret;
-	if (0 != (ret = ensure_path_mounted(v->mount_point))){
-		return ret;
+    if (ignore_data_media && strcmp(v->mount_point, "/data") == 0) {
+		int ret;
+		if (0 != (ret = ensure_path_mounted(v->mount_point))) {
+			return ret;
 	} 
 	
 	return clear_data(v->mount_point, 0);
