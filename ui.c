@@ -168,12 +168,16 @@ static void draw_text_line(int row, const char* t) {
   }
 }
 
-//#define MENU_TEXT_COLOR 255, 127, 0, 255 //orange
-#define MENU_TEXT_COLOR 0, 255, 255, 255 //cyan
-//#define MENU_TEXT_COLOR 164, 198, 57, 255 //android green
-#define NORMAL_TEXT_COLOR 255, 255, 255, 255
-#define HEADER_TEXT_COLOR NORMAL_TEXT_COLOR
-#define SELECTED_TEXT_COLOR 0, 0, 0, 255
+#define COLOR_RGBA_BLACK 	0, 0, 0, 255
+#define COLOR_RGBA_WHITE 	255, 255, 255, 255
+#define COLOR_RGBA_ORANGE 	255, 127, 0, 255
+#define COLOR_RGBA_CYAN 	0, 255, 255, 255
+#define COLOR_RGBA_GREEN	164, 198, 57, 255
+
+#define MENU_TEXT_COLOR		COLOR_RGBA_WHITE // Selection color
+#define SELECTED_TEXT_COLOR COLOR_RGBA_BLACK
+#define NORMAL_TEXT_COLOR 	COLOR_RGBA_GREEN
+#define HEADER_TEXT_COLOR 	COLOR_RGBA_GREEN
 
 // Redraw everything on the screen.  Does not flip pages.
 // Should only be called with gUpdateMutex locked.
