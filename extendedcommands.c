@@ -395,7 +395,17 @@ int confirm_selection(const char* title, const char* confirm)
     if (0 == stat("/sdcard/clockworkmod/.no_confirm", &info))
         return 1;
 
-    char* confirm_headers[]  = {  title, "  THIS CAN NOT BE UNDONE.", "", NULL };
+	char level[3];
+	FILE* battery = fopen("/sys/class/power_supply/battery/capacity","r");
+	fgets(level, 3, battery);
+	fclose(battery);
+
+	char* battmsg;
+	char* battmsg1 = (atoi(level) < 10 ? "Your battery level is very low (" : "(Current battery level: ");
+	char* battmsg2 = "%)";
+	asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
+
+    char* confirm_headers[]  = {  title, battmsg, "  THIS CANNOT BE UNDONE.", "", NULL };
     char* items[] = { "No",
                       confirm, //" Yes -- wipe partition",   // [1]
                       NULL };
@@ -859,7 +869,7 @@ void show_nandroid_advanced_restore_menu()
         list[5] = NULL;
     }
 
-    static char* confirm_restore  = "Confirm restore?";
+    static char* confirm_restore  = "Are you sure you want to restore?";
 
     int chosen_item = get_menu_selection(headers, list, 0, 0);
     switch (chosen_item)

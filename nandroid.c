@@ -320,6 +320,7 @@ int nandroid_backup(const char* backup_path)
 int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, int system, int data, int cache, int sdext, int wimax)
 {
     ui_set_background(BACKGROUND_ICON_INSTALLING);
+	ui_show_indeterminate_progress();
     
     if (ensure_path_mounted("/sdcard") != 0)
         return print_and_error("Can't mount /sdcard\n");
@@ -509,9 +510,9 @@ int nandroid_restore_partition_extended(const char* backup_path, const char* mou
         ui_print("Error finding an appropriate restore handler.\n");
         return -2;
     }
-	
+
 	if ((strcmp(mount_point,"/data") == 0) && ignore_data_media) ui_print("Skipping /data/media.\n");
-	
+
     if (0 != (ret = restore_handler(tmp, mount_point, callback))) {
         ui_print("Error while restoring %s!\n", mount_point);
         return ret;

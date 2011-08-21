@@ -652,9 +652,15 @@ wipe_data(int confirm) {
     if (confirm) {
         static char** title_headers = NULL;
 
+	char* battmsg;
+	char* battmsg1 = (atoi(level) < 10 ? "Your battery level is very low (" : "(Current battery level: ");
+	char* battmsg2 = "%)";
+	asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
+
         if (title_headers == NULL) {
-            char* headers[] = { "Confirm wipe of all user data?",
-                                "  THIS CAN NOT BE UNDONE.",
+            char* headers[] = { "Are you sure you want to wipe all user data?",
+			                    battmsg,
+                                "  THIS CANNOT BE UNDONE.",
                                 "",
                                 NULL };
             title_headers = prepend_title((const char**)headers);
@@ -689,10 +695,10 @@ void show_wipe_menu()
                                 NULL
     };
 
-    static char* list[] = { "wipe data/factory reset",
-                            "wipe cache partition",
-                            "wipe dalvik-cache",
-			    "wipe battery stats",
+    static char* list[] = { "Wipe data (factory reset)",
+                            "Wipe cache",
+                            "Wipe dalvik-cache",
+			                "Wipe battery stats",
                             NULL
     };
 
@@ -705,7 +711,7 @@ void show_wipe_menu()
             break;
 
         case 1:
-            if (confirm_selection("Confirm wipe?", "Yes - Wipe Cache"))
+            if (confirm_selection("Are you sure you want to wipe?", "Yes - Wipe Cache"))
             {
                 ui_print("\n-- Wiping cache...\n");
                 erase_volume("/cache");
@@ -719,7 +725,7 @@ void show_wipe_menu()
                 break;
             ensure_path_mounted("/sd-ext");
             ensure_path_mounted("/cache");
-            if (confirm_selection( "Confirm wipe?", "Yes - Wipe Dalvik Cache")) {
+            if (confirm_selection( "Are you sure you want to wipe?", "Yes - Wipe Dalvik Cache")) {
                 __system("rm -r /data/dalvik-cache");
                 __system("rm -r /cache/dalvik-cache");
                 __system("rm -r /sd-ext/dalvik-cache");
@@ -730,7 +736,7 @@ void show_wipe_menu()
         }
         case 3:
         {
-            if (confirm_selection( "Confirm wipe?", "Yes - Wipe Battery Stats"))
+            if (confirm_selection( "Are you sure you want to wipe?", "Yes - Wipe Battery Stats"))
                 wipe_battery_stats();
             break;
 	    }
