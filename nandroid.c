@@ -238,8 +238,8 @@ int nandroid_backup(const char* backup_path)
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
     ui_print("SD Card space free: %lluMB\n", sdcard_free_mb);
-    if (sdcard_free_mb < 150)
-        ui_print("There may not be enough free space to complete backup... continuing...\n");
+    if (sdcard_free_mb < 1000)
+        ui_print("You may not have enough space to complete the backup.\n");
     
     char tmp[PATH_MAX];
     sprintf(tmp, "mkdir -p %s", backup_path);
@@ -557,7 +557,7 @@ int nandroid_restore_partition(const char* backup_path, const char* root) {
 int nandroid_restore(const char* backup_path, int restore_boot, int restore_system, int restore_data, int restore_cache, int restore_sdext, int restore_wimax)
 {
     ui_set_background(BACKGROUND_ICON_INSTALLING);
-    ui_show_indeterminate_progress();
+    ui_show_progress(1, 0);
     yaffs_files_total = 0;
 
     if (ensure_path_mounted("/sdcard") != 0)
@@ -569,11 +569,13 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
     sprintf(tmp, "cd %s && md5sum -c nandroid.md5", backup_path);
     if (0 != __system(tmp))
         return print_and_error("MD5 mismatch!\n");
-    
+    ui_set_progress(0.1f);
+
     int ret;
 
     if (restore_boot && NULL != volume_for_path("/boot") && 0 != (ret = nandroid_restore_partition(backup_path, "/boot")))
         return ret;
+	ui_set_progress(0.2f);
     
     struct stat s;
     Volume *vol = volume_for_path("/wimax");
@@ -603,26 +605,33 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
                 return ret;
         }
     }
+	ui_set_progress(0.3f);
 
     if (restore_system && 0 != (ret = nandroid_restore_partition(backup_path, "/system")))
         return ret;
+	ui_set_progress(0.4f);
 
     if (restore_data && 0 != (ret = nandroid_restore_partition(backup_path, "/data")))
         return ret;
-        
+	ui_set_progress(0.6f);
+
     if (has_datadata()) {
         if (restore_data && 0 != (ret = nandroid_restore_partition(backup_path, "/datadata")))
             return ret;
     }
+	ui_set_progress(0.7f);
 
     if (restore_data && 0 != (ret = nandroid_restore_partition_extended(backup_path, "/sdcard/.android_secure", 0)))
         return ret;
+	ui_set_progress(0.8f);
 
     if (restore_cache && 0 != (ret = nandroid_restore_partition_extended(backup_path, "/cache", 0)))
         return ret;
+	ui_set_progress(0.9f);
 
     if (restore_sdext && 0 != (ret = nandroid_restore_partition(backup_path, "/sd-ext")))
         return ret;
+	ui_set_progress(1.0f);
 
     sync();
     ui_set_background(BACKGROUND_ICON_CLOCKWORK);
