@@ -1,5 +1,6 @@
 extern int signature_check_enabled;
 extern int script_assert_enabled;
+extern int ignore_data_media;
 
 void
 toggle_signature_check();

@@ -44,10 +44,10 @@
 
 int signature_check_enabled = 1;
 int script_assert_enabled = 1;
+int ignore_data_media = 1;
 static const char *SDCARD_UPDATE_FILE = "/sdcard/update.zip";
 
-void
-toggle_signature_check()
+void toggle_signature_check()
 {
     signature_check_enabled = !signature_check_enabled;
     ui_print("Signature Check: %s\n", signature_check_enabled ? "Enabled" : "Disabled");
@@ -57,6 +57,12 @@ void toggle_script_asserts()
 {
     script_assert_enabled = !script_assert_enabled;
     ui_print("Script Asserts: %s\n", script_assert_enabled ? "Enabled" : "Disabled");
+}
+
+void toggle_ignore_data_media()
+{
+    ignore_data_media = !ignore_data_media;
+    ui_print("Backup and Restore /data/media: %s\n", !ignore_data_media ? "Enabled" : "Disabled");
 }
 
 int install_zip(const char* packagefilepath)
@@ -77,9 +83,9 @@ int install_zip(const char* packagefilepath)
     return 0;
 }
 
-char* INSTALL_MENU_ITEMS[] = {  "choose zip from sdcard",
-                                "toggle signature verification",
-                                "toggle script asserts",
+char* INSTALL_MENU_ITEMS[] = {  "Choose zip file",
+                                "Toggle signature verification",
+                                "Toggle script asserts",
                                 NULL };
 #define ITEM_CHOOSE_ZIP       0
 #define ITEM_SIG_CHECK        1
@@ -87,7 +93,7 @@ char* INSTALL_MENU_ITEMS[] = {  "choose zip from sdcard",
 
 void show_install_update_menu()
 {
-    static char* headers[] = {  "Apply update from .zip file on SD card",
+    static char* headers[] = {  "Apply update from zip file",
                                 "",
                                 NULL
     };
@@ -300,7 +306,7 @@ void show_choose_zip_menu()
         return;
     }
 
-    static char* headers[] = {  "Choose a zip to apply",
+    static char* headers[] = {  "Choose a zip file to apply",
                                 "",
                                 NULL
     };
@@ -308,7 +314,7 @@ void show_choose_zip_menu()
     char* file = choose_file_menu("/sdcard/", ".zip", headers);
     if (file == NULL)
         return;
-    static char* confirm_install  = "Confirm install?";
+    static char* confirm_install  = "Are you sure you want to install?";
     static char confirm[PATH_MAX];
     sprintf(confirm, "Yes - Install %s", basename(file));
     if (confirm_selection(confirm_install, confirm))
@@ -331,7 +337,7 @@ void show_nandroid_restore_menu()
     if (file == NULL)
         return;
 
-    if (confirm_selection("Confirm restore?", "Yes - Restore"))
+    if (confirm_selection("Are you sure you want to restore?", "Yes - Restore"))
         nandroid_restore(file, 1, 1, 1, 1, 1, 0);
 }
 
@@ -355,7 +361,7 @@ void show_mount_usb_storage_menu()
         return -1;
     }
     static char* headers[] = {  "USB Mass Storage device",
-                                "Leaving this menu unmount",
+                                "Leaving this menu will unmount",
                                 "your SD card from your PC.",
                                 "",
                                 NULL
@@ -549,7 +555,7 @@ void show_partition_menu()
 		}
 
 
-    static char* confirm_format  = "Confirm format?";
+    static char* confirm_format  = "Are you sure you want to format?";
     static char* confirm = "Yes - Format";
     char confirm_string[255];
 
@@ -573,7 +579,7 @@ void show_partition_menu()
 			options[mountable_volumes+i] = e->txt;
 		}
 
-        options[mountable_volumes+formatable_volumes] = "mount USB storage";
+        options[mountable_volumes+formatable_volumes] = "Mount USB storage";
         options[mountable_volumes+formatable_volumes + 1] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);
@@ -895,7 +901,8 @@ void show_nandroid_menu()
     static char* list[] = { "Backup",
                             "Restore",
                             "Advanced Backup",
-			    "Advanced Restore",
+							"Advanced Restore",
+							"Toggle backup and restore of /data/media",
                             NULL
     };
 
@@ -923,12 +930,15 @@ void show_nandroid_menu()
         case 1:
             show_nandroid_restore_menu();
             break;
-	case 2:
-	    show_nandroid_advanced_backup_menu();
-	    break;
+		case 2:
+			show_nandroid_advanced_backup_menu();
+			break;
         case 3:
             show_nandroid_advanced_restore_menu();
             break;
+		case 4:
+			toggle_ignore_data_media();
+			break;
     }
 }
 

@@ -101,16 +101,22 @@ typedef void (*file_event_callback)(const char* filename);
 typedef int (*nandroid_backup_handler)(const char* backup_path, const char* backup_file_image, int callback);
 
 static int mkyaffs2image_wrapper(const char* backup_path, const char* backup_file_image, int callback) {
+	LOGI("Using mkyaffs2image on %s\n", backup_path);
     return mkyaffs2image(backup_path, backup_file_image, 0, callback ? yaffs_callback : NULL);
 }
 
 static int tar_compress_wrapper(const char* backup_path, const char* backup_file_image, int callback) {
+	LOGI("Using tar_compress on %s\n", backup_path);
     char tmp[PATH_MAX];
-    if (strcmp(backup_path, "/data") == 0 && volume_for_path("/sdcard") == NULL)
-      sprintf(tmp, "cd $(dirname %s) ; tar cvf %s --exclude 'media' $(basename %s) ; exit $?", backup_path, backup_file_image, backup_path);
+    if (strcmp(backup_path, "/data") == 0 && (volume_for_path("/sdcard") == NULL || ignore_data_media))
+	{
+		ui_print("Skipping /data/media.\n");
+		sprintf(tmp, "cd $(dirname %s) ; tar cvf %s --exclude 'media' $(basename %s) ; exit $?", backup_path, backup_file_image, backup_path);
+	}
     else
-      sprintf(tmp, "cd $(dirname %s) ; tar cvf %s $(basename %s) ; exit $?", backup_path, backup_file_image, backup_path);
-
+	{
+		sprintf(tmp, "cd $(dirname %s) ; tar cvf %s $(basename %s) ; exit $?", backup_path, backup_file_image, backup_path);
+	}
     FILE *fp = __popen(tmp, "r");
     if (fp == NULL) {
         ui_print("Unable to execute tar.\n");
@@ -139,7 +145,7 @@ static nandroid_backup_handler get_backup_handler(const char *backup_path) {
         return NULL;
     }
 
-    if (strcmp(backup_path, "/data") == 0 && is_data_media()) {
+    if (strcmp(backup_path, "/data") == 0 && (is_data_media() || ignore_data_media)) {
         return tar_compress_wrapper;
     }
 
@@ -409,10 +415,12 @@ static void ensure_directory(const char* dir) {
 typedef int (*nandroid_restore_handler)(const char* backup_file_image, const char* backup_path, int callback);
 
 static int unyaffs_wrapper(const char* backup_file_image, const char* backup_path, int callback) {
+	LOGI("Using unyaffs on %s\n", backup_file_image);
     return unyaffs(backup_file_image, backup_path, callback ? yaffs_callback : NULL);
 }
 
 static int tar_extract_wrapper(const char* backup_file_image, const char* backup_path, int callback) {
+	LOGI("Using tar_extract_wrapper on %s\n", backup_file_image);
     char tmp[PATH_MAX];
     sprintf(tmp, "cd $(dirname %s) ; tar xvf %s ; exit $?", backup_path, backup_file_image);
 
@@ -444,7 +452,7 @@ static nandroid_restore_handler get_restore_handler(const char *backup_path) {
         return NULL;
     }
 
-    if (strcmp(backup_path, "/data") == 0 && is_data_media()) {
+    if (strcmp(backup_path, "/data") == 0 && (is_data_media() || ignore_data_media)) {
         return tar_extract_wrapper;
     }
 
