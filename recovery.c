@@ -652,6 +652,11 @@ wipe_data(int confirm) {
     if (confirm) {
         static char** title_headers = NULL;
 
+	char level[3];
+	FILE* battery = fopen("/sys/class/power_supply/battery/capacity","r");
+	fgets(level, 3, battery);
+	fclose(battery);
+
 	char* battmsg;
 	char* battmsg1 = (atoi(level) < 10 ? "Your battery level is very low (" : "(Current battery level: ");
 	char* battmsg2 = "%)";
