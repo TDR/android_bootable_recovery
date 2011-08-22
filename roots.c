@@ -344,9 +344,9 @@ int format_volume(const char* volume) {
 		int ret;
 		if (0 != (ret = ensure_path_mounted(v->mount_point))) {
 			return ret;
-	} 
-	
-	return clear_data(v->mount_point, 0);
+		}
+		ui_print("Skipping /data/media.\n");
+		return clear_data(v->mount_point, 0);
     }
     if (strcmp(v->fs_type, "ramdisk") == 0) {
         // you can't format the ramdisk.

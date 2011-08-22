@@ -102,7 +102,6 @@ typedef int (*nandroid_backup_handler)(const char* backup_path, const char* back
 
 static int mkyaffs2image_wrapper(const char* backup_path, const char* backup_file_image, int callback) {
 	LOGI("Using mkyaffs2image on %s\n", backup_path);
-	if ((strcmp(backup_path, "/data") == 0) && ignore_data_media) ui_print("Skipping /data/media.\n");
     return mkyaffs2image(backup_path, backup_file_image, 0, callback ? yaffs_callback : NULL);
 }
 
@@ -111,7 +110,6 @@ static int tar_compress_wrapper(const char* backup_path, const char* backup_file
     char tmp[PATH_MAX];
     if (strcmp(backup_path, "/data") == 0 && (volume_for_path("/sdcard") == NULL || ignore_data_media))
 	{
-		ui_print("Skipping /data/media.\n");
 		sprintf(tmp, "cd $(dirname %s) ; tar cvf %s --exclude 'media' $(basename %s) ; exit $?", backup_path, backup_file_image, backup_path);
 	}
     else
@@ -510,8 +508,6 @@ int nandroid_restore_partition_extended(const char* backup_path, const char* mou
         ui_print("Error finding an appropriate restore handler.\n");
         return -2;
     }
-
-	if ((strcmp(mount_point,"/data") == 0) && ignore_data_media) ui_print("Skipping /data/media.\n");
 
     if (0 != (ret = restore_handler(tmp, mount_point, callback))) {
         ui_print("Error while restoring %s!\n", mount_point);

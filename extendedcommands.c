@@ -337,7 +337,7 @@ void show_nandroid_restore_menu()
     if (file == NULL)
         return;
 
-    if (confirm_selection("Are you sure you want to restore?", "Yes - Restore"))
+    if (ignore_data_media ? confirm_selection("Are you sure you want to restore?", "Yes - Restore") : confirm_selection("Are you sure you want to restore? /data/media (internal storage) will also be rewritten.", "Yes - Restore"))
         nandroid_restore(file, 1, 1, 1, 1, 1, 0);
 }
 
