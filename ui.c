@@ -172,7 +172,7 @@ static void draw_text_line(int row, const char* t) {
 #define COLOR_RGBA_WHITE 	255, 255, 255, 255
 #define COLOR_RGBA_ORANGE 	255, 127, 0, 255
 #define COLOR_RGBA_CYAN 	0, 255, 255, 255
-#define COLOR_RGBA_GREEN	164, 198, 57, 255
+#define COLOR_RGBA_GREEN	12, 214, 0, 255
 
 #define MENU_TEXT_COLOR		COLOR_RGBA_WHITE // Selection color
 #define SELECTED_TEXT_COLOR COLOR_RGBA_BLACK
