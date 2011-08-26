@@ -589,7 +589,7 @@ void show_partition_menu()
 			options[mountable_volumes+i] = e->txt;
 		}
 
-        options[mountable_volumes+formatable_volumes] = "Mount USB storage";
+        options[mountable_volumes+formatable_volumes] = "Mount USB storage (USB storage mode)";
 		options[mountable_volumes+formatable_volumes + 1] = "Mount USB drive on /sdcard";
         options[mountable_volumes+formatable_volumes + 2] = NULL;
 
@@ -972,15 +972,15 @@ void show_advanced_menu()
                                 NULL
     };
 
-    static char* list[] = { "Reboot Recovery",
-                            "Report Error",
-                            "Key Test",
+    static char* list[] = { "Reboot recovery",
+                            "Report error",
+                            "Key test",
                             "Show log",
 #ifndef BOARD_HAS_SMALL_RECOVERY
-                            "Partition SD Card",
-                            "Fix Permissions",
+                            "Partition SD card",
+                            "Fix permissions",
 #ifdef BOARD_HAS_SDCARD_INTERNAL
-                            "Partition Internal SD Card",
+                            "Partition internal SD card",
 #endif
 #endif
                             NULL
@@ -1056,11 +1056,11 @@ void show_advanced_menu()
                 char cmd[PATH_MAX];
                 setenv("SDPATH", sddevice, 1);
                 sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
-                ui_print("Partitioning SD Card... please wait...\n");
+                ui_print("Partitioning SD card...\n");
                 if (0 == __system(cmd))
                     ui_print("Done!\n");
                 else
-                    ui_print("An error occured while partitioning your SD Card. Please see /tmp/recovery.log for more details.\n");
+                    ui_print("An error occured while partitioning your SD Card. Please check the recovery log for more details.\n");
                 break;
             }
             case 5:
@@ -1109,11 +1109,11 @@ void show_advanced_menu()
                 char cmd[PATH_MAX];
                 setenv("SDPATH", sddevice, 1);
                 sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
-                ui_print("Partitioning Internal SD Card... please wait...\n");
+                ui_print("Partitioning internal SD card...\n");
                 if (0 == __system(cmd))
                     ui_print("Done!\n");
                 else
-                    ui_print("An error occured while partitioning your Internal SD Card. Please see /tmp/recovery.log for more details.\n");
+                    ui_print("An error occured while partitioning your internal SD card. Please check the recovery log for more details.\n");
                 break;
             }
         }
@@ -1240,7 +1240,7 @@ void handle_failure(int ret)
         return;
     mkdir("/sdcard/clockworkmod", S_IRWXU);
     __system("cp /tmp/recovery.log /sdcard/clockworkmod/recovery.log");
-    ui_print("/tmp/recovery.log was copied to /sdcard/clockworkmod/recovery.log. Please open ROM Manager to report the issue.\n");
+    ui_print("/tmp/recovery.log was copied to /sdcard/clockworkmod/recovery.log.\n");
 }
 
 int is_path_mounted(const char* path) {
