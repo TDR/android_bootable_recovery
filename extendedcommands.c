@@ -337,7 +337,7 @@ void show_nandroid_restore_menu()
     if (file == NULL)
         return;
 
-    if (ignore_data_media ? confirm_selection("Are you sure you want to restore?", "Yes - Restore") : confirm_selection("Are you sure you want to restore? /data/media (internal storage) will also be rewritten.", "Yes - Restore"))
+    if (ignore_data_media ? confirm_selection("Are you sure you want to restore?", "Yes - Restore") : confirm_selection("Internal storage will be rewritten. Confirm restore?", "Yes - Restore"))
         nandroid_restore(file, 1, 1, 1, 1, 1, 0);
 }
 
@@ -1022,8 +1022,8 @@ void show_advanced_menu()
             case 4:
             {
 				if (is_data_media())
-					ui_print("This operation cannot be performed on internal storage.\n");
-				else if (confirm_selection("Are you sure you want to partition your SD card? All data on the SD card will be wiped.", "Yes - Partition"))
+					ui_print("Internal storage may not be paritioned.\n");
+				else if (confirm_selection("All data on the SD card will be wiped. Confirm partition?", "Yes - Partition"))
 				{
 					static char* ext_sizes[] = { "0M",
 												 "128M",
@@ -1079,7 +1079,7 @@ void show_advanced_menu()
             }
             case 6:
             {
-				if (confirm_selection("Are you sure you want to partition your internal SD card? All data on the internal SD card will be wiped.", "Yes - Partition"))
+				if (confirm_selection("All data on the internal SD card will be wiped. Confirm partition?", "Yes - Partition"))
 				{
 					static char* ext_sizes[] = { "0M",
 												 "128M",
