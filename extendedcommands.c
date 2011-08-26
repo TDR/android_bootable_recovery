@@ -590,7 +590,8 @@ void show_partition_menu()
 		}
 
         options[mountable_volumes+formatable_volumes] = "Mount USB storage";
-        options[mountable_volumes+formatable_volumes + 1] = NULL;
+		options[mountable_volumes+formatable_volumes + 1] = "Mount USB drive on /sdcard";
+        options[mountable_volumes+formatable_volumes + 2] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);
         if (chosen_item == GO_BACK)
@@ -599,6 +600,18 @@ void show_partition_menu()
         {
             show_mount_usb_storage_menu();
         }
+		else if (chosen_item == (mountable_volumes+formatable_volumes+1))
+		{
+			if (0 == ensure_path_unmounted("/sdcard"))
+			{
+				if (0 == try_mount("/dev/block/sda1", "/sdcard", "vfat", NULL))
+					ui_print("Mounted /dev/block/sda1 on /sdcard.\n");
+				else
+					ui_print("Error mounting /dev/block/sda1 on /sdcard!\n");
+			}
+			else
+				ui_print("Error unmounting /sdcard!\n");
+		}
         else if (chosen_item < mountable_volumes)
         {
 			MountMenuEntry* e = &mount_menue[chosen_item];
