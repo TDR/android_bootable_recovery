@@ -401,7 +401,7 @@ int confirm_selection(const char* title, const char* confirm)
 	fclose(battery);
 
 	char* battmsg;
-	char* battmsg1 = (atoi(level) < 10 ? "Your battery level is very low (" : "(Current battery level: ");
+	char* battmsg1 = (atoi(level) < 15 ? "Your battery level is very low (" : "(Current battery level: ");
 	char* battmsg2 = "%)";
 	asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
 
