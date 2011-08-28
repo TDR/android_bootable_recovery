@@ -395,9 +395,9 @@ int confirm_selection(const char* title, const char* confirm)
     if (0 == stat("/sdcard/clockworkmod/.no_confirm", &info))
         return 1;
 
-	char level[3];
+	char level[4];
 	FILE* battery = fopen("/sys/class/power_supply/battery/capacity","r");
-	fgets(level, 3, battery);
+	fgets(level, 4, battery);
 	fclose(battery);
 
 	char* battmsg;
