@@ -360,7 +360,7 @@ void show_mount_usb_storage_menu()
         close(fd);
         return -1;
     }
-    static char* headers[] = {  "USB Mass Storage device",
+    static char* headers[] = {  "USB Mass Storage mode",
                                 "Leaving this menu will unmount",
                                 "your SD card from your PC.",
                                 "",
