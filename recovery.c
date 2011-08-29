@@ -727,12 +727,12 @@ void show_wipe_menu()
         {
             if (0 != ensure_path_mounted("/data"))
                 break;
-            ensure_path_mounted("/sd-ext");
+            //ensure_path_mounted("/sd-ext");
             ensure_path_mounted("/cache");
             if (confirm_selection( "Are you sure you want to wipe dalvik-cache?", "Yes - Wipe Dalvik Cache")) {
                 __system("rm -r /data/dalvik-cache");
                 __system("rm -r /cache/dalvik-cache");
-                __system("rm -r /sd-ext/dalvik-cache");
+                //__system("rm -r /sd-ext/dalvik-cache");
             }
             ensure_path_unmounted("/data");
             ui_print("Dalvik cache wipe complete.\n");
