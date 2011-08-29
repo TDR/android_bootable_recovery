@@ -565,7 +565,7 @@ void show_partition_menu()
 		}
 
 
-    static char* confirm_format  = "Are you sure you want to format?";
+    static char* confirm_format  = "Are you sure you want to format";
     static char* confirm = "Yes - Format";
     char confirm_string[255];
 
@@ -634,7 +634,7 @@ void show_partition_menu()
             FormatMenuEntry* e = &format_menue[chosen_item];
             Volume* v = e->v;
 
-            sprintf(confirm_string, "%s - %s", v->mount_point, confirm_format);
+            sprintf(confirm_string, "%s %s?", confirm_format, v->mount_point);
 
             if (!confirm_selection(confirm_string, confirm))
                 continue;
