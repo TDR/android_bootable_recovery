@@ -733,9 +733,9 @@ void show_wipe_menu()
                 __system("rm -r /data/dalvik-cache");
                 __system("rm -r /cache/dalvik-cache");
                 //__system("rm -r /sd-ext/dalvik-cache");
+				ui_print("Dalvik cache wipe complete.\n");
             }
             ensure_path_unmounted("/data");
-            ui_print("Dalvik cache wipe complete.\n");
             break;
         }
         case 3:
