@@ -716,9 +716,8 @@ void show_wipe_menu()
             break;
 
         case 1:
-            if (confirm_selection("Are you sure you want to wipe?", "Yes - Wipe Cache"))
+            if (confirm_selection("Are you sure you want to wipe cache?", "Yes - Wipe Cache"))
             {
-                ui_print("\n-- Wiping cache...\n");
                 erase_volume("/cache");
                 ui_print("Cache wipe complete.\n");
                 if (!ui_text_visible()) return;
@@ -730,19 +729,20 @@ void show_wipe_menu()
                 break;
             ensure_path_mounted("/sd-ext");
             ensure_path_mounted("/cache");
-            if (confirm_selection( "Are you sure you want to wipe?", "Yes - Wipe Dalvik Cache")) {
+            if (confirm_selection( "Are you sure you want to wipe dalvik-cache?", "Yes - Wipe Dalvik Cache")) {
                 __system("rm -r /data/dalvik-cache");
                 __system("rm -r /cache/dalvik-cache");
                 __system("rm -r /sd-ext/dalvik-cache");
             }
             ensure_path_unmounted("/data");
-            ui_print("Dalvik Cache wiped.\n");
+            ui_print("Dalvik cache wipe complete.\n");
             break;
         }
         case 3:
         {
-            if (confirm_selection( "Are you sure you want to wipe?", "Yes - Wipe Battery Stats"))
+            if (confirm_selection( "Are you sure you want to wipe battery stats?", "Yes - Wipe Battery Stats"))
                 wipe_battery_stats();
+				ui_print("Battery stats wipe complete.\n");
             break;
 	    }
         }
@@ -753,7 +753,6 @@ void wipe_battery_stats()
     ensure_path_mounted("/data");
     remove("/data/system/batterystats.bin");
     ensure_path_unmounted("/data");
-    ui_print("Battery Stats wiped.\n");
 }
 
 static void
