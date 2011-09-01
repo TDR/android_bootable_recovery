@@ -658,7 +658,7 @@ wipe_data(int confirm) {
 	fclose(battery);
 
 	char* battmsg;
-	char* battmsg1 = (atoi(level) < 10 ? "Your battery level is very low (" : "(Current battery level: ");
+	char* battmsg1 = (atoi(level) < 15 ? "Your battery level is very low (" : "(Current battery level: ");
 	char* battmsg2 = "%)";
 	asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
 
@@ -725,11 +725,15 @@ void show_wipe_menu()
             break;
         case 2:
         {
-            if (0 != ensure_path_mounted("/data"))
-                break;
-            //ensure_path_mounted("/sd-ext");
-            ensure_path_mounted("/cache");
-            if (confirm_selection( "Are you sure you want to wipe dalvik-cache?", "Yes - Wipe Dalvik Cache")) {
+            if (confirm_selection( "Are you sure you want to wipe dalvik-cache?", "Yes - Wipe Dalvik Cache")) 
+			{
+			    if (0 != ensure_path_mounted("/data"))
+				{
+					ui_print("Error mounting /data!\n");
+					break;
+				}
+				//ensure_path_mounted("/sd-ext");
+				ensure_path_mounted("/cache");
                 __system("rm -r /data/dalvik-cache");
                 __system("rm -r /cache/dalvik-cache");
                 //__system("rm -r /sd-ext/dalvik-cache");
@@ -741,12 +745,14 @@ void show_wipe_menu()
         case 3:
         {
             if (confirm_selection( "Are you sure you want to wipe battery stats?", "Yes - Wipe Battery Stats"))
+			{
                 wipe_battery_stats();
 				ui_print("Battery stats wipe complete.\n");
+			}
             break;
 	    }
-        }
     }
+}
 
 void wipe_battery_stats()
 {
