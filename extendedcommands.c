@@ -45,6 +45,7 @@
 int signature_check_enabled = 1;
 int script_assert_enabled = 1;
 int ignore_data_media = 1;
+int force_use_data_media = 0;
 static const char *SDCARD_UPDATE_FILE = "/sdcard/update.zip";
 
 void toggle_signature_check()
@@ -63,6 +64,29 @@ void toggle_ignore_data_media()
 {
     ignore_data_media = !ignore_data_media;
     ui_print("Backup and Restore /data/media: %s\n", !ignore_data_media ? "Enabled" : "Disabled");
+}
+
+void toggle_force_use_data_media()
+{
+	if (!force_use_data_media)
+	{
+		if (ensure_path_unmounted("/sdcard") == 0)
+		{
+			force_use_data_media = 1;
+			setup_data_media();
+		}
+		else
+		{
+			ui_print("Failed to unmount /sdcard!\n");
+			return;
+		}
+	}
+	else
+	{
+		force_use_data_media = 0;
+		unset_data_media();
+	}
+	ui_print("Use internal storage as /sdcard: %s\n", force_use_data_media ? "Enabled" : "Disabled");
 }
 
 int install_zip(const char* packagefilepath)
@@ -589,19 +613,16 @@ void show_partition_menu()
 			options[mountable_volumes+i] = e->txt;
 		}
 
-        options[mountable_volumes+formatable_volumes] = "Mount USB storage (USB storage mode)";
-		options[mountable_volumes+formatable_volumes + 1] = "Mount USB drive on /sdcard";
-        options[mountable_volumes+formatable_volumes + 2] = NULL;
+		options[mountable_volumes+formatable_volumes] = "Mount USB drive on /sdcard";
+		options[mountable_volumes+formatable_volumes + 1] = "Toggle internal storage as /sdcard";
+        options[mountable_volumes+formatable_volumes + 2] = "Mount USB storage (USB mass storage mode)";
+        options[mountable_volumes+formatable_volumes + 3] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);
         if (chosen_item == GO_BACK)
             break;
         if (chosen_item == (mountable_volumes+formatable_volumes))
         {
-            show_mount_usb_storage_menu();
-        }
-		else if (chosen_item == (mountable_volumes+formatable_volumes+1))
-		{
 			if (0 == ensure_path_unmounted("/sdcard"))
 			{
 				if (0 == try_mount("/dev/block/sda1", "/sdcard", "vfat", NULL))
@@ -611,6 +632,14 @@ void show_partition_menu()
 			}
 			else
 				ui_print("Error unmounting /sdcard!\n");
+        }
+		if (chosen_item == (mountable_volumes+formatable_volumes+1))
+		{
+			toggle_force_use_data_media();
+		}
+		else if (chosen_item == (mountable_volumes+formatable_volumes+2))
+		{
+			show_mount_usb_storage_menu();
 		}
         else if (chosen_item < mountable_volumes)
         {
