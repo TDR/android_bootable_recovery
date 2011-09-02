@@ -332,9 +332,9 @@ erase_volume(const char *volume) {
         tmplog_offset = 0;
     }
     int ret = format_volume(volume);
-	if (ret) ui_set_background(BACKGROUND_ICON_ERROR);
-	else ui_set_background(BACKGROUND_ICON_CLOCKWORK);
-	return ret;
+    if (ret) ui_set_background(BACKGROUND_ICON_ERROR);
+    else ui_set_background(BACKGROUND_ICON_CLOCKWORK);
+    return ret;
 }
 
 static char*
@@ -652,19 +652,19 @@ wipe_data(int confirm) {
     if (confirm) {
         static char** title_headers = NULL;
 
-	char level[3];
-	FILE* battery = fopen("/sys/class/power_supply/battery/capacity","r");
-	fgets(level, 3, battery);
-	fclose(battery);
+    char level[3];
+    FILE* battery = fopen("/sys/class/power_supply/battery/capacity","r");
+    fgets(level, 3, battery);
+    fclose(battery);
 
-	char* battmsg;
-	char* battmsg1 = (atoi(level) < 15 ? "Your battery level is very low (" : "(Current battery level: ");
-	char* battmsg2 = "%)";
-	asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
+    char* battmsg;
+    char* battmsg1 = (atoi(level) < 15 ? "Your battery level is very low (" : "(Current battery level: ");
+    char* battmsg2 = "%)";
+    asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
 
         if (title_headers == NULL) {
             char* headers[] = { "Are you sure you want to wipe all user data?",
-			                    battmsg,
+                                battmsg,
                                 "  THIS CANNOT BE UNDONE.",
                                 "",
                                 NULL };
@@ -703,7 +703,7 @@ void show_wipe_menu()
     static char* list[] = { "Wipe data (factory reset)",
                             "Wipe cache",
                             "Wipe dalvik-cache",
-			                "Wipe battery stats",
+                            "Wipe battery stats",
                             NULL
     };
 
@@ -726,18 +726,18 @@ void show_wipe_menu()
         case 2:
         {
             if (confirm_selection( "Are you sure you want to wipe dalvik-cache?", "Yes - Wipe Dalvik Cache")) 
-			{
-			    if (0 != ensure_path_mounted("/data"))
-				{
-					ui_print("Error mounting /data!\n");
-					break;
-				}
-				//ensure_path_mounted("/sd-ext");
-				ensure_path_mounted("/cache");
+            {
+                if (0 != ensure_path_mounted("/data"))
+                {
+                    ui_print("Error mounting /data!\n");
+                    break;
+                }
+                //ensure_path_mounted("/sd-ext");
+                ensure_path_mounted("/cache");
                 __system("rm -r /data/dalvik-cache");
                 __system("rm -r /cache/dalvik-cache");
                 //__system("rm -r /sd-ext/dalvik-cache");
-				ui_print("Dalvik cache wipe complete.\n");
+                ui_print("Dalvik cache wipe complete.\n");
             }
             ensure_path_unmounted("/data");
             break;
@@ -745,12 +745,12 @@ void show_wipe_menu()
         case 3:
         {
             if (confirm_selection( "Are you sure you want to wipe battery stats?", "Yes - Wipe Battery Stats"))
-			{
+            {
                 wipe_battery_stats();
-				ui_print("Battery stats wipe complete.\n");
-			}
+                ui_print("Battery stats wipe complete.\n");
+            }
             break;
-	    }
+        }
     }
 }
 
@@ -812,22 +812,22 @@ print_property(const char *key, const char *name, void *cookie) {
 
 int
 main(int argc, char **argv) {
-	if (strstr(argv[0], "recovery") == NULL)
-	{
-	    if (strstr(argv[0], "flash_image") != NULL)
-	        return flash_image_main(argc, argv);
-	    if (strstr(argv[0], "volume") != NULL)
-	        return volume_main(argc, argv);
-	    if (strstr(argv[0], "edify") != NULL)
-	        return edify_main(argc, argv);
-	    if (strstr(argv[0], "dump_image") != NULL)
-	        return dump_image_main(argc, argv);
-	    if (strstr(argv[0], "erase_image") != NULL)
-	        return erase_image_main(argc, argv);
-	    if (strstr(argv[0], "mkyaffs2image") != NULL)
-	        return mkyaffs2image_main(argc, argv);
-	    if (strstr(argv[0], "unyaffs") != NULL)
-	        return unyaffs_main(argc, argv);
+    if (strstr(argv[0], "recovery") == NULL)
+    {
+        if (strstr(argv[0], "flash_image") != NULL)
+            return flash_image_main(argc, argv);
+        if (strstr(argv[0], "volume") != NULL)
+            return volume_main(argc, argv);
+        if (strstr(argv[0], "edify") != NULL)
+            return edify_main(argc, argv);
+        if (strstr(argv[0], "dump_image") != NULL)
+            return dump_image_main(argc, argv);
+        if (strstr(argv[0], "erase_image") != NULL)
+            return erase_image_main(argc, argv);
+        if (strstr(argv[0], "mkyaffs2image") != NULL)
+            return mkyaffs2image_main(argc, argv);
+        if (strstr(argv[0], "unyaffs") != NULL)
+            return unyaffs_main(argc, argv);
         if (strstr(argv[0], "nandroid"))
             return nandroid_main(argc, argv);
         if (strstr(argv[0], "reboot"))
@@ -844,8 +844,8 @@ main(int argc, char **argv) {
         }
         if (strstr(argv[0], "setprop"))
             return setprop_main(argc, argv);
-		return busybox_driver(argc, argv);
-	}
+        return busybox_driver(argc, argv);
+    }
     __system("/sbin/postrecoveryboot.sh");
 
     int is_user_initiated_recovery = 0;
@@ -880,9 +880,9 @@ main(int argc, char **argv) {
         case 'u': update_package = optarg; break;
         case 'w': 
 #ifndef BOARD_RECOVERY_ALWAYS_WIPES
-		wipe_data = wipe_cache = 1;
+        wipe_data = wipe_cache = 1;
 #endif
-		break;
+        break;
         case 'c': wipe_cache = 1; break;
         case 'e': encrypted_fs_mode = optarg; toggle_secure_fs = 1; break;
         case 't': ui_show_text(1); break;

@@ -135,8 +135,8 @@ void load_volume_table() {
 }
 
 Volume* volume_for_path(const char* path) {
-	if (strcmp(path, "/sdcard") == 0 && force_use_data_media)
-		return NULL;
+    if (strcmp(path, "/sdcard") == 0 && force_use_data_media)
+        return NULL;
     int i;
     for (i = 0; i < num_volumes; ++i) {
         Volume* v = device_volumes+i;
@@ -180,15 +180,11 @@ void setup_data_media() {
 }
 
 void unset_data_media() {
-	unlink("/sdcard");
-	mkdir("/sdcard", 0755);
+    unlink("/sdcard");
+    mkdir("/sdcard", 0755);
 }
 
 int ensure_path_mounted(const char* path) {
-    return ensure_path_mounted_at_mount_point(path, NULL);
-}
-
-int ensure_path_mounted_at_mount_point(const char* path, const char* mount_point) {
     Volume* v = volume_for_path(path);
     if (v == NULL) {
         // no /sdcard? let's assume /data/media
@@ -215,17 +211,14 @@ int ensure_path_mounted_at_mount_point(const char* path, const char* mount_point
         return -1;
     }
 
-    if (NULL == mount_point)
-        mount_point = v->mount_point;
-
     const MountedVolume* mv =
-        find_mounted_volume_by_mount_point(mount_point);
+        find_mounted_volume_by_mount_point(v->mount_point);
     if (mv) {
         // volume is already mounted
         return 0;
     }
 
-    mkdir(mount_point, 0755);  // in case it doesn't already exist
+    mkdir(v->mount_point, 0755);  // in case it doesn't already exist
 
     if (strcmp(v->fs_type, "yaffs2") == 0) {
         // mount an MTD partition as a YAFFS2 filesystem.
@@ -234,21 +227,21 @@ int ensure_path_mounted_at_mount_point(const char* path, const char* mount_point
         partition = mtd_find_partition_by_name(v->device);
         if (partition == NULL) {
             LOGE("failed to find \"%s\" partition to mount at \"%s\"\n",
-                 v->device, mount_point);
+                 v->device, v->mount_point);
             return -1;
         }
-        return mtd_mount_partition(partition, mount_point, v->fs_type, 0);
+        return mtd_mount_partition(partition, v->mount_point, v->fs_type, 0);
     } else if (strcmp(v->fs_type, "ext4") == 0 ||
                strcmp(v->fs_type, "ext3") == 0 ||
                strcmp(v->fs_type, "rfs") == 0 ||
                strcmp(v->fs_type, "vfat") == 0) {
-        if ((result = try_mount(v->device, mount_point, v->fs_type, v->fs_options)) == 0)
+        if ((result = try_mount(v->device, v->mount_point, v->fs_type, v->fs_options)) == 0)
             return 0;
-        if ((result = try_mount(v->device2, mount_point, v->fs_type, v->fs_options)) == 0)
+        if ((result = try_mount(v->device2, v->mount_point, v->fs_type, v->fs_options)) == 0)
             return 0;
-        if ((result = try_mount(v->device, mount_point, v->fs_type2, v->fs_options2)) == 0)
+        if ((result = try_mount(v->device, v->mount_point, v->fs_type2, v->fs_options2)) == 0)
             return 0;
-        if ((result = try_mount(v->device2, mount_point, v->fs_type2, v->fs_options2)) == 0)
+        if ((result = try_mount(v->device2, v->mount_point, v->fs_type2, v->fs_options2)) == 0)
             return 0;
         return result;
     } else {
@@ -258,7 +251,7 @@ int ensure_path_mounted_at_mount_point(const char* path, const char* mount_point
         return __system(mount_cmd);
     }
 
-    LOGE("unknown fs_type \"%s\" for %s\n", v->fs_type, mount_point);
+    LOGE("unknown fs_type \"%s\" for %s\n", v->fs_type, v->mount_point);
     return -1;
 }
 
@@ -300,44 +293,44 @@ int ensure_path_unmounted(const char* path) {
 }
 
 int clear_data (const char *dirname, int not_at_root) {
-	if (0 == strcmp(dirname, "/data/media")){
-		return 0;
-	}
+    if (0 == strcmp(dirname, "/data/media")){
+        return 0;
+    }
 
-	int ret;
-	DIR *dir;
-	struct dirent *entry;
-	char path[PATH_MAX];
+    int ret;
+    DIR *dir;
+    struct dirent *entry;
+    char path[PATH_MAX];
 
-	if (path == NULL) {
-		ui_print ("Out of memory!");
-		return 1;
-	}	
+    if (path == NULL) {
+        ui_print ("Out of memory!");
+        return 1;
+    }    
 
-	dir = opendir (dirname);
-	if (dir == NULL)
-		return 0;
-	
-	while ((entry = readdir(dir)) != NULL) {
-		if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")){
-			snprintf(path, (size_t) PATH_MAX, "%s/%s", dirname, entry->d_name);
-			if (entry->d_type == DT_DIR) {
-				if (0 != (ret = clear_data (path, 1))) {
-					return ret;
-				}
-			}
+    dir = opendir (dirname);
+    if (dir == NULL)
+        return 0;
+    
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")){
+            snprintf(path, (size_t) PATH_MAX, "%s/%s", dirname, entry->d_name);
+            if (entry->d_type == DT_DIR) {
+                if (0 != (ret = clear_data (path, 1))) {
+                    return ret;
+                }
+            }
 
-			if (strcmp(path, "/data/media") && -1 == (ret = remove (path))) {
-				ui_reset_text_col();
-				ui_print("Error removing %s.", path);
-				return ret;
-			}
-			
-		}
-	}
+            if (strcmp(path, "/data/media") && -1 == (ret = remove (path))) {
+                ui_reset_text_col();
+                ui_print("Error removing %s.", path);
+                return ret;
+            }
+            
+        }
+    }
 
-	closedir(dir);
-	return 0;
+    closedir(dir);
+    return 0;
 }
 
 int format_volume(const char* volume) {
@@ -348,7 +341,7 @@ int format_volume(const char* volume) {
         // no /sdcard? let's assume /data/media
         if (strstr(volume, "/sdcard") == volume && is_data_media()) {
             // don't try to format internal storage
-		    LOGE("can't format_volume \"%s\"", volume);
+            LOGE("can't format_volume \"%s\"", volume);
             return -1;
         }
         // silent failure for sd-ext
@@ -358,12 +351,12 @@ int format_volume(const char* volume) {
         return -1;
     }
     if (ignore_data_media && strcmp(v->mount_point, "/data") == 0) {
-		int ret;
-		if (0 != (ret = ensure_path_mounted(v->mount_point))) {
-			return ret;
-		}
-		ui_print("Skipping /data/media...\n");
-		return clear_data(v->mount_point, 0);
+        int ret;
+        if (0 != (ret = ensure_path_mounted(v->mount_point))) {
+            return ret;
+        }
+        ui_print("Skipping /data/media...\n");
+        return clear_data(v->mount_point, 0);
     }
     if (strcmp(v->fs_type, "ramdisk") == 0) {
         // you can't format the ramdisk.

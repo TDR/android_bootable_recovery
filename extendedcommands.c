@@ -68,25 +68,25 @@ void toggle_ignore_data_media()
 
 void toggle_force_use_data_media()
 {
-	if (!force_use_data_media)
-	{
-		if (ensure_path_unmounted("/sdcard") == 0)
-		{
-			force_use_data_media = 1;
-			setup_data_media();
-		}
-		else
-		{
-			ui_print("Failed to unmount /sdcard!\n");
-			return;
-		}
-	}
-	else
-	{
-		force_use_data_media = 0;
-		unset_data_media();
-	}
-	ui_print("Use internal storage as /sdcard: %s\n", force_use_data_media ? "Enabled" : "Disabled");
+    if (!force_use_data_media)
+    {
+        if (ensure_path_unmounted("/sdcard") == 0)
+        {
+            force_use_data_media = 1;
+            setup_data_media();
+        }
+        else
+        {
+            ui_print("Failed to unmount /sdcard!\n");
+            return;
+        }
+    }
+    else
+    {
+        force_use_data_media = 0;
+        unset_data_media();
+    }
+    ui_print("Use internal storage as /sdcard: %s\n", force_use_data_media ? "Enabled" : "Disabled");
 }
 
 int install_zip(const char* packagefilepath)
@@ -366,7 +366,7 @@ void show_nandroid_restore_menu()
 }
 
 #ifndef BOARD_UMS_LUNFILE
-#define BOARD_UMS_LUNFILE	"/sys/devices/platform/usb_mass_storage/lun0/file"
+#define BOARD_UMS_LUNFILE    "/sys/devices/platform/usb_mass_storage/lun0/file"
 #endif
 
 void show_mount_usb_storage_menu()
@@ -419,15 +419,15 @@ int confirm_selection(const char* title, const char* confirm)
     if (0 == stat("/sdcard/clockworkmod/.no_confirm", &info))
         return 1;
 
-	char level[4];
-	FILE* battery = fopen("/sys/class/power_supply/battery/capacity","r");
-	fgets(level, 4, battery);
-	fclose(battery);
+    char level[4];
+    FILE* battery = fopen("/sys/class/power_supply/battery/capacity","r");
+    fgets(level, 4, battery);
+    fclose(battery);
 
-	char* battmsg;
-	char* battmsg1 = (atoi(level) < 15 ? "Your battery level is very low (" : "(Current battery level: ");
-	char* battmsg2 = "%)";
-	asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
+    char* battmsg;
+    char* battmsg1 = (atoi(level) < 15 ? "Your battery level is very low (" : "(Current battery level: ");
+    char* battmsg2 = "%)";
+    asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
 
     char* confirm_headers[]  = {  title, battmsg, "  THIS CANNOT BE UNDONE.", "", NULL };
     char* items[] = { "No",
@@ -574,35 +574,35 @@ void show_partition_menu()
     string options[255];
 
     if(!device_volumes)
-		return;
+        return;
 
-		mountable_volumes = 0;
-		formatable_volumes = 0;
+        mountable_volumes = 0;
+        formatable_volumes = 0;
 
-		mount_menue = malloc(num_volumes * sizeof(MountMenuEntry));
-		format_menue = malloc(num_volumes * sizeof(FormatMenuEntry));
+        mount_menue = malloc(num_volumes * sizeof(MountMenuEntry));
+        format_menue = malloc(num_volumes * sizeof(FormatMenuEntry));
 
-		for (i = 0; i < num_volumes; ++i) {
-			Volume* v = &device_volumes[i];
-			if(strcmp("ramdisk", v->fs_type) != 0 && strcmp("mtd", v->fs_type) != 0 && strcmp("emmc", v->fs_type) != 0 && strcmp("bml", v->fs_type) != 0)
-			{
-				sprintf(&mount_menue[mountable_volumes].mount, "Mount %s", v->mount_point);
-				sprintf(&mount_menue[mountable_volumes].unmount, "Unmount %s", v->mount_point);
-				mount_menue[mountable_volumes].v = &device_volumes[i];
-				++mountable_volumes;
-				if (is_safe_to_format(v->mount_point)) {
-					sprintf(&format_menue[formatable_volumes].txt, "Format %s", v->mount_point);
-					format_menue[formatable_volumes].v = &device_volumes[i];
-					++formatable_volumes;
-				}
-		    }
-		    else if (strcmp("ramdisk", v->fs_type) != 0 && strcmp("mtd", v->fs_type) == 0 && is_safe_to_format(v->mount_point))
-		    {
-				sprintf(&format_menue[formatable_volumes].txt, "Format %s", v->mount_point);
-				format_menue[formatable_volumes].v = &device_volumes[i];
-				++formatable_volumes;
-			}
-		}
+        for (i = 0; i < num_volumes; ++i) {
+            Volume* v = &device_volumes[i];
+            if(strcmp("ramdisk", v->fs_type) != 0 && strcmp("mtd", v->fs_type) != 0 && strcmp("emmc", v->fs_type) != 0 && strcmp("bml", v->fs_type) != 0)
+            {
+                sprintf(&mount_menue[mountable_volumes].mount, "Mount %s", v->mount_point);
+                sprintf(&mount_menue[mountable_volumes].unmount, "Unmount %s", v->mount_point);
+                mount_menue[mountable_volumes].v = &device_volumes[i];
+                ++mountable_volumes;
+                if (is_safe_to_format(v->mount_point)) {
+                    sprintf(&format_menue[formatable_volumes].txt, "Format %s", v->mount_point);
+                    format_menue[formatable_volumes].v = &device_volumes[i];
+                    ++formatable_volumes;
+                }
+            }
+            else if (strcmp("ramdisk", v->fs_type) != 0 && strcmp("mtd", v->fs_type) == 0 && is_safe_to_format(v->mount_point))
+            {
+                sprintf(&format_menue[formatable_volumes].txt, "Format %s", v->mount_point);
+                format_menue[formatable_volumes].v = &device_volumes[i];
+                ++formatable_volumes;
+            }
+        }
 
 
     static char* confirm_format  = "Are you sure you want to format";
@@ -612,25 +612,25 @@ void show_partition_menu()
     for (;;)
     {
 
-		for (i = 0; i < mountable_volumes; i++)
-		{
-			MountMenuEntry* e = &mount_menue[i];
-			Volume* v = e->v;
-			if(is_path_mounted(v->mount_point))
-				options[i] = e->unmount;
-			else
-				options[i] = e->mount;
-		}
+        for (i = 0; i < mountable_volumes; i++)
+        {
+            MountMenuEntry* e = &mount_menue[i];
+            Volume* v = e->v;
+            if(is_path_mounted(v->mount_point))
+                options[i] = e->unmount;
+            else
+                options[i] = e->mount;
+        }
 
-		for (i = 0; i < formatable_volumes; i++)
-		{
-			FormatMenuEntry* e = &format_menue[i];
+        for (i = 0; i < formatable_volumes; i++)
+        {
+            FormatMenuEntry* e = &format_menue[i];
 
-			options[mountable_volumes+i] = e->txt;
-		}
+            options[mountable_volumes+i] = e->txt;
+        }
 
-		options[mountable_volumes+formatable_volumes] = "Mount USB drive on /sdcard";
-		options[mountable_volumes+formatable_volumes + 1] = "Toggle internal storage as /sdcard";
+        options[mountable_volumes+formatable_volumes] = "Mount USB drive on /sdcard";
+        options[mountable_volumes+formatable_volumes + 1] = "Toggle internal storage as /sdcard";
         options[mountable_volumes+formatable_volumes + 2] = "Mount USB storage (USB Mass Storage mode)";
         options[mountable_volumes+formatable_volumes + 3] = NULL;
 
@@ -639,27 +639,27 @@ void show_partition_menu()
             break;
         if (chosen_item == (mountable_volumes+formatable_volumes))
         {
-			if (0 == ensure_path_unmounted("/sdcard"))
-			{
-				if (0 == try_mount("/dev/block/sda1", "/sdcard", "vfat", NULL))
-					ui_print("Mounted /dev/block/sda1 on /sdcard.\n");
-				else
-					ui_print("Error mounting /dev/block/sda1 on /sdcard!\n");
-			}
-			else
-				ui_print("Error unmounting /sdcard!\n");
+            if (0 == ensure_path_unmounted("/sdcard"))
+            {
+                if (0 == try_mount("/dev/block/sda1", "/sdcard", "vfat", NULL))
+                    ui_print("Mounted /dev/block/sda1 on /sdcard.\n");
+                else
+                    ui_print("Error mounting /dev/block/sda1 on /sdcard!\n");
+            }
+            else
+                ui_print("Error unmounting /sdcard!\n");
         }
-		if (chosen_item == (mountable_volumes+formatable_volumes+1))
-		{
-			toggle_force_use_data_media();
-		}
-		else if (chosen_item == (mountable_volumes+formatable_volumes+2))
-		{
-			show_mount_usb_storage_menu();
-		}
+        if (chosen_item == (mountable_volumes+formatable_volumes+1))
+        {
+            toggle_force_use_data_media();
+        }
+        else if (chosen_item == (mountable_volumes+formatable_volumes+2))
+        {
+            show_mount_usb_storage_menu();
+        }
         else if (chosen_item < mountable_volumes)
         {
-			MountMenuEntry* e = &mount_menue[chosen_item];
+            MountMenuEntry* e = &mount_menue[chosen_item];
             Volume* v = e->v;
 
             if (is_path_mounted(v->mount_point))
@@ -801,7 +801,7 @@ int run_and_remove_extendedcommand()
 
 void show_nandroid_advanced_backup_menu(){
     static char* advancedheaders[] = { "Choose the partitions to backup.",
-					NULL
+                    NULL
     };
 
     int backup_list [5];
@@ -820,61 +820,61 @@ void show_nandroid_advanced_backup_menu(){
 
     int cont = 1;
     for (;cont;) {
-	    if (backup_list[0] == 1)
-	    	list[0] = "Backup boot: Yes";
-	    else
-	    	list[0] = "Backup boot: No";
-	
-	    if (backup_list[1] == 1)
-	    	list[1] = "Backup recovery: Yes";
-	    else
-	    	list[1] = "Backup recovery: No";
-	
-	    if (backup_list[2] == 1)
-    		list[2] = "Backup system: Yes";
-	    else
-	    	list[2] = "Backup system: No";
+        if (backup_list[0] == 1)
+            list[0] = "Backup boot: Yes";
+        else
+            list[0] = "Backup boot: No";
+    
+        if (backup_list[1] == 1)
+            list[1] = "Backup recovery: Yes";
+        else
+            list[1] = "Backup recovery: No";
+    
+        if (backup_list[2] == 1)
+            list[2] = "Backup system: Yes";
+        else
+            list[2] = "Backup system: No";
 
-	    if (backup_list[3] == 1)
-	    	list[3] = "Backup data: Yes";
-	    else
-	    	list[3] = "Backup data: No";   
+        if (backup_list[3] == 1)
+            list[3] = "Backup data: Yes";
+        else
+            list[3] = "Backup data: No";   
 
-	    if (backup_list[4] == 1)
-	    	list[4] = "Backup cache: Yes";
-	    else
-	    	list[4] = "Backup cache: No";   
+        if (backup_list[4] == 1)
+            list[4] = "Backup cache: Yes";
+        else
+            list[4] = "Backup cache: No";   
 
-    	int chosen_item = get_menu_selection (advancedheaders, list, 0, 0);
-	    switch (chosen_item) {
-			case GO_BACK: return;
-			case 0: backup_list[0] = !backup_list[0];
-				break;
-			case 1: backup_list[1] = !backup_list[1];
-				break;
-			case 2: backup_list[2] = !backup_list[2];
-				break;
-			case 3: backup_list[3] = !backup_list[3];
-				break;
-			case 4: backup_list[4] = !backup_list[4];
-				break;
-			case 5: backup_list[5] = !backup_list[5];
-				break;
+        int chosen_item = get_menu_selection (advancedheaders, list, 0, 0);
+        switch (chosen_item) {
+            case GO_BACK: return;
+            case 0: backup_list[0] = !backup_list[0];
+                break;
+            case 1: backup_list[1] = !backup_list[1];
+                break;
+            case 2: backup_list[2] = !backup_list[2];
+                break;
+            case 3: backup_list[3] = !backup_list[3];
+                break;
+            case 4: backup_list[4] = !backup_list[4];
+                break;
+            case 5: backup_list[5] = !backup_list[5];
+                break;
 
-			case 6: cont = 0;
-					break;
-	    }
+            case 6: cont = 0;
+                    break;
+        }
     }
 
     char backup_path[PATH_MAX];
     time_t t = time(NULL);
     struct tm *tmp = localtime(&t);
     if (tmp == NULL){
-	struct timeval tp;
-	gettimeofday(&tp, NULL);
-	sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
    }else{
-	strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
+    strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
    }
 
    return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
@@ -953,8 +953,8 @@ void show_nandroid_menu()
     static char* list[] = { "Backup",
                             "Restore",
                             "Advanced Backup",
-							"Advanced Restore",
-							"Toggle backup and restore of internal storage (/data/media)",
+                            "Advanced Restore",
+                            "Toggle backup and restore of internal storage (/data/media)",
                             NULL
     };
 
@@ -985,16 +985,16 @@ void show_nandroid_menu()
         case 1:
             show_nandroid_restore_menu();
             break;
-		case 2:
-		    if (!is_data_media || confirm_simple("For compatibility it is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
-			    show_nandroid_advanced_backup_menu();
-			break;
+        case 2:
+            if (!is_data_media || confirm_simple("For compatibility it is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
+                show_nandroid_advanced_backup_menu();
+            break;
         case 3:
             show_nandroid_advanced_restore_menu();
             break;
-		case 4:
-			toggle_ignore_data_media();
-			break;
+        case 4:
+            toggle_ignore_data_media();
+            break;
     }
 }
 
@@ -1054,52 +1054,52 @@ void show_advanced_menu()
             }
             case 4:
             {
-				if (is_data_media())
-					ui_print("Internal storage may not be paritioned!\n");
-				else if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
-				{
-					static char* ext_sizes[] = { "0M",
-												 "128M",
-												 "256M",
-												 "512M",
-												 "1024M",
-												 "2048M",
-												 "4096M",
-												 NULL };
+                if (is_data_media())
+                    ui_print("Internal storage may not be paritioned!\n");
+                else if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
+                {
+                    static char* ext_sizes[] = { "0M",
+                                                 "128M",
+                                                 "256M",
+                                                 "512M",
+                                                 "1024M",
+                                                 "2048M",
+                                                 "4096M",
+                                                 NULL };
 
-					static char* swap_sizes[] = { "0M",
-												  "32M",
-												  "64M",
-												  "128M",
-												  "256M",
-												  NULL };
+                    static char* swap_sizes[] = { "0M",
+                                                  "32M",
+                                                  "64M",
+                                                  "128M",
+                                                  "256M",
+                                                  NULL };
 
-					static char* ext_headers[] = { "Ext Size", "", NULL };
-					static char* swap_headers[] = { "Swap Size", "", NULL };
+                    static char* ext_headers[] = { "Ext Size", "", NULL };
+                    static char* swap_headers[] = { "Swap Size", "", NULL };
 
-					int ext_size = get_menu_selection(ext_headers, ext_sizes, 0, 0);
-					if (ext_size == GO_BACK)
-						continue;
+                    int ext_size = get_menu_selection(ext_headers, ext_sizes, 0, 0);
+                    if (ext_size == GO_BACK)
+                        continue;
 
-					int swap_size = get_menu_selection(swap_headers, swap_sizes, 0, 0);
-					if (swap_size == GO_BACK)
-						continue;
+                    int swap_size = get_menu_selection(swap_headers, swap_sizes, 0, 0);
+                    if (swap_size == GO_BACK)
+                        continue;
 
-					char sddevice[256];
-					Volume *vol = volume_for_path("/sdcard");
-					strcpy(sddevice, vol->device);
-					// we only want the mmcblk, not the partition
-					sddevice[strlen("/dev/block/mmcblkX")] = NULL;
-					char cmd[PATH_MAX];
-					setenv("SDPATH", sddevice, 1);
-					sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
-					ui_print("Partitioning SD card...\n");
-					if (0 == __system(cmd))
-						ui_print("Done!\n");
-					else
-						ui_print("An error occured while partitioning your SD card. Please check the recovery log for more details.\n");
-				}
-				break;
+                    char sddevice[256];
+                    Volume *vol = volume_for_path("/sdcard");
+                    strcpy(sddevice, vol->device);
+                    // we only want the mmcblk, not the partition
+                    sddevice[strlen("/dev/block/mmcblkX")] = NULL;
+                    char cmd[PATH_MAX];
+                    setenv("SDPATH", sddevice, 1);
+                    sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
+                    ui_print("Partitioning SD card...\n");
+                    if (0 == __system(cmd))
+                        ui_print("Done!\n");
+                    else
+                        ui_print("An error occured while partitioning your SD card. Please check the recovery log for more details.\n");
+                }
+                break;
             }
             case 5:
             {
@@ -1112,49 +1112,49 @@ void show_advanced_menu()
             }
             case 6:
             {
-				if (confirm_selection("All data on the internal SD card will be wiped. Continue?", "Yes - Partition"))
-				{
-					static char* ext_sizes[] = { "0M",
-												 "128M",
-												 "256M",
-												 "512M",
-												 "1024M",
-												 "2048M",
-												 "4096M",
-												 NULL };
+                if (confirm_selection("All data on the internal SD card will be wiped. Continue?", "Yes - Partition"))
+                {
+                    static char* ext_sizes[] = { "0M",
+                                                 "128M",
+                                                 "256M",
+                                                 "512M",
+                                                 "1024M",
+                                                 "2048M",
+                                                 "4096M",
+                                                 NULL };
 
-					static char* swap_sizes[] = { "0M",
-												  "32M",
-												  "64M",
-												  "128M",
-												  "256M",
-												  NULL };
+                    static char* swap_sizes[] = { "0M",
+                                                  "32M",
+                                                  "64M",
+                                                  "128M",
+                                                  "256M",
+                                                  NULL };
 
-					static char* ext_headers[] = { "Data Size", "", NULL };
-					static char* swap_headers[] = { "Swap Size", "", NULL };
+                    static char* ext_headers[] = { "Data Size", "", NULL };
+                    static char* swap_headers[] = { "Swap Size", "", NULL };
 
-					int ext_size = get_menu_selection(ext_headers, ext_sizes, 0, 0);
-					if (ext_size == GO_BACK)
-						continue;
+                    int ext_size = get_menu_selection(ext_headers, ext_sizes, 0, 0);
+                    if (ext_size == GO_BACK)
+                        continue;
 
-					int swap_size = 0;
-					if (swap_size == GO_BACK)
-						continue;
+                    int swap_size = 0;
+                    if (swap_size == GO_BACK)
+                        continue;
 
-					char sddevice[256];
-					Volume *vol = volume_for_path("/emmc");
-					strcpy(sddevice, vol->device);
-					// we only want the mmcblk, not the partition
-					sddevice[strlen("/dev/block/mmcblkX")] = NULL;
-					char cmd[PATH_MAX];
-					setenv("SDPATH", sddevice, 1);
-					sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
-					ui_print("Partitioning internal SD card...\n");
-					if (0 == __system(cmd))
-						ui_print("Done!\n");
-					else
-						ui_print("An error occured while partitioning your internal SD card. Please check the recovery log for more details.\n");
-				}
+                    char sddevice[256];
+                    Volume *vol = volume_for_path("/emmc");
+                    strcpy(sddevice, vol->device);
+                    // we only want the mmcblk, not the partition
+                    sddevice[strlen("/dev/block/mmcblkX")] = NULL;
+                    char cmd[PATH_MAX];
+                    setenv("SDPATH", sddevice, 1);
+                    sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
+                    ui_print("Partitioning internal SD card...\n");
+                    if (0 == __system(cmd))
+                        ui_print("Done!\n");
+                    else
+                        ui_print("An error occured while partitioning your internal SD card. Please check the recovery log for more details.\n");
+                }
                 break;
             }
         }
