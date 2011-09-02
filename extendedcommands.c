@@ -1056,7 +1056,7 @@ void show_advanced_menu()
             case 4:
             {
                 if (is_data_media())
-                    ui_print("Internal storage may not be paritioned!\n");
+                    ui_print("Internal storage may not be paritioned.\n");
                 else if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
