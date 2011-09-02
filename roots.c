@@ -305,12 +305,12 @@ int clear_data (const char *dirname, int not_at_root) {
     if (path == NULL) {
         ui_print ("Out of memory!");
         return 1;
-    }    
+    }
 
     dir = opendir (dirname);
     if (dir == NULL)
         return 0;
-    
+
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")){
             snprintf(path, (size_t) PATH_MAX, "%s/%s", dirname, entry->d_name);
@@ -325,7 +325,7 @@ int clear_data (const char *dirname, int not_at_root) {
                 ui_print("Error removing %s.", path);
                 return ret;
             }
-            
+
         }
     }
 

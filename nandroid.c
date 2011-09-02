@@ -169,7 +169,7 @@ int nandroid_backup_partition_extended(const char* backup_path, const char* moun
 
     struct stat file_info;
     int callback = stat("/sdcard/clockworkmod/.hidenandroidprogress", &file_info) == 0;
-    
+
     ui_print("Backing up %s...\n", name);
     if (0 != (ret = ensure_path_mounted(mount_point) != 0)) {
         ui_print("Error mounting %s!\n", mount_point);
@@ -223,10 +223,10 @@ int nandroid_backup(const char* backup_path)
 {
     ui_set_background(BACKGROUND_ICON_INSTALLING);
     ui_show_progress(1, 0);
-    
+
     if (ensure_path_mounted("/sdcard") != 0)
         return print_and_error("Error mounting /sdcard\n");
-    
+
     int ret;
     struct statfs s;
     if (0 != (ret = statfs("/sdcard", &s)))
@@ -238,7 +238,7 @@ int nandroid_backup(const char* backup_path)
     ui_print("(SD card space free: %lluMB)\n", sdcard_free_mb);
     if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000))
         ui_print("You may not have enough space to complete the backup.\n");
-    
+
     char tmp[PATH_MAX];
     sprintf(tmp, "mkdir -p %s", backup_path);
     __system(tmp);
@@ -250,7 +250,7 @@ int nandroid_backup(const char* backup_path)
     if (0 != (ret = nandroid_backup_partition(backup_path, "/recovery")))
         return ret;
     ui_set_progress(0.2f);
-        
+
     Volume *vol = volume_for_path("/wimax");
     if (vol != NULL && 0 == stat(vol->device, &s))
     {
@@ -307,7 +307,7 @@ int nandroid_backup(const char* backup_path)
         return ret;
     }
     ui_set_progress(1.0f);
-    
+
     sync();
     ui_set_background(BACKGROUND_ICON_CLOCKWORK);
     ui_reset_progress();
@@ -319,10 +319,10 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
 {
     ui_set_background(BACKGROUND_ICON_INSTALLING);
     ui_show_indeterminate_progress();
-    
+
     if (ensure_path_mounted("/sdcard") != 0)
         return print_and_error("Error mounting /sdcard\n");
-    
+
     int ret;
     struct statfs s;
     if (0 != (ret = statfs("/sdcard", &s)))
@@ -334,7 +334,7 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     ui_print("(SD card space free: %lluMB)\n", sdcard_free_mb);
     if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000))
         ui_print("You may not have enough space to complete the backup.\n");
-    
+
     char tmp[PATH_MAX];
     sprintf(tmp, "mkdir -p %s", backup_path);
     __system(tmp);
@@ -396,7 +396,7 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
         ui_print("Error generating MD5 sum!\n");
         return ret;
     }
-    
+
     sync();
     ui_set_background(BACKGROUND_ICON_CLOCKWORK);
     ui_reset_progress();
@@ -473,7 +473,7 @@ static nandroid_restore_handler get_restore_handler(const char *backup_path) {
 int nandroid_restore_partition_extended(const char* backup_path, const char* mount_point, int umount_when_finished) {
     int ret = 0;
     char* name = basename(mount_point);
-    
+
     char tmp[PATH_MAX];
     sprintf(tmp, "%s/%s.img", backup_path, name);
     struct stat file_info;
@@ -497,12 +497,12 @@ int nandroid_restore_partition_extended(const char* backup_path, const char* mou
         ui_print("Error formatting %s!\n", mount_point);
         return ret;
     }
-    
+
     if (0 != (ret = ensure_path_mounted(mount_point))) {
         ui_print("Error mounting %s!\n", mount_point);
         return ret;
     }
-    
+
     nandroid_restore_handler restore_handler = get_restore_handler(mount_point);
     if (restore_handler == NULL) {
         ui_print("Error finding an appropriate restore handler.\n");
@@ -517,7 +517,7 @@ int nandroid_restore_partition_extended(const char* backup_path, const char* mou
     if (umount_when_finished) {
         ensure_path_unmounted(mount_point);
     }
-    
+
     return 0;
 }
 
@@ -558,7 +558,7 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
 
     if (ensure_path_mounted("/sdcard") != 0)
         return print_and_error("Error mounting /sdcard\n");
-    
+
     char tmp[PATH_MAX];
 
     ui_print("Checking MD5 sums...\n");
@@ -572,13 +572,13 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
     if (restore_boot && NULL != volume_for_path("/boot") && 0 != (ret = nandroid_restore_partition(backup_path, "/boot")))
         return ret;
     ui_set_progress(0.2f);
-    
+
     struct stat s;
     Volume *vol = volume_for_path("/wimax");
     if (restore_wimax && vol != NULL && 0 == stat(vol->device, &s))
     {
         char serialno[PROPERTY_VALUE_MAX];
-        
+
         serialno[0] = 0;
         property_get("ro.serialno", serialno, "");
         sprintf(tmp, "%s/wimax.%s.img", backup_path, serialno);
@@ -647,12 +647,12 @@ int nandroid_main(int argc, char** argv)
 {
     if (argc > 3 || argc < 2)
         return nandroid_usage();
-    
+
     if (strcmp("backup", argv[1]) == 0)
     {
         if (argc != 2)
             return nandroid_usage();
-        
+
         char backup_path[PATH_MAX];
         nandroid_generate_timestamp_path(backup_path);
         return nandroid_backup(backup_path);
@@ -664,6 +664,6 @@ int nandroid_main(int argc, char** argv)
             return nandroid_usage();
         return nandroid_restore(argv[2], 1, 1, 1, 1, 1, 0);
     }
-    
+
     return nandroid_usage();
 }
