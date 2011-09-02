@@ -655,7 +655,8 @@ void show_partition_menu()
         }
         else if (chosen_item == (mountable_volumes+formatable_volumes+2))
         {
-            show_mount_usb_storage_menu();
+			if (force_use_data_media) ui_print("Internal storage may not be mounted as USB Mass Storage.\n");
+            else show_mount_usb_storage_menu();
         }
         else if (chosen_item < mountable_volumes)
         {
