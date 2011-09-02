@@ -340,7 +340,9 @@ int format_volume(const char* volume) {
     if (v == NULL) {
         // no /sdcard? let's assume /data/media
         if (strstr(volume, "/sdcard") == volume && is_data_media()) {
-            return format_unknown_device(NULL, volume, NULL);
+            // don't try to format internal storage
+		    LOGE("can't format_volume \"%s\"", volume);
+            return -1;
         }
         // silent failure for sd-ext
         if (strcmp(volume, "/sd-ext") == 0)
@@ -353,7 +355,7 @@ int format_volume(const char* volume) {
 		if (0 != (ret = ensure_path_mounted(v->mount_point))) {
 			return ret;
 		}
-		ui_print("Skipping /data/media.\n");
+		ui_print("Skipping /data/media...\n");
 		return clear_data(v->mount_point, 0);
     }
     if (strcmp(v->fs_type, "ramdisk") == 0) {

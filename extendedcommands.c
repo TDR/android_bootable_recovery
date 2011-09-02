@@ -170,7 +170,7 @@ char** gather_files(const char* directory, const char* fileExtensionOrDirectory,
 
     dir = opendir(directory);
     if (dir == NULL) {
-        ui_print("Couldn't open directory.\n");
+        ui_print("Failed to open directory.\n");
         return NULL;
     }
 
@@ -361,7 +361,7 @@ void show_nandroid_restore_menu()
     if (file == NULL)
         return;
 
-    if (ignore_data_media ? confirm_selection("Are you sure you want to restore?", "Yes - Restore") : confirm_selection("Internal storage will be rewritten. Confirm restore?", "Yes - Restore"))
+    if (ignore_data_media ? confirm_selection("Are you sure you want to restore?", "Yes - Restore") : confirm_selection("Restore will also affect internal storage. Continue?", "Yes - Restore"))
         nandroid_restore(file, 1, 1, 1, 1, 1, 0);
 }
 
@@ -431,12 +431,28 @@ int confirm_selection(const char* title, const char* confirm)
 
     char* confirm_headers[]  = {  title, battmsg, "  THIS CANNOT BE UNDONE.", "", NULL };
     char* items[] = { "No",
-                      confirm, //" Yes -- wipe partition",   // [1]
+                      confirm,
                       NULL };
 
     int chosen_item = get_menu_selection(confirm_headers, items, 0, 0);
     return chosen_item == 1;
 }
+
+int confirm_simple(const char* title, const char* confirm)
+{
+    struct stat info;
+    if (0 == stat("/sdcard/clockworkmod/.no_confirm", &info))
+        return 1;
+
+    char* confirm_headers[]  = {  title, "", NULL };
+    char* items[] = { "No",
+                      confirm,
+                      NULL };
+
+    int chosen_item = get_menu_selection(confirm_headers, items, 0, 0);
+    return chosen_item == 1;
+}
+
 
 #define MKE2FS_BIN      "/sbin/mke2fs"
 #define TUNE2FS_BIN     "/sbin/tune2fs"
@@ -615,7 +631,7 @@ void show_partition_menu()
 
 		options[mountable_volumes+formatable_volumes] = "Mount USB drive on /sdcard";
 		options[mountable_volumes+formatable_volumes + 1] = "Toggle internal storage as /sdcard";
-        options[mountable_volumes+formatable_volumes + 2] = "Mount USB storage (USB mass storage mode)";
+        options[mountable_volumes+formatable_volumes + 2] = "Mount USB storage (USB Mass Storage mode)";
         options[mountable_volumes+formatable_volumes + 3] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);
@@ -767,16 +783,16 @@ int run_and_remove_extendedcommand()
     remove(EXTENDEDCOMMAND_SCRIPT);
     int i = 0;
     for (i = 20; i > 0; i--) {
-        ui_print("Waiting for SD Card to mount (%ds)\n", i);
+        ui_print("Waiting for SD card to mount (%ds)\n", i);
         if (ensure_path_mounted("/sdcard") == 0) {
-            ui_print("SD Card mounted...\n");
+            ui_print("SD card mounted...\n");
             break;
         }
         sleep(1);
     }
     remove("/sdcard/clockworkmod/.recoverycheckpoint");
     if (i == 0) {
-        ui_print("Timed out waiting for SD card... continuing anyways.");
+        ui_print("Timed out waiting for SD card...");
     }
 
     sprintf(tmp, "/tmp/%s", basename(EXTENDEDCOMMAND_SCRIPT));
@@ -788,20 +804,19 @@ void show_nandroid_advanced_backup_menu(){
 					NULL
     };
 
-    int backup_list [6];
-    char* list[7];
+    int backup_list [5];
+    char* list[6];
 
     backup_list[0] = 1;
     backup_list[1] = 1;
     backup_list[2] = 1;
     backup_list[3] = 1;
     backup_list[4] = 1;
-    backup_list[5] = 1;
 
   
 
-    list[6] = "Perform Backup";
-    list[7] = NULL;
+    list[5] = "Perform Backup";
+    list[6] = NULL;
 
     int cont = 1;
     for (;cont;) {
@@ -829,31 +844,26 @@ void show_nandroid_advanced_backup_menu(){
 	    	list[4] = "Backup cache: Yes";
 	    else
 	    	list[4] = "Backup cache: No";   
-	
-	    if (backup_list[5] == 1)
-	    	list[5] = "Backup sd-ext: Yes";
-	    else
-	    	list[5] = "Backup sd-ext: No"; 
 
     	int chosen_item = get_menu_selection (advancedheaders, list, 0, 0);
-	switch (chosen_item) {
-	    case GO_BACK: return;
-	    case 0: backup_list[0] = !backup_list[0];
-		    break;
-	    case 1: backup_list[1] = !backup_list[1];
-		    break;
-	    case 2: backup_list[2] = !backup_list[2];
-		    break;
-	    case 3: backup_list[3] = !backup_list[3];
-		    break;
-	    case 4: backup_list[4] = !backup_list[4];
-		    break;	
-	    case 5: backup_list[5] = !backup_list[5];
-		    break;
-	    
-	    case 6: cont = 0;
-	    	    break;
-	}
+	    switch (chosen_item) {
+			case GO_BACK: return;
+			case 0: backup_list[0] = !backup_list[0];
+				break;
+			case 1: backup_list[1] = !backup_list[1];
+				break;
+			case 2: backup_list[2] = !backup_list[2];
+				break;
+			case 3: backup_list[3] = !backup_list[3];
+				break;
+			case 4: backup_list[4] = !backup_list[4];
+				break;
+			case 5: backup_list[5] = !backup_list[5];
+				break;
+
+			case 6: cont = 0;
+					break;
+	    }
     }
 
     char backup_path[PATH_MAX];
@@ -882,7 +892,7 @@ void show_nandroid_advanced_restore_menu()
                                 "",
                                 "Choose an image to restore",
                                 "first. The next menu will",
-                                "you more options.",
+                                "show you more options.",
                                 "",
                                 NULL
     };
@@ -900,8 +910,6 @@ void show_nandroid_advanced_restore_menu()
                             "Restore system",
                             "Restore data",
                             "Restore cache",
-                            "Restore sd-ext",
-                            "Restore wimax",
                             NULL
     };
     
@@ -932,14 +940,6 @@ void show_nandroid_advanced_restore_menu()
             if (confirm_selection(confirm_restore, "Yes - Restore cache"))
                 nandroid_restore(file, 0, 0, 0, 1, 0, 0);
             break;
-        case 4:
-            if (confirm_selection(confirm_restore, "Yes - Restore sd-ext"))
-                nandroid_restore(file, 0, 0, 0, 0, 1, 0);
-            break;
-        case 5:
-            if (confirm_selection(confirm_restore, "Yes - Restore wimax"))
-                nandroid_restore(file, 0, 0, 0, 0, 0, 1);
-            break;
     }
 }
 
@@ -954,7 +954,7 @@ void show_nandroid_menu()
                             "Restore",
                             "Advanced Backup",
 							"Advanced Restore",
-							"Toggle backup and restore of /data/media",
+							"Toggle backup and restore of internal storage (/data/media)",
                             NULL
     };
 
@@ -963,27 +963,31 @@ void show_nandroid_menu()
     {
         case 0:
             {
-                char backup_path[PATH_MAX];
-                time_t t = time(NULL);
-                struct tm *tmp = localtime(&t);
-                if (tmp == NULL)
+                if (!is_data_media || confirm_simple("For compatibility it is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
                 {
-                    struct timeval tp;
-                    gettimeofday(&tp, NULL);
-                    sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
+                    char backup_path[PATH_MAX];
+                    time_t t = time(NULL);
+                    struct tm *tmp = localtime(&t);
+                    if (tmp == NULL)
+                    {
+                        struct timeval tp;
+                        gettimeofday(&tp, NULL);
+                        sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
+                    }
+                    else
+                    {
+                        strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
+                    }
+                    nandroid_backup(backup_path);
                 }
-                else
-                {
-                    strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
-                }
-                nandroid_backup(backup_path);
             }
             break;
         case 1:
             show_nandroid_restore_menu();
             break;
 		case 2:
-			show_nandroid_advanced_backup_menu();
+		    if (!is_data_media || confirm_simple("For compatibility it is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
+			    show_nandroid_advanced_backup_menu();
 			break;
         case 3:
             show_nandroid_advanced_restore_menu();
@@ -1051,8 +1055,8 @@ void show_advanced_menu()
             case 4:
             {
 				if (is_data_media())
-					ui_print("Internal storage may not be paritioned.\n");
-				else if (confirm_selection("All data on the SD card will be wiped. Confirm partition?", "Yes - Partition"))
+					ui_print("Internal storage may not be paritioned!\n");
+				else if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
 				{
 					static char* ext_sizes[] = { "0M",
 												 "128M",
@@ -1093,7 +1097,7 @@ void show_advanced_menu()
 					if (0 == __system(cmd))
 						ui_print("Done!\n");
 					else
-						ui_print("An error occured while partitioning your SD Card. Please check the recovery log for more details.\n");
+						ui_print("An error occured while partitioning your SD card. Please check the recovery log for more details.\n");
 				}
 				break;
             }
@@ -1108,7 +1112,7 @@ void show_advanced_menu()
             }
             case 6:
             {
-				if (confirm_selection("All data on the internal SD card will be wiped. Confirm partition?", "Yes - Partition"))
+				if (confirm_selection("All data on the internal SD card will be wiped. Continue?", "Yes - Partition"))
 				{
 					static char* ext_sizes[] = { "0M",
 												 "128M",
@@ -1276,8 +1280,8 @@ void handle_failure(int ret)
     if (0 != ensure_path_mounted("/sdcard"))
         return;
     mkdir("/sdcard/clockworkmod", S_IRWXU);
-    __system("cp /tmp/recovery.log /sdcard/clockworkmod/recovery.log");
-    ui_print("/tmp/recovery.log was copied to /sdcard/clockworkmod/recovery.log.\n");
+    __system("cp     mp/recovery.log /sdcard/clockworkmod/recovery.log");
+    ui_print("    mp/recovery.log was copied to /sdcard/clockworkmod/recovery.log.\n");
 }
 
 int is_path_mounted(const char* path) {

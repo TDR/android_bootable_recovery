@@ -172,7 +172,7 @@ int nandroid_backup_partition_extended(const char* backup_path, const char* moun
     
     ui_print("Backing up %s...\n", name);
     if (0 != (ret = ensure_path_mounted(mount_point) != 0)) {
-        ui_print("Can't mount %s!\n", mount_point);
+        ui_print("Error mounting %s!\n", mount_point);
         return ret;
     }
     compute_directory_stats(mount_point);
@@ -188,7 +188,7 @@ int nandroid_backup_partition_extended(const char* backup_path, const char* moun
         ensure_path_unmounted(mount_point);
     }
     if (0 != ret) {
-        ui_print("Error while making a backup image of %s!\n", mount_point);
+        ui_print("Error making a backup image of %s!\n", mount_point);
         return ret;
     }
     return 0;
@@ -210,7 +210,7 @@ int nandroid_backup_partition(const char* backup_path, const char* root) {
         sprintf(tmp, "%s/%s.img", backup_path, name);
         ui_print("Backing up %s image...\n", name);
         if (0 != (ret = backup_raw_partition(vol->fs_type, vol->device, tmp))) {
-            ui_print("Error while backing up %s image!", name);
+            ui_print("Error backing up %s image!", name);
             return ret;
         }
         return 0;
@@ -225,18 +225,18 @@ int nandroid_backup(const char* backup_path)
 	ui_show_progress(1, 0);
     
     if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Can't mount /sdcard\n");
+        return print_and_error("Error mounting /sdcard\n");
     
     int ret;
     struct statfs s;
     if (0 != (ret = statfs("/sdcard", &s)))
-        return print_and_error("Unable to stat /sdcard\n");
+        return print_and_error("Failed to stat /sdcard\n");
     uint64_t bavail = s.f_bavail;
     uint64_t bsize = s.f_bsize;
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
-    ui_print("SD Card space free: %lluMB\n", sdcard_free_mb);
-    if (sdcard_free_mb < 1000)
+    ui_print("(SD card space free: %lluMB)\n", sdcard_free_mb);
+    if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000))
         ui_print("You may not have enough space to complete the backup.\n");
     
     char tmp[PATH_MAX];
@@ -261,7 +261,7 @@ int nandroid_backup(const char* backup_path)
         sprintf(tmp, "%s/wimax.%s.img", backup_path, serialno);
         ret = backup_raw_partition(vol->fs_type, vol->device, tmp);
         if (0 != ret)
-            return print_and_error("Error while dumping WiMAX image!\n");
+            return print_and_error("Error dumping WiMAX image!\n");
     }
 	ui_set_progress(0.3f);
 
@@ -303,7 +303,7 @@ int nandroid_backup(const char* backup_path)
     ui_print("Generating MD5 sum...\n");
     sprintf(tmp, "nandroid-md5.sh %s", backup_path);
     if (0 != (ret = __system(tmp))) {
-        ui_print("Error while generating MD5 sum!\n");
+        ui_print("Error generating MD5 sum!\n");
         return ret;
     }
     ui_set_progress(1.0f);
@@ -321,19 +321,19 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
 	ui_show_indeterminate_progress();
     
     if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Can't mount /sdcard\n");
+        return print_and_error("Error mounting /sdcard\n");
     
     int ret;
     struct statfs s;
     if (0 != (ret = statfs("/sdcard", &s)))
-        return print_and_error("Unable to stat /sdcard\n");
+        return print_and_error("Failed to stat /sdcard\n");
     uint64_t bavail = s.f_bavail;
     uint64_t bsize = s.f_bsize;
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
-    ui_print("SD Card space free: %lluMB\n", sdcard_free_mb);
-    if (sdcard_free_mb < 150)
-        ui_print("There may not be enough free space to complete backup... continuing...\n");
+    ui_print("(SD card space free: %lluMB)\n", sdcard_free_mb);
+    if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000))
+        ui_print("You may not have enough space to complete the backup.\n");
     
     char tmp[PATH_MAX];
     sprintf(tmp, "mkdir -p %s", backup_path);
@@ -355,7 +355,7 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
         sprintf(tmp, "%s/wimax.%s.img", backup_path, serialno);
         ret = backup_raw_partition(vol->fs_type, vol->device, tmp);
         if (0 != ret)
-            return print_and_error("Error while dumping WiMAX image!\n");
+            return print_and_error("Error dumping WiMAX image!\n");
     }
 
     if (system && 0 != (ret = nandroid_backup_partition(backup_path, "/system")))
@@ -393,7 +393,7 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     ui_print("Generating MD5 sum...\n");
     sprintf(tmp, "nandroid-md5.sh %s", backup_path);
     if (0 != (ret = __system(tmp))) {
-        ui_print("Error while generating MD5 sum!\n");
+        ui_print("Error generating MD5 sum!\n");
         return ret;
     }
     
@@ -494,12 +494,12 @@ int nandroid_restore_partition_extended(const char* backup_path, const char* mou
     }
     */
     if (0 != (ret = format_volume(mount_point))) {
-        ui_print("Error while formatting %s!\n", mount_point);
+        ui_print("Error formatting %s!\n", mount_point);
         return ret;
     }
     
     if (0 != (ret = ensure_path_mounted(mount_point))) {
-        ui_print("Can't mount %s!\n", mount_point);
+        ui_print("Error mounting %s!\n", mount_point);
         return ret;
     }
     
@@ -510,7 +510,7 @@ int nandroid_restore_partition_extended(const char* backup_path, const char* mou
     }
 
     if (0 != (ret = restore_handler(tmp, mount_point, callback))) {
-        ui_print("Error while restoring %s!\n", mount_point);
+        ui_print("Error restoring %s!\n", mount_point);
         return ret;
     }
 
@@ -536,13 +536,13 @@ int nandroid_restore_partition(const char* backup_path, const char* root) {
         const char* name = basename(root);
         ui_print("Erasing %s before restore...\n", name);
         if (0 != (ret = format_volume(root))) {
-            ui_print("Error while erasing %s image!", name);
+            ui_print("Error erasing %s image!", name);
             return ret;
         }
         sprintf(tmp, "%s%s.img", backup_path, root);
         ui_print("Restoring %s image...\n", name);
         if (0 != (ret = restore_raw_partition(vol->fs_type, vol->device, tmp))) {
-            ui_print("Error while flashing %s image!", name);
+            ui_print("Error flashing %s image!", name);
             return ret;
         }
         return 0;
@@ -557,7 +557,7 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
     yaffs_files_total = 0;
 
     if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Can't mount /sdcard\n");
+        return print_and_error("Error mounting /sdcard\n");
     
     char tmp[PATH_MAX];
 
@@ -595,7 +595,7 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
         {
             ui_print("Erasing WiMAX before restore...\n");
             if (0 != (ret = format_volume("/wimax")))
-                return print_and_error("Error while formatting wimax!\n");
+                return print_and_error("Error formatting wimax!\n");
             ui_print("Restoring WiMAX image...\n");
             if (0 != (ret = restore_raw_partition(vol->fs_type, vol->device, tmp)))
                 return ret;
