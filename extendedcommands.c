@@ -964,7 +964,7 @@ void show_nandroid_menu()
     {
         case 0:
             {
-                if (!is_data_media() || confirm_simple("For compatibility it is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
+                if (!is_data_media() || confirm_simple("It is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
                 {
                     char backup_path[PATH_MAX];
                     time_t t = time(NULL);
@@ -987,7 +987,7 @@ void show_nandroid_menu()
             show_nandroid_restore_menu();
             break;
         case 2:
-            if (!is_data_media() || confirm_simple("For compatibility it is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
+            if (!is_data_media() || confirm_simple("It is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
                 show_nandroid_advanced_backup_menu();
             break;
         case 3:
