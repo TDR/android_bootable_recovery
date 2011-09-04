@@ -77,7 +77,7 @@ void toggle_force_use_data_media()
         }
         else
         {
-            ui_print("Failed to unmount /sdcard!\n");
+            ui_print("Error unmounting /sdcard!\n");
             return;
         }
     }
@@ -170,7 +170,7 @@ char** gather_files(const char* directory, const char* fileExtensionOrDirectory,
 
     dir = opendir(directory);
     if (dir == NULL) {
-        ui_print("Failed to open directory.\n");
+        ui_print("Error opening directory.\n");
         return NULL;
     }
 
