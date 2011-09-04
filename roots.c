@@ -170,7 +170,7 @@ int try_mount(const char* device, const char* mount_point, const char* fs_type, 
 
 int is_data_media() {
     Volume *data = volume_for_path("/data");
-    return data != NULL && (strcmp(data->fs_type, "auto") == 0 || strcmp(data->fs_type, "ext4") == 0) && (volume_for_path("/sdcard") == NULL || force_use_data_media);
+    return data != NULL && ((strcmp(data->fs_type, "auto") == 0 && volume_for_path("/sdcard") == NULL) || (strcmp(data->fs_type, "ext4") == 0 && force_use_data_media));
 }
 
 void setup_data_media() {
@@ -186,16 +186,16 @@ void unset_data_media() {
 
 int ensure_path_mounted(const char* path) {
     Volume* v = volume_for_path(path);
+	if (strstr(path, "/sdcard") == path && is_data_media())
+	{
+		LOGW("using /data/media.\n");
+		int ret;
+		if (0 != (ret = ensure_path_mounted("/data")))
+			return ret;
+		setup_data_media();
+		return 0;
+	}
     if (v == NULL) {
-        // no /sdcard? let's assume /data/media
-        if (strstr(path, "/sdcard") == path && is_data_media()) {
-            LOGW("using /data/media, no /sdcard found.\n");
-            int ret;
-            if (0 != (ret = ensure_path_mounted("/data")))
-                return ret;
-            setup_data_media();
-            return 0;
-        }
         LOGE("unknown volume for path [%s]\n", path);
         return -1;
     }

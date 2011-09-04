@@ -655,7 +655,7 @@ void show_partition_menu()
         }
         else if (chosen_item == (mountable_volumes+formatable_volumes+2))
         {
-			if (force_use_data_media) ui_print("Internal storage may not be mounted as USB Mass Storage.\n");
+			if (force_use_data_media) ui_print("USB Mass Storage mode disabled with internal storage.\n");
             else show_mount_usb_storage_menu();
         }
         else if (chosen_item < mountable_volumes)
@@ -1056,7 +1056,7 @@ void show_advanced_menu()
             case 4:
             {
                 if (is_data_media())
-                    ui_print("Internal storage may not be paritioned.\n");
+                    ui_print("Paritioning disabled with internal storage.\n");
                 else if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
@@ -1281,8 +1281,8 @@ void handle_failure(int ret)
     if (0 != ensure_path_mounted("/sdcard"))
         return;
     mkdir("/sdcard/clockworkmod", S_IRWXU);
-    __system("cp     mp/recovery.log /sdcard/clockworkmod/recovery.log");
-    ui_print("    mp/recovery.log was copied to /sdcard/clockworkmod/recovery.log.\n");
+    __system("cp /tmp/recovery.log /sdcard/clockworkmod/recovery.log");
+    ui_print("/tmp/recovery.log was copied to /sdcard/clockworkmod/recovery.log.\n");
 }
 
 int is_path_mounted(const char* path) {
