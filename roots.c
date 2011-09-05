@@ -186,15 +186,15 @@ void unset_data_media() {
 
 int ensure_path_mounted(const char* path) {
     Volume* v = volume_for_path(path);
-	if (strstr(path, "/sdcard") == path && is_data_media())
-	{
-		LOGW("using /data/media.\n");
-		int ret;
-		if (0 != (ret = ensure_path_mounted("/data")))
-			return ret;
-		setup_data_media();
-		return 0;
-	}
+    if (strstr(path, "/sdcard") == path && is_data_media())
+    {
+        LOGW("using /data/media.\n");
+        int ret;
+        if (0 != (ret = ensure_path_mounted("/data")))
+            return ret;
+        setup_data_media();
+        return 0;
+    }
     if (v == NULL) {
         LOGE("unknown volume for path [%s]\n", path);
         return -1;

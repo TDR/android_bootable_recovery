@@ -62,13 +62,13 @@ void toggle_script_asserts()
 
 void toggle_ignore_data_media()
 {
-	if (!force_use_data_media)
-	{
-		ignore_data_media = !ignore_data_media;
-		ui_print("Backup and Restore /data/media: %s\n", !ignore_data_media ? "Enabled" : "Disabled");
-	}
-	else
-		ui_print("/data/media Backup and Restore disabled with internal storage.\n");
+    if (!force_use_data_media)
+    {
+        ignore_data_media = !ignore_data_media;
+        ui_print("Backup and Restore /data/media: %s\n", !ignore_data_media ? "Enabled" : "Disabled");
+    }
+    else
+        ui_print("/data/media Backup and Restore disabled with internal storage.\n");
 }
 
 void toggle_force_use_data_media()
@@ -78,7 +78,7 @@ void toggle_force_use_data_media()
         if (ensure_path_unmounted("/sdcard") == 0)
         {
             force_use_data_media = 1;
-			ignore_data_media = 1; // Don't backup/restore /data/media when using /data/media
+            ignore_data_media = 1; // Don't backup/restore /data/media when using /data/media
             setup_data_media();
         }
         else
@@ -661,7 +661,7 @@ void show_partition_menu()
         }
         else if (chosen_item == (mountable_volumes+formatable_volumes+2))
         {
-			if (force_use_data_media) ui_print("USB Mass Storage mode disabled with internal storage.\n");
+            if (force_use_data_media) ui_print("USB Mass Storage mode disabled with internal storage.\n");
             else show_mount_usb_storage_menu();
         }
         else if (chosen_item < mountable_volumes)
