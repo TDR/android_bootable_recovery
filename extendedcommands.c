@@ -811,8 +811,8 @@ void show_nandroid_advanced_backup_menu(){
                     NULL
     };
 
-    int backup_list [5];
-    char* list[6];
+    int backup_list[5];
+    char* list[7];
 
     backup_list[0] = 1;
     backup_list[1] = 1;
@@ -820,7 +820,6 @@ void show_nandroid_advanced_backup_menu(){
     backup_list[3] = 1;
     backup_list[4] = 1;
 
-  
 
     list[5] = "Perform Backup";
     list[6] = NULL;
@@ -865,11 +864,8 @@ void show_nandroid_advanced_backup_menu(){
                 break;
             case 4: backup_list[4] = !backup_list[4];
                 break;
-            case 5: backup_list[5] = !backup_list[5];
+            default: cont = 0;
                 break;
-
-            case 6: cont = 0;
-                    break;
         }
     }
 
