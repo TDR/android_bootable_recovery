@@ -41,11 +41,8 @@
 #include "edify/expr.h"
 #include <libgen.h>
 
-
 int signature_check_enabled = 1;
 int script_assert_enabled = 1;
-int ignore_data_media = 1;
-int force_use_data_media = 0;
 static const char *SDCARD_UPDATE_FILE = "/sdcard/update.zip";
 
 void toggle_signature_check()
@@ -58,41 +55,6 @@ void toggle_script_asserts()
 {
     script_assert_enabled = !script_assert_enabled;
     ui_print("Script Asserts: %s\n", script_assert_enabled ? "Enabled" : "Disabled");
-}
-
-void toggle_ignore_data_media()
-{
-    if (!force_use_data_media)
-    {
-        ignore_data_media = !ignore_data_media;
-        ui_print("Backup and Restore /data/media: %s\n", !ignore_data_media ? "Enabled" : "Disabled");
-    }
-    else
-        ui_print("/data/media Backup and Restore disabled with internal storage.\n");
-}
-
-void toggle_force_use_data_media()
-{
-    if (!force_use_data_media)
-    {
-        if (ensure_path_unmounted("/sdcard") == 0)
-        {
-            force_use_data_media = 1;
-            ignore_data_media = 1; // Don't backup/restore /data/media when using /data/media
-            setup_data_media();
-        }
-        else
-        {
-            ui_print("Error unmounting /sdcard!\n");
-            return;
-        }
-    }
-    else
-    {
-        force_use_data_media = 0;
-        unset_data_media();
-    }
-    ui_print("Use internal storage as /sdcard: %s\n", force_use_data_media ? "Enabled" : "Disabled");
 }
 
 int install_zip(const char* packagefilepath)
@@ -635,34 +597,15 @@ void show_partition_menu()
             options[mountable_volumes+i] = e->txt;
         }
 
-        options[mountable_volumes+formatable_volumes] = "Mount USB drive on /sdcard";
-        options[mountable_volumes+formatable_volumes + 1] = "Toggle internal storage as /sdcard";
-        options[mountable_volumes+formatable_volumes + 2] = "Mount USB storage (USB Mass Storage mode)";
-        options[mountable_volumes+formatable_volumes + 3] = NULL;
+        options[mountable_volumes+formatable_volumes] = "Mount USB storage (USB Mass Storage mode)";
+        options[mountable_volumes+formatable_volumes + 1] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);
         if (chosen_item == GO_BACK)
             break;
         if (chosen_item == (mountable_volumes+formatable_volumes))
         {
-            if (0 == ensure_path_unmounted("/sdcard"))
-            {
-                if (0 == try_mount("/dev/block/sda1", "/sdcard", "vfat", NULL))
-                    ui_print("Mounted /dev/block/sda1 on /sdcard.\n");
-                else
-                    ui_print("Error mounting /dev/block/sda1 on /sdcard!\n");
-            }
-            else
-                ui_print("Error unmounting /sdcard!\n");
-        }
-        if (chosen_item == (mountable_volumes+formatable_volumes+1))
-        {
-            toggle_force_use_data_media();
-        }
-        else if (chosen_item == (mountable_volumes+formatable_volumes+2))
-        {
-            if (force_use_data_media) ui_print("USB Mass Storage mode disabled with internal storage.\n");
-            else show_mount_usb_storage_menu();
+            show_mount_usb_storage_menu();
         }
         else if (chosen_item < mountable_volumes)
         {
@@ -957,7 +900,6 @@ void show_nandroid_menu()
                             "Restore",
                             "Advanced Backup",
                             "Advanced Restore",
-                            "Toggle backup and restore of internal storage (/data/media)",
                             NULL
     };
 
@@ -966,31 +908,27 @@ void show_nandroid_menu()
     {
         case 0:
             {
-                if (!is_data_media() || confirm_simple("It is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
+                char backup_path[PATH_MAX];
+                time_t t = time(NULL);
+                struct tm *tmp = localtime(&t);
+                if (tmp == NULL)
                 {
-                    char backup_path[PATH_MAX];
-                    time_t t = time(NULL);
-                    struct tm *tmp = localtime(&t);
-                    if (tmp == NULL)
-                    {
-                        struct timeval tp;
-                        gettimeofday(&tp, NULL);
-                        sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
-                    }
-                    else
-                    {
-                        strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
-                    }
-                    nandroid_backup(backup_path);
+                    struct timeval tp;
+                    gettimeofday(&tp, NULL);
+                    sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
                 }
+                else
+                {
+                    strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
+                }
+                nandroid_backup(backup_path);
             }
             break;
         case 1:
             show_nandroid_restore_menu();
             break;
         case 2:
-            if (!is_data_media() || confirm_simple("It is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
-                show_nandroid_advanced_backup_menu();
+            show_nandroid_advanced_backup_menu();
             break;
         case 3:
             show_nandroid_advanced_restore_menu();
@@ -1057,9 +995,7 @@ void show_advanced_menu()
             }
             case 4:
             {
-                if (is_data_media())
-                    ui_print("Paritioning disabled with internal storage.\n");
-                else if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
+                if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
                                                  "128M",
