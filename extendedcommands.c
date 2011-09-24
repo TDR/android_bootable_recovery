@@ -329,7 +329,7 @@ void show_nandroid_restore_menu()
     if (file == NULL)
         return;
 
-    if (ignore_data_media ? confirm_selection("Are you sure you want to restore?", "Yes - Restore") : confirm_selection("Restore will also affect internal storage. Continue?", "Yes - Restore"))
+    if (confirm_selection("Are you sure you want to restore?", "Yes - Restore"))
         nandroid_restore(file, 1, 1, 1, 1, 1, 0);
 }
 
@@ -932,9 +932,6 @@ void show_nandroid_menu()
             break;
         case 3:
             show_nandroid_advanced_restore_menu();
-            break;
-        case 4:
-            toggle_ignore_data_media();
             break;
     }
 }

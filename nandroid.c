@@ -108,7 +108,7 @@ static int mkyaffs2image_wrapper(const char* backup_path, const char* backup_fil
 static int tar_compress_wrapper(const char* backup_path, const char* backup_file_image, int callback) {
     LOGI("Using tar_compress on %s\n", backup_path);
     char tmp[PATH_MAX];
-    if (strcmp(backup_path, "/data") == 0 && (volume_for_path("/sdcard") == NULL || ignore_data_media))
+    if (strcmp(backup_path, "/data") == 0 && volume_for_path("/sdcard") == NULL)
     {
         sprintf(tmp, "cd $(dirname %s) ; tar cvf %s --exclude 'media' $(basename %s) ; exit $?", backup_path, backup_file_image, backup_path);
     }
@@ -236,7 +236,7 @@ int nandroid_backup(const char* backup_path)
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
     ui_print("(SD card free space: %lluMB)\n", sdcard_free_mb);
-    if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000))
+    if (sdcard_free_mb < 1000)
         ui_print("You may not have enough space to complete the backup.\n");
 
     char tmp[PATH_MAX];
@@ -332,7 +332,7 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
     ui_print("(SD card free space: %lluMB)\n", sdcard_free_mb);
-    if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000))
+    if (sdcard_free_mb < 1000)
         ui_print("You may not have enough space to complete the backup.\n");
 
     char tmp[PATH_MAX];

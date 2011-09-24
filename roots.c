@@ -33,7 +33,6 @@
 #include "extendedcommands.h"
 
 int num_volumes;
-extern int force_use_data_media;
 Volume* device_volumes;
 
 int get_num_volumes() {
@@ -135,8 +134,6 @@ void load_volume_table() {
 }
 
 Volume* volume_for_path(const char* path) {
-    if (strcmp(path, "/sdcard") == 0 && force_use_data_media)
-        return NULL;
     int i;
     for (i = 0; i < num_volumes; ++i) {
         Volume* v = device_volumes+i;
@@ -170,7 +167,7 @@ int try_mount(const char* device, const char* mount_point, const char* fs_type, 
 
 int is_data_media() {
     Volume *data = volume_for_path("/data");
-    return data != NULL && ((strcmp(data->fs_type, "auto") == 0 && volume_for_path("/sdcard") == NULL) || (strcmp(data->fs_type, "ext4") == 0 && force_use_data_media));
+    return data != NULL && (strcmp(data->fs_type, "auto") == 0 && volume_for_path("/sdcard") == NULL);
 }
 
 void setup_data_media() {
@@ -292,47 +289,6 @@ int ensure_path_unmounted(const char* path) {
     return unmount_mounted_volume(mv);
 }
 
-int clear_data (const char *dirname, int not_at_root) {
-    if (0 == strcmp(dirname, "/data/media")){
-        return 0;
-    }
-
-    int ret;
-    DIR *dir;
-    struct dirent *entry;
-    char path[PATH_MAX];
-
-    if (path == NULL) {
-        ui_print ("Out of memory!");
-        return 1;
-    }
-
-    dir = opendir (dirname);
-    if (dir == NULL)
-        return 0;
-
-    while ((entry = readdir(dir)) != NULL) {
-        if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")){
-            snprintf(path, (size_t) PATH_MAX, "%s/%s", dirname, entry->d_name);
-            if (entry->d_type == DT_DIR) {
-                if (0 != (ret = clear_data (path, 1))) {
-                    return ret;
-                }
-            }
-
-            if (strcmp(path, "/data/media") && -1 == (ret = remove (path))) {
-                ui_reset_text_col();
-                ui_print("Error removing %s.", path);
-                return ret;
-            }
-
-        }
-    }
-
-    closedir(dir);
-    return 0;
-}
-
 int format_volume(const char* volume) {
     struct stat file_info;
     Volume* v = volume_for_path(volume);
@@ -349,14 +305,6 @@ int format_volume(const char* volume) {
             return -1;
         LOGE("unknown volume \"%s\"\n", volume);
         return -1;
-    }
-    if (ignore_data_media && strcmp(v->mount_point, "/data") == 0) {
-        int ret;
-        if (0 != (ret = ensure_path_mounted(v->mount_point))) {
-            return ret;
-        }
-        ui_print("Skipping /data/media...\n");
-        return clear_data(v->mount_point, 0);
     }
     if (strcmp(v->fs_type, "ramdisk") == 0) {
         // you can't format the ramdisk.
