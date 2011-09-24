@@ -992,7 +992,7 @@ void show_advanced_menu()
             }
             case 4:
             {
-                if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
+                if (confirm_selection("The SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
                                                  "128M",
@@ -1048,7 +1048,7 @@ void show_advanced_menu()
             }
             case 6:
             {
-                if (confirm_selection("All data on the internal SD card will be wiped. Continue?", "Yes - Partition"))
+                if (confirm_selection("The internal SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
                                                  "128M",
