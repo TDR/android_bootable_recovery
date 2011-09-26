@@ -127,8 +127,8 @@ char* INSTALL_MENU_ITEMS[] = {  "Choose zip file from SD card",
                                 "Toggle script asserts",
                                 NULL };
 #define ITEM_CHOOSE_ZIP       0
-#define ITEM_SIG_CHECK        1
-#define ITEM_CHOOSE_ZIP_INT   2
+#define ITEM_CHOOSE_ZIP_INT   1
+#define ITEM_SIG_CHECK        2
 #define ITEM_ASSERTS          3
 
 void show_install_update_menu()
