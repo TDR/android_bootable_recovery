@@ -362,7 +362,7 @@ int format_volume(const char* volume) {
         if (0 != (ret = ensure_path_mounted(v->mount_point))) {
             return ret;
         }
-        ui_print("Skipping /data/media...\n");
+        ui_print("(Skipping /data/media)\n");
         return clear_data(v->mount_point, 0);
     }
     if (strcmp(v->fs_type, "ramdisk") == 0) {
