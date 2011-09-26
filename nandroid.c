@@ -79,10 +79,11 @@ static void yaffs_callback(const char* filename)
     yaffs_files_count++;
     if (yaffs_files_total != 0)
         ui_set_progress((float)yaffs_files_count / (float)yaffs_files_total);
+
     ui_reset_text_col();
 }
 
-static void compute_directory_stats(const char* directory)
+static void compute_directory_stats(const char* directory, int reset_progress)
 {
     char tmp[PATH_MAX];
     sprintf(tmp, "find %s | wc -l > /tmp/dircount", directory);
@@ -93,8 +94,11 @@ static void compute_directory_stats(const char* directory)
     fclose(f);
     yaffs_files_count = 0;
     yaffs_files_total = atoi(count_text);
-    //ui_reset_progress();
-    //ui_show_progress(1, 0);
+    if (reset_progress)
+    {
+        ui_reset_progress();
+        ui_show_progress(1, 0);
+    }
 }
 
 typedef void (*file_event_callback)(const char* filename);
@@ -175,7 +179,7 @@ int nandroid_backup_partition_extended(const char* backup_path, const char* moun
         ui_print("Error mounting %s!\n", mount_point);
         return ret;
     }
-    compute_directory_stats(mount_point);
+    compute_directory_stats(mount_point, callback);
     char tmp[PATH_MAX];
     scan_mounted_volumes();
     Volume *v = volume_for_path(mount_point);
