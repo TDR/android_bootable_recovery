@@ -72,27 +72,34 @@ void toggle_ignore_data_media()
         ui_print("/data/media Backup and Restore disabled with internal storage.\n");
 }
 
+void use_data_media_as_sdcard()
+{
+	if (ensure_path_unmounted("/sdcard") == 0)
+	{
+		force_use_data_media = 1;
+		ignore_data_media = 1; // Don't backup/restore /data/media when using /data/media
+		setup_data_media();
+	}
+	else
+	{
+		ui_print("Error unmounting /sdcard!\n");
+		return;
+	}
+}
+
+void revert_to_sdcard()
+{
+    force_use_data_media = 0;
+    unset_data_media();
+}
+
 void toggle_force_use_data_media()
 {
     if (!force_use_data_media)
-    {
-        if (ensure_path_unmounted("/sdcard") == 0)
-        {
-            force_use_data_media = 1;
-            ignore_data_media = 1; // Don't backup/restore /data/media when using /data/media
-            setup_data_media();
-        }
-        else
-        {
-            ui_print("Error unmounting /sdcard!\n");
-            return;
-        }
-    }
+        use_data_media_as_sdcard();
     else
-    {
-        force_use_data_media = 0;
-        unset_data_media();
-    }
+        revert_to_sdcard();
+
     ui_print("Use internal storage as /sdcard: %s\n", force_use_data_media ? "Enabled" : "Disabled");
 }
 
@@ -115,7 +122,7 @@ int install_zip(const char* packagefilepath)
 }
 
 char* INSTALL_MENU_ITEMS[] = {  "Choose zip file from SD card",
-                                "Choose zip file from internal SD card",
+                                "Choose zip file from internal storage",
                                 "Toggle signature verification",
                                 "Toggle script asserts",
                                 NULL };
@@ -131,9 +138,6 @@ void show_install_update_menu()
                                 NULL
     };
     
-    if (volume_for_path("/emmc") == NULL)
-        INSTALL_MENU_ITEMS[ITEM_CHOOSE_ZIP_INT] = NULL;
-    
     for (;;)
     {
         int chosen_item = get_menu_selection(headers, INSTALL_MENU_ITEMS, 0, 0);
@@ -146,10 +150,13 @@ void show_install_update_menu()
                 toggle_signature_check();
                 break;
             case ITEM_CHOOSE_ZIP:
+			    if (force_use_data_media) revert_to_sdcard();
                 show_choose_zip_menu("/sdcard/");
                 break;
             case ITEM_CHOOSE_ZIP_INT:
-                show_choose_zip_menu("/emmc/");
+			    if (!force_use_data_media) use_data_media_as_sdcard();
+                show_choose_zip_menu("/sdcard/");
+				revert_to_sdcard();
                 break;
             default:
                 return;
