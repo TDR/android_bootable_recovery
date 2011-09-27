@@ -137,7 +137,7 @@ void show_install_update_menu()
                                 "",
                                 NULL
     };
-    
+
     for (;;)
     {
         int chosen_item = get_menu_selection(headers, INSTALL_MENU_ITEMS, 0, 0);
@@ -150,13 +150,13 @@ void show_install_update_menu()
                 toggle_signature_check();
                 break;
             case ITEM_CHOOSE_ZIP:
-			    if (force_use_data_media) revert_to_sdcard();
+                if (force_use_data_media) revert_to_sdcard();
                 show_choose_zip_menu("/sdcard/");
                 break;
             case ITEM_CHOOSE_ZIP_INT:
-			    if (!force_use_data_media) use_data_media_as_sdcard();
+                if (!force_use_data_media) use_data_media_as_sdcard();
                 show_choose_zip_menu("/sdcard/");
-				revert_to_sdcard();
+                revert_to_sdcard();
                 break;
             default:
                 return;
@@ -485,8 +485,10 @@ int format_device(const char *device, const char *path, const char *fs_type) {
     Volume* v = volume_for_path(path);
     if (v == NULL) {
         // no /sdcard? let's assume /data/media
-        if (strstr(path, "/sdcard") == path && is_data_media()) {
-            return format_unknown_device(NULL, path, NULL);
+       if (strstr(volume, "/sdcard") == volume && is_data_media()) {
+            // don't try to format internal storage
+            LOGE("can't format_volume \"%s\"", volume);
+            return -1;
         }
         // silent failure for sd-ext
         if (strcmp(path, "/sd-ext") == 0)
@@ -494,6 +496,16 @@ int format_device(const char *device, const char *path, const char *fs_type) {
         LOGE("unknown volume \"%s\"\n", path);
         return -1;
     }
+
+    if (ignore_data_media && strcmp(v->mount_point, "/data") == 0) {
+        int ret;
+        if (0 != (ret = ensure_path_mounted(v->mount_point))) {
+            return ret;
+        }
+        ui_print("(Skipping removal of /data/media)\n");
+        return clear_data(v->mount_point, 0);
+    }
+
     if (strcmp(fs_type, "ramdisk") == 0) {
         // you can't format the ramdisk.
         LOGE("can't format_volume \"%s\"", path);

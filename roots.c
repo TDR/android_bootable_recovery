@@ -299,7 +299,7 @@ int ensure_path_unmounted(const char* path) {
     return unmount_mounted_volume(mv);
 }
 
-int clear_data (const char *dirname, int not_at_root) {
+int clear_data(const char *dirname, int not_at_root) {
     if (0 == strcmp(dirname, "/data/media")){
         return 0;
     }
@@ -310,7 +310,7 @@ int clear_data (const char *dirname, int not_at_root) {
     char path[PATH_MAX];
 
     if (path == NULL) {
-        ui_print ("Out of memory!");
+        ui_print("Out of memory!");
         return 1;
     }
 
@@ -329,7 +329,7 @@ int clear_data (const char *dirname, int not_at_root) {
 
             if (strcmp(path, "/data/media") && -1 == (ret = remove (path))) {
                 ui_reset_text_col();
-                ui_print("Error removing %s.", path);
+                ui_print("Error removing %s!", path);
                 return ret;
             }
 
@@ -357,24 +357,23 @@ int format_volume(const char* volume) {
         LOGE("unknown volume \"%s\"\n", volume);
         return -1;
     }
+
     if (ignore_data_media && strcmp(v->mount_point, "/data") == 0) {
         int ret;
         if (0 != (ret = ensure_path_mounted(v->mount_point))) {
             return ret;
         }
-        ui_print("(Skipping /data/media)\n");
+        ui_print("(Skipping removal of /data/media)\n");
         return clear_data(v->mount_point, 0);
     }
+
     if (strcmp(v->fs_type, "ramdisk") == 0) {
         // you can't format the ramdisk.
         LOGE("can't format_volume \"%s\"", volume);
         return -1;
     }
+
     if (strcmp(v->mount_point, volume) != 0) {
-#if 0
-        LOGE("can't give path \"%s\" to format_volume\n", volume);
-        return -1;
-#endif
         return format_unknown_device(v->device, volume, NULL);
     }
 

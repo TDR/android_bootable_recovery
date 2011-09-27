@@ -34,6 +34,9 @@ int ensure_path_mounted_at_mount_point(const char* path, const char* mount_point
 // success (volume is unmounted);
 int ensure_path_unmounted(const char* path);
 
+// Special case when handling /data/media
+int clear_data(const char *dirname, int not_at_root);
+
 // Reformat the given volume (must be the mount point only, eg
 // "/cache"), no paths permitted.  Attempts to unmount the volume if
 // it is mounted.
