@@ -485,9 +485,9 @@ int format_device(const char *device, const char *path, const char *fs_type) {
     Volume* v = volume_for_path(path);
     if (v == NULL) {
         // no /sdcard? let's assume /data/media
-       if (strstr(volume, "/sdcard") == volume && is_data_media()) {
+       if (strstr(path, "/sdcard") == path && is_data_media()) {
             // don't try to format internal storage
-            LOGE("can't format_volume \"%s\"", volume);
+            LOGE("can't format_device \"%s\"", path);
             return -1;
         }
         // silent failure for sd-ext
