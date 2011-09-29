@@ -3,46 +3,33 @@ extern int script_assert_enabled;
 extern int ignore_data_media;
 extern int force_use_data_media;
 
-void
-toggle_signature_check();
+void toggle_signature_check();
 
-void
-toggle_script_asserts();
+void toggle_script_asserts();
 
-void
-show_choose_zip_menu();
+void show_choose_zip_menu();
 
-int
-do_nandroid_backup(const char* backup_name);
+int do_nandroid_backup(const char* backup_name);
 
-int
-do_nandroid_restore();
+int do_nandroid_restore();
 
-void
-show_nandroid_restore_menu();
+void show_nandroid_restore_menu();
 
-void
-show_nandroid_menu();
+void show_nandroid_menu();
 
-void
-show_partition_menu();
+void show_partition_menu();
 
-void
-show_choose_zip_menu();
+void show_choose_zip_menu();
 
-int
-install_zip(const char* packagefilepath);
+int install_zip(const char* packagefilepath);
 
-int
-__system(const char *command);
+int __system(const char *command);
 
-void
-show_advanced_menu();
+void show_advanced_menu();
 
 int format_unknown_device(const char *device, const char* path, const char *fs_type);
 
-void
-wipe_battery_stats();
+void wipe_battery_stats();
 
 void create_fstab();
 
@@ -57,5 +44,7 @@ int extendedcommand_file_exists();
 void show_install_update_menu();
 
 int confirm_selection(const char* title, const char* confirm);
+
+int confirm_simple(const char* title, const char* confirm);
 
 int run_and_remove_extendedcommand();

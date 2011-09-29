@@ -237,20 +237,23 @@ int nandroid_backup(const char* backup_path)
     ui_show_progress(1, 0);
 
     if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Error mounting /sdcard\n");
+        return print_and_error("Error mounting /sdcard!\n");
 
     int ret;
     struct statfs s;
     if (0 != (ret = statfs("/sdcard", &s)))
-        return print_and_error("Failed to stat /sdcard\n");
+        return print_and_error("Failed to stat /sdcard!\n");
     uint64_t bavail = s.f_bavail;
     uint64_t bsize = s.f_bsize;
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
-    ui_print("(SD card free space: %lluMB)\n", sdcard_free_mb);
-    if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000))
-        ui_print("You may not have enough space to complete the backup.\n");
-
+    ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
+    if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000)) {
+        static char free_space_msg[40];
+        sprintf(free_space_msg, "There is only %lluMB free. Continue?\n", sdcard_free_mb);
+        if (!confirm_simple(free_space_msg, "Yes - Continue backup"));
+            return print_and_error("Cancelled backup!\n");
+    }
     char tmp[PATH_MAX];
     sprintf(tmp, "mkdir -p %s", backup_path);
     __system(tmp);
@@ -333,19 +336,23 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     ui_show_indeterminate_progress();
 
     if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Error mounting /sdcard\n");
+        return print_and_error("Error mounting /sdcard!\n");
 
     int ret;
     struct statfs s;
     if (0 != (ret = statfs("/sdcard", &s)))
-        return print_and_error("Failed to stat /sdcard\n");
+        return print_and_error("Failed to stat /sdcard!\n");
     uint64_t bavail = s.f_bavail;
     uint64_t bsize = s.f_bsize;
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
-    ui_print("(SD card free space: %lluMB)\n", sdcard_free_mb);
-    if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000))
-        ui_print("You may not have enough space to complete the backup.\n");
+    ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
+    if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000)) {
+        static char free_space_msg[40];
+        sprintf(free_space_msg, "There is only %lluMB free. Continue?\n", sdcard_free_mb);
+        if (!confirm_simple(free_space_msg, "Yes - Continue backup"));
+            return print_and_error("Cancelled backup!\n");
+    }
 
     char tmp[PATH_MAX];
     sprintf(tmp, "mkdir -p %s", backup_path);
@@ -616,7 +623,7 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
     yaffs_files_total = 0;
 
     if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Error mounting /sdcard\n");
+        return print_and_error("Error mounting /sdcard!\n");
 
     char tmp[PATH_MAX];
 
