@@ -150,7 +150,11 @@ void show_install_update_menu()
                 toggle_signature_check();
                 break;
             case ITEM_CHOOSE_ZIP:
-                if (force_use_data_media) revert_to_sdcard();
+                if (force_use_data_media)
+                {
+                    revert_to_sdcard();
+                    ui_print("Use internal storage as /sdcard: Disabled");
+                }
                 show_choose_zip_menu("/sdcard/");
                 break;
             case ITEM_CHOOSE_ZIP_INT:
