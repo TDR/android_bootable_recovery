@@ -596,7 +596,7 @@ int nandroid_restore_partition(const char* backup_path, const char* root) {
             strcmp(vol->fs_type, "emmc") == 0) {
         int ret;
         const char* name = basename(root);
-        ui_print("Erasing %s before restore...\n", name);
+        ui_print("Erasing %s partition before restore...\n", name);
         if (0 != (ret = format_volume(root))) {
             ui_print("Error erasing %s image!", name);
             return ret;
@@ -604,7 +604,7 @@ int nandroid_restore_partition(const char* backup_path, const char* root) {
         sprintf(tmp, "%s%s.img", backup_path, root);
         ui_print("Restoring %s image...\n", name);
         if (0 != (ret = restore_raw_partition(vol->fs_type, vol->device, tmp))) {
-            ui_print("Error flashing %s image!", name);
+            ui_print("Error restoring %s image!", name);
             return ret;
         }
         return 0;

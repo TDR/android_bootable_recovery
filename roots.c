@@ -363,7 +363,7 @@ int format_volume(const char* volume) {
         if (0 != (ret = ensure_path_mounted(v->mount_point))) {
             return ret;
         }
-        ui_print("(Skipping removal of /data/media)\n");
+        ui_print("Skipping erase of /data/media.\n");
         return clear_data(v->mount_point, 0);
     }
 

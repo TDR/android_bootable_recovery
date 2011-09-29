@@ -502,7 +502,7 @@ int format_device(const char *device, const char *path, const char *fs_type) {
         if (0 != (ret = ensure_path_mounted(v->mount_point))) {
             return ret;
         }
-        ui_print("(Skipping removal of /data/media)\n");
+        ui_print("Skipping erase of /data/media.\n");
         return clear_data(v->mount_point, 0);
     }
 
