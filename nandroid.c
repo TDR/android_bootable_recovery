@@ -249,10 +249,8 @@ int nandroid_backup(const char* backup_path)
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
     ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
     if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000)) {
-        static char free_space_msg[40];
-        sprintf(free_space_msg, "There is only %lluMB free. Continue?\n", sdcard_free_mb);
-        if (!confirm_simple(free_space_msg, "Yes - Continue backup"));
-            return print_and_error("Cancelled backup!\n");
+        if (!confirm_simple("You may not have enough free space left. Continue?", "Yes - Continue backup"));
+            return print_and_error("Backup aborted.\n");
     }
     char tmp[PATH_MAX];
     sprintf(tmp, "mkdir -p %s", backup_path);
@@ -348,10 +346,8 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
     ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
     if (sdcard_free_mb < (ignore_data_media ? 1500 : 4000)) {
-        static char free_space_msg[40];
-        sprintf(free_space_msg, "There is only %lluMB free. Continue?\n", sdcard_free_mb);
-        if (!confirm_simple(free_space_msg, "Yes - Continue backup"));
-            return print_and_error("Cancelled backup!\n");
+        if (!confirm_simple("You may not have enough free space left. Continue?", "Yes - Continue backup"));
+            return print_and_error("Backup aborted.\n");
     }
 
     char tmp[PATH_MAX];
