@@ -994,7 +994,7 @@ void show_nandroid_menu()
                 repeat = 1;
                 break;
         }
-    } while (repeat)
+    } while (repeat);
 }
 
 void show_advanced_menu()
