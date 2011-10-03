@@ -153,7 +153,7 @@ void show_install_update_menu()
                 if (force_use_data_media)
                 {
                     revert_to_sdcard();
-                    ui_print("Use internal storage as /sdcard: Disabled");
+                    ui_print("Use internal storage as /sdcard: Disabled\n");
                 }
                 show_choose_zip_menu("/sdcard/");
                 break;
