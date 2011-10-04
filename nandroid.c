@@ -467,7 +467,7 @@ static nandroid_restore_handler get_restore_handler(const char *backup_path) {
         return NULL;
     }
 
-    if (strcmp(backup_path, "/data") == 0 && is_data_media() ) {
+    if (strcmp(backup_path, "/data") == 0 && is_data_media()) {
         return tar_extract_wrapper;
     }
 

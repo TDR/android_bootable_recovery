@@ -237,7 +237,7 @@ int ensure_path_mounted_at_mount_point(const char* path, const char* mount_point
                  v->device, mount_point);
             return -1;
         }
-        return mtd_mount_partition(partition, v->mount_point, v->fs_type, 0);
+        return mtd_mount_partition(partition, mount_point, v->fs_type, 0);
     } else if (strcmp(v->fs_type, "ext4") == 0 ||
                strcmp(v->fs_type, "ext3") == 0 ||
                strcmp(v->fs_type, "rfs") == 0 ||
@@ -258,7 +258,7 @@ int ensure_path_mounted_at_mount_point(const char* path, const char* mount_point
         return __system(mount_cmd);
     }
 
-    LOGE("unknown fs_type \"%s\" for %s\n", v->fs_type, v->mount_point);
+    LOGE("unknown fs_type \"%s\" for %s\n", v->fs_type, mount_point);
     return -1;
 }
 
