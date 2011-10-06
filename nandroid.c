@@ -79,10 +79,11 @@ static void yaffs_callback(const char* filename)
     yaffs_files_count++;
     if (yaffs_files_total != 0)
         ui_set_progress((float)yaffs_files_count / (float)yaffs_files_total);
+
     ui_reset_text_col();
 }
 
-static void compute_directory_stats(const char* directory)
+static void compute_directory_stats(const char* directory, int reset_progress)
 {
     char tmp[PATH_MAX];
     sprintf(tmp, "find %s | wc -l > /tmp/dircount", directory);
@@ -93,8 +94,11 @@ static void compute_directory_stats(const char* directory)
     fclose(f);
     yaffs_files_count = 0;
     yaffs_files_total = atoi(count_text);
-    ui_reset_progress();
-    ui_show_progress(1, 0);
+    if (reset_progress)
+    {
+        ui_reset_progress();
+        ui_show_progress(1, 0);
+    }
 }
 
 typedef void (*file_event_callback)(const char* filename);
@@ -175,7 +179,7 @@ int nandroid_backup_partition_extended(const char* backup_path, const char* moun
         ui_print("Error mounting %s!\n", mount_point);
         return ret;
     }
-    compute_directory_stats(mount_point);
+    compute_directory_stats(mount_point, callback);
     char tmp[PATH_MAX];
     scan_mounted_volumes();
     Volume *v = volume_for_path(mount_point);
@@ -233,19 +237,21 @@ int nandroid_backup(const char* backup_path)
     ui_show_progress(1, 0);
 
     if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Error mounting /sdcard\n");
+        return print_and_error("Error mounting /sdcard!\n");
 
     int ret;
     struct statfs s;
     if (0 != (ret = statfs("/sdcard", &s)))
-        return print_and_error("Failed to stat /sdcard\n");
+        return print_and_error("Failed to stat /sdcard!\n");
     uint64_t bavail = s.f_bavail;
     uint64_t bsize = s.f_bsize;
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
-    ui_print("(SD card free space: %lluMB)\n", sdcard_free_mb);
+    ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
     if (sdcard_free_mb < 1000)
-        ui_print("You may not have enough space to complete the backup.\n");
+        if (!confirm_simple("You are running low on free space. Continue?", "Yes - Continue backup"))
+            return print_and_error("Backup aborted.\n");
+    }
 
     char tmp[PATH_MAX];
     sprintf(tmp, "mkdir -p %s", backup_path);
@@ -329,19 +335,21 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     ui_show_indeterminate_progress();
 
     if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Error mounting /sdcard\n");
+        return print_and_error("Error mounting /sdcard!\n");
 
     int ret;
     struct statfs s;
     if (0 != (ret = statfs("/sdcard", &s)))
-        return print_and_error("Failed to stat /sdcard\n");
+        return print_and_error("Failed to stat /sdcard!\n");
     uint64_t bavail = s.f_bavail;
     uint64_t bsize = s.f_bsize;
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
-    ui_print("(SD card free space: %lluMB)\n", sdcard_free_mb);
+    ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
     if (sdcard_free_mb < 1000)
-        ui_print("You may not have enough space to complete the backup.\n");
+        if (!confirm_simple("You are running low on free space. Continue?", "Yes - Continue backup"))
+            return print_and_error("Backup aborted.\n");
+    }
 
     char tmp[PATH_MAX];
     sprintf(tmp, "mkdir -p %s", backup_path);
@@ -460,7 +468,7 @@ static nandroid_restore_handler get_restore_handler(const char *backup_path) {
         return NULL;
     }
 
-    if (strcmp(backup_path, "/data") == 0 && is_data_media() ) {
+    if (strcmp(backup_path, "/data") == 0 && is_data_media()) {
         return tar_extract_wrapper;
     }
 
@@ -538,12 +546,12 @@ int nandroid_restore_partition_extended(const char* backup_path, const char* mou
 
     ensure_directory(mount_point);
 
-    int callback = stat("/sdcard/clockworkmod/.hidenandroidprogress", &file_info) != 0;
+    int callback = stat("/sdcard/clockworkmod/.hidenandroidprogress", &file_info) == 0;
 
     ui_print("Restoring %s...\n", name);
     if (backup_filesystem == NULL) {
         if (0 != (ret = format_volume(mount_point))) {
-            ui_print("Error while formatting %s!\n", mount_point);
+            ui_print("Error formatting %s!\n", mount_point);
             return ret;
         }
     }
@@ -589,7 +597,7 @@ int nandroid_restore_partition(const char* backup_path, const char* root) {
             strcmp(vol->fs_type, "emmc") == 0) {
         int ret;
         const char* name = basename(root);
-        ui_print("Erasing %s before restore...\n", name);
+        ui_print("Erasing %s partition before restore...\n", name);
         if (0 != (ret = format_volume(root))) {
             ui_print("Error erasing %s image!", name);
             return ret;
@@ -597,7 +605,7 @@ int nandroid_restore_partition(const char* backup_path, const char* root) {
         sprintf(tmp, "%s%s.img", backup_path, root);
         ui_print("Restoring %s image...\n", name);
         if (0 != (ret = restore_raw_partition(vol->fs_type, vol->device, tmp))) {
-            ui_print("Error flashing %s image!", name);
+            ui_print("Error restoring %s image!", name);
             return ret;
         }
         return 0;
@@ -612,7 +620,7 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
     yaffs_files_total = 0;
 
     if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Error mounting /sdcard\n");
+        return print_and_error("Error mounting /sdcard!\n");
 
     char tmp[PATH_MAX];
 

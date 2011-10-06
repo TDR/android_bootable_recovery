@@ -90,7 +90,7 @@ void show_install_update_menu()
                                 "",
                                 NULL
     };
-    
+
     for (;;)
     {
         int chosen_item = get_menu_selection(headers, INSTALL_MENU_ITEMS, 0, 0);
@@ -103,6 +103,11 @@ void show_install_update_menu()
                 toggle_signature_check();
                 break;
             case ITEM_CHOOSE_ZIP:
+                if (force_use_data_media)
+                {
+                    revert_to_sdcard();
+                    ui_print("Use internal storage as /sdcard: Disabled\n");
+                }
                 show_choose_zip_menu("/sdcard/");
                 break;
             default:
@@ -432,8 +437,10 @@ int format_device(const char *device, const char *path, const char *fs_type) {
     Volume* v = volume_for_path(path);
     if (v == NULL) {
         // no /sdcard? let's assume /data/media
-        if (strstr(path, "/sdcard") == path && is_data_media()) {
-            return format_unknown_device(NULL, path, NULL);
+       if (strstr(path, "/sdcard") == path && is_data_media()) {
+            // don't try to format internal storage
+            LOGE("can't format_device \"%s\"", path);
+            return -1;
         }
         // silent failure for sd-ext
         if (strcmp(path, "/sd-ext") == 0)
@@ -441,6 +448,16 @@ int format_device(const char *device, const char *path, const char *fs_type) {
         LOGE("unknown volume \"%s\"\n", path);
         return -1;
     }
+
+    if (ignore_data_media && strcmp(v->mount_point, "/data") == 0) {
+        int ret;
+        if (0 != (ret = ensure_path_mounted(v->mount_point))) {
+            return ret;
+        }
+        ui_print("Skipping erase of /data/media.\n");
+        return clear_data(v->mount_point, 0);
+    }
+
     if (strcmp(fs_type, "ramdisk") == 0) {
         // you can't format the ramdisk.
         LOGE("can't format_volume \"%s\"", path);
@@ -712,6 +729,84 @@ void show_partition_menu()
 
 }
 
+void show_nandroid_advanced_backup_menu(){
+    static char* advancedheaders[] = { "Choose the partitions to backup.",
+                    NULL
+    };
+
+    int backup_list[5];
+    char* list[7];
+
+    backup_list[0] = 1;
+    backup_list[1] = 1;
+    backup_list[2] = 1;
+    backup_list[3] = 1;
+    backup_list[4] = 1;
+
+
+    list[5] = "Perform Backup";
+    list[6] = NULL;
+
+    int cont = 1;
+    for (;cont;) {
+        if (backup_list[0] == 1)
+            list[0] = "Backup boot: Yes";
+        else
+            list[0] = "Backup boot: No";
+    
+        if (backup_list[1] == 1)
+            list[1] = "Backup recovery: Yes";
+        else
+            list[1] = "Backup recovery: No";
+    
+        if (backup_list[2] == 1)
+            list[2] = "Backup system: Yes";
+        else
+            list[2] = "Backup system: No";
+
+        if (backup_list[3] == 1)
+            list[3] = "Backup data: Yes";
+        else
+            list[3] = "Backup data: No";   
+
+        if (backup_list[4] == 1)
+            list[4] = "Backup cache: Yes";
+        else
+            list[4] = "Backup cache: No";   
+
+        int chosen_item = get_menu_selection (advancedheaders, list, 0, 0);
+        switch (chosen_item) {
+            case GO_BACK: return;
+            case 0: backup_list[0] = !backup_list[0];
+                break;
+            case 1: backup_list[1] = !backup_list[1];
+                break;
+            case 2: backup_list[2] = !backup_list[2];
+                break;
+            case 3: backup_list[3] = !backup_list[3];
+                break;
+            case 4: backup_list[4] = !backup_list[4];
+                break;
+            default: cont = 0;
+                break;
+        }
+    }
+
+    char backup_path[PATH_MAX];
+    time_t t = time(NULL);
+    struct tm *tmp = localtime(&t);
+    if (tmp == NULL){
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
+   }else{
+    strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
+   }
+
+   return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
+     
+}
+
 void show_nandroid_advanced_restore_menu()
 {
     if (ensure_path_mounted("/sdcard") != 0) {
@@ -788,8 +883,8 @@ void show_nandroid_menu()
                             NULL
     };
 
-    int chosen_item = get_menu_selection(headers, list, 0, 0);
-    switch (chosen_item)
+    int chosen_item, repeat;
+    do
     {
         case 0:
             {
