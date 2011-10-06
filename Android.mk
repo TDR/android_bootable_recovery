@@ -19,8 +19,12 @@ LOCAL_SRC_FILES := \
     extendedcommands.c \
     nandroid.c \
     ../../system/core/toolbox/reboot.c \
+    firmware.c \
     edifyscripting.c \
     setprop.c
+
+ADDITIONAL_RECOVERY_FILES := $(shell echo $$ADDITIONAL_RECOVERY_FILES)
+LOCAL_SRC_FILES += $(ADDITIONAL_RECOVERY_FILES)
 
 LOCAL_MODULE := recovery
 
@@ -28,11 +32,12 @@ LOCAL_FORCE_STATIC_EXECUTABLE := true
 
 ifdef I_AM_KOUSH
 RECOVERY_NAME := ClockworkMod Recovery
+LOCAL_CFLAGS += -DI_AM_KOUSH
 else
 RECOVERY_NAME := CWM
 endif
 
-RECOVERY_VERSION := Rogue Recovery NS 1.0.0 ($(RECOVERY_NAME) v4.0.1.5)
+RECOVERY_VERSION := Rogue Recovery NS 1.1.0 ($(RECOVERY_NAME) v5.0.2.6)
 
 LOCAL_CFLAGS += -DRECOVERY_VERSION="$(RECOVERY_VERSION)"
 RECOVERY_API_VERSION := 2
@@ -79,7 +84,7 @@ LOCAL_C_INCLUDES += system/extras/ext4_utils
 
 include $(BUILD_EXECUTABLE)
 
-RECOVERY_LINKS := edify busybox flash_image dump_image mkyaffs2image unyaffs erase_image nandroid reboot volume
+RECOVERY_LINKS := edify busybox flash_image dump_image mkyaffs2image unyaffs erase_image nandroid reboot volume setprop
 
 # nc is provided by external/netcat
 RECOVERY_SYMLINKS := $(addprefix $(TARGET_RECOVERY_ROOT_OUT)/sbin/,$(RECOVERY_LINKS))
