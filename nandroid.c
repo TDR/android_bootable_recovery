@@ -248,7 +248,7 @@ int nandroid_backup(const char* backup_path)
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
     ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
-    if (sdcard_free_mb < 1000)
+    if (sdcard_free_mb < 1000) {
         if (!confirm_simple("You are running low on free space. Continue?", "Yes - Continue backup"))
             return print_and_error("Backup aborted.\n");
     }
@@ -346,7 +346,7 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
     ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
-    if (sdcard_free_mb < 1000)
+    if (sdcard_free_mb < 1000) {
         if (!confirm_simple("You are running low on free space. Continue?", "Yes - Continue backup"))
             return print_and_error("Backup aborted.\n");
     }

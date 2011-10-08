@@ -103,11 +103,6 @@ void show_install_update_menu()
                 toggle_signature_check();
                 break;
             case ITEM_CHOOSE_ZIP:
-                if (force_use_data_media)
-                {
-                    revert_to_sdcard();
-                    ui_print("Use internal storage as /sdcard: Disabled\n");
-                }
                 show_choose_zip_menu("/sdcard/");
                 break;
             default:
@@ -447,15 +442,6 @@ int format_device(const char *device, const char *path, const char *fs_type) {
             return -1;
         LOGE("unknown volume \"%s\"\n", path);
         return -1;
-    }
-
-    if (ignore_data_media && strcmp(v->mount_point, "/data") == 0) {
-        int ret;
-        if (0 != (ret = ensure_path_mounted(v->mount_point))) {
-            return ret;
-        }
-        ui_print("Skipping erase of /data/media.\n");
-        return clear_data(v->mount_point, 0);
     }
 
     if (strcmp(fs_type, "ramdisk") == 0) {
@@ -883,8 +869,8 @@ void show_nandroid_menu()
                             NULL
     };
 
-    int chosen_item, repeat;
-    do
+    int chosen_item = get_menu_selection(headers, list, 0, 0);
+    switch (chosen_item)
     {
         case 0:
             {
