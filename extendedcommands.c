@@ -446,15 +446,7 @@ int confirm_selection(const char* title, const char* confirm)
     if (0 == stat("/sdcard/clockworkmod/.no_confirm", &info))
         return 1;
 
-    char level[4];
-    FILE* battery = fopen("/sys/class/power_supply/battery/capacity","r");
-    fgets(level, 4, battery);
-    fclose(battery);
-
-    char* battmsg;
-    char* battmsg1 = (atoi(level) < 15 ? "Your battery level is very low (" : "(Current battery level: ");
-    char* battmsg2 = "%)";
-    asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
+    char* battmsg = battery_level_message();
 
     char* confirm_headers[]  = {  title, battmsg, "  THIS CANNOT BE UNDONE.", "", NULL };
     char* items[] = { "No",
@@ -1311,6 +1303,21 @@ int is_path_mounted(const char* path) {
         return 1;
     }
     return 0;
+}
+
+char* battery_level_message()
+{
+    char level[3];
+    FILE* battery = fopen("/sys/class/power_supply/battery/capacity","r");
+    fgets(level, 4, battery);
+    fclose(battery);
+
+    char* battmsg;
+    char* battmsg1 = (atoi(level) < 15 ? "Your battery level is very low (" : "(Current battery level: ");
+    char* battmsg2 = "%)";
+    asprintf(&battmsg, "%s%s%s", battmsg1, level, battmsg2);
+
+    return battmsg;
 }
 
 int has_datadata() {
