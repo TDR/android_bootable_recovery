@@ -437,7 +437,10 @@ static int unyaffs_wrapper(const char* backup_file_image, const char* backup_pat
 static int tar_extract_wrapper(const char* backup_file_image, const char* backup_path, int callback) {
     LOGI("Using tar_extract_wrapper on %s\n", backup_file_image);
     char tmp[PATH_MAX];
-    sprintf(tmp, "cd $(dirname %s) ; tar xvf %s ; exit $?", backup_path, backup_file_image);
+    if (strcmp(backup_path, "/data") == 0 && (volume_for_path("/sdcard") == NULL || ignore_data_media))
+        sprintf(tmp, "cd $(dirname %s) ; tar xvf %s --exclude 'media' ; exit $?", backup_path, backup_file_image);
+    else
+        sprintf(tmp, "cd $(dirname %s) ; tar xvf %s ; exit $?", backup_path, backup_file_image);
 
     char path[PATH_MAX];
     FILE *fp = __popen(tmp, "r");
