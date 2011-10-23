@@ -733,6 +733,7 @@ void show_wipe_menu()
                 break;
             }
         }
+		ui_reset_progress();
     }
 }
 
