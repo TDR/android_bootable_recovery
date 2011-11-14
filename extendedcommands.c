@@ -45,6 +45,8 @@
 
 int signature_check_enabled = 1;
 int script_assert_enabled = 1;
+int ignore_data_media = 1;
+int force_use_data_media = 0;
 static const char *SDCARD_UPDATE_FILE = "/sdcard/update.zip";
 
 void toggle_signature_check()
@@ -388,7 +390,7 @@ void show_nandroid_restore_menu(const char* path)
     if (file == NULL)
         return;
 
-    if (confirm_selection("Are you sure you want to restore?", "Yes - Restore"))
+    if (ignore_data_media ? confirm_selection("Are you sure you want to restore?", "Yes - Restore") : confirm_selection("This restore will affect internal storage! Continue?", "Yes - Restore"))
         nandroid_restore(file, 1, 1, 1, 1, 1, 0);
 }
 
@@ -735,16 +737,30 @@ void show_partition_menu()
 
             options[mountable_volumes+i] = e->txt;
         }
-
-        options[mountable_volumes+formatable_volumes] = "Mount USB storage (USB Mass Storage mode)";
-        options[mountable_volumes+formatable_volumes + 1] = NULL;
+        
+        options[mountable_volumes+formatable_volumes] = "Mount USB OTG drive at /sdcard";
+        options[mountable_volumes+formatable_volumes + 1] = "Mount as USB storage (USB Mass Storage mode)";
+        options[mountable_volumes+formatable_volumes + 2] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);
         if (chosen_item == GO_BACK)
             break;
         if (chosen_item == (mountable_volumes+formatable_volumes))
         {
-            show_mount_usb_storage_menu();
+            if (0 == ensure_path_unmounted("/sdcard"))
+            {
+                if (0 == try_mount("/dev/block/sda1", "/sdcard", "vfat", NULL))
+                    ui_print("Mounted /dev/block/sda1 on /sdcard.\n");
+                else
+                    ui_print("Error mounting /dev/block/sda1 on /sdcard!\n");
+            }
+            else
+                ui_print("Error unmounting /sdcard!\n");
+        }
+        else if (chosen_item == (mountable_volumes+formatable_volumes+1))
+        {
+            if (force_use_data_media) ui_print("USB Mass Storage mode disabled with internal storage.\n");
+            else show_mount_usb_storage_menu();
         }
         else if (chosen_item < mountable_volumes)
         {
@@ -865,7 +881,7 @@ void show_nandroid_advanced_backup_menu(const char* path)
 void show_nandroid_advanced_restore_menu(const char* path)
 {
     if (ensure_path_mounted(path) != 0) {
-        LOGE ("Can't mount sdcard\n");
+        LOGE("Can't mount %s\n", path);
         return;
     }
 
@@ -1052,7 +1068,9 @@ void show_advanced_menu()
             }
             case 4:
             {
-                if (confirm_selection("The SD card will be wiped. Continue?", "Yes - Partition"))
+                if (is_data_media())
+                    ui_print("Paritioning disabled with internal storage.\n");
+                else if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
                                                  "128M",
@@ -1108,7 +1126,7 @@ void show_advanced_menu()
             }
             case 6:
             {
-                if (confirm_selection("The internal SD card will be wiped. Continue?", "Yes - Partition"))
+                if (confirm_selection("All data on the internal SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
                                                  "128M",

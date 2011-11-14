@@ -33,6 +33,7 @@
 #include "extendedcommands.h"
 
 int num_volumes;
+extern int force_use_data_media;
 Volume* device_volumes;
 
 int get_num_volumes() {
@@ -134,6 +135,8 @@ void load_volume_table() {
 }
 
 Volume* volume_for_path(const char* path) {
+    if (strcmp(path, "/sdcard") == 0 && force_use_data_media)
+        return NULL;
     int i;
     for (i = 0; i < num_volumes; ++i) {
         Volume* v = device_volumes+i;
@@ -167,7 +170,7 @@ int try_mount(const char* device, const char* mount_point, const char* fs_type, 
 
 int is_data_media() {
     Volume *data = volume_for_path("/data");
-    return data != NULL && (strcmp(data->fs_type, "auto") == 0 && volume_for_path("/sdcard") == NULL);
+    return data != NULL && ((strcmp(data->fs_type, "auto") == 0 && volume_for_path("/sdcard") == NULL) || (strcmp(data->fs_type, "ext4") == 0 && force_use_data_media));
 }
 
 void setup_data_media() {
@@ -195,7 +198,7 @@ int ensure_path_mounted_at_mount_point(const char* path, const char* mount_point
         setup_data_media();
         return 0;
     }
-	Volume* v = volume_for_path(path);
+    Volume* v = volume_for_path(path);
     if (v == NULL) {
         LOGE("unknown volume for path [%s]\n", path);
         return -1;

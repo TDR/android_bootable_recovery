@@ -239,7 +239,7 @@ int nandroid_backup(const char* backup_path)
     if (ensure_path_mounted(backup_path) != 0)
         return print_and_error("Error mounting backup path!\n");
 
-	Volume* volume = volume_for_path(backup_path);
+    Volume* volume = volume_for_path(backup_path);
     if (NULL == volume)
         return print_and_error("Failed to find volume for backup path.\n");
     int ret;
@@ -343,7 +343,7 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     if (ensure_path_mounted(backup_path) != 0)
         return print_and_error("Error mounting backup path!\n");
 
-	Volume* volume = volume_for_path(backup_path);
+    Volume* volume = volume_for_path(backup_path);
     if (NULL == volume)
         return print_and_error("Failed to find volume for backup path.\n");
     int ret;
