@@ -41,12 +41,10 @@
 #include "edify/expr.h"
 #include <libgen.h>
 #include "mtdutils/mtdutils.h"
-
+#include "bmlutils/bmlutils.h"
 
 int signature_check_enabled = 1;
 int script_assert_enabled = 1;
-int ignore_data_media = 1;
-int force_use_data_media = 0;
 static const char *SDCARD_UPDATE_FILE = "/sdcard/update.zip";
 
 void toggle_signature_check()
@@ -74,17 +72,17 @@ void toggle_ignore_data_media()
 
 void use_data_media_as_sdcard()
 {
-	if (ensure_path_unmounted("/sdcard") == 0)
-	{
-		force_use_data_media = 1;
-		ignore_data_media = 1; // Don't backup/restore /data/media when using /data/media
-		setup_data_media();
-	}
-	else
-	{
-		ui_print("Error unmounting /sdcard!\n");
-		return;
-	}
+    if (ensure_path_unmounted("/sdcard") == 0)
+    {
+        force_use_data_media = 1;
+        ignore_data_media = 1; // Don't backup/restore /data/media when using /data/media
+        setup_data_media();
+    }
+    else
+    {
+        ui_print("Error unmounting /sdcard!\n");
+        return;
+    }
 }
 
 void revert_to_sdcard()
@@ -372,10 +370,10 @@ void show_choose_zip_menu(const char *mount_point)
         install_zip(file);
 }
 
-void show_nandroid_restore_menu()
+void show_nandroid_restore_menu(const char* path)
 {
-    if (ensure_path_mounted("/sdcard") != 0) {
-        LOGE ("Can't mount /sdcard\n");
+    if (ensure_path_mounted(path) != 0) {
+        LOGE("Can't mount %s\n", path);
         return;
     }
 
@@ -384,11 +382,13 @@ void show_nandroid_restore_menu()
                                 NULL
     };
 
-    char* file = choose_file_menu("/sdcard/clockworkmod/backup/", NULL, headers);
+    char tmp[PATH_MAX];
+    sprintf(tmp, "%s/clockworkmod/backup/", path);
+    char* file = choose_file_menu(tmp, NULL, headers);
     if (file == NULL)
         return;
 
-    if (ignore_data_media ? confirm_selection("Are you sure you want to restore?", "Yes - Restore") : confirm_selection("Restore will also affect internal storage. Continue?", "Yes - Restore"))
+    if (confirm_selection("Are you sure you want to restore?", "Yes - Restore"))
         nandroid_restore(file, 1, 1, 1, 1, 1, 0);
 }
 
@@ -508,6 +508,18 @@ int format_device(const char *device, const char *path, const char *fs_type) {
         return -1;
     }
 
+    if (strcmp(fs_type, "rfs") == 0) {
+        if (ensure_path_unmounted(path) != 0) {
+            LOGE("format_volume failed to unmount \"%s\"\n", v->mount_point);
+            return -1;
+        }
+        if (0 != format_rfs_device(device, path)) {
+            LOGE("format_volume: format_rfs_device failed on %s\n", device);
+            return -1;
+        }
+        return 0;
+    }
+ 
     if (strcmp(v->mount_point, path) != 0) {
         return format_unknown_device(v->device, path, NULL);
     }
@@ -724,34 +736,15 @@ void show_partition_menu()
             options[mountable_volumes+i] = e->txt;
         }
 
-        options[mountable_volumes+formatable_volumes] = "Mount USB drive on /sdcard";
-        options[mountable_volumes+formatable_volumes + 1] = "Toggle internal storage as /sdcard";
-        options[mountable_volumes+formatable_volumes + 2] = "Mount USB storage (USB Mass Storage mode)";
-        options[mountable_volumes+formatable_volumes + 3] = NULL;
+        options[mountable_volumes+formatable_volumes] = "Mount USB storage (USB Mass Storage mode)";
+        options[mountable_volumes+formatable_volumes + 1] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);
         if (chosen_item == GO_BACK)
             break;
         if (chosen_item == (mountable_volumes+formatable_volumes))
         {
-            if (0 == ensure_path_unmounted("/sdcard"))
-            {
-                if (0 == try_mount("/dev/block/sda1", "/sdcard", "vfat", NULL))
-                    ui_print("Mounted /dev/block/sda1 on /sdcard.\n");
-                else
-                    ui_print("Error mounting /dev/block/sda1 on /sdcard!\n");
-            }
-            else
-                ui_print("Error unmounting /sdcard!\n");
-        }
-        if (chosen_item == (mountable_volumes+formatable_volumes+1))
-        {
-            toggle_force_use_data_media();
-        }
-        else if (chosen_item == (mountable_volumes+formatable_volumes+2))
-        {
-            if (force_use_data_media) ui_print("USB Mass Storage mode disabled with internal storage.\n");
-            else show_mount_usb_storage_menu();
+            show_mount_usb_storage_menu();
         }
         else if (chosen_item < mountable_volumes)
         {
@@ -792,9 +785,10 @@ void show_partition_menu()
 
 }
 
-void show_nandroid_advanced_backup_menu(){
+void show_nandroid_advanced_backup_menu(const char* path)
+{
     static char* advancedheaders[] = { "Choose the partitions to backup.",
-                    NULL
+                                       NULL
     };
 
     int backup_list[5];
@@ -805,7 +799,6 @@ void show_nandroid_advanced_backup_menu(){
     backup_list[2] = 1;
     backup_list[3] = 1;
     backup_list[4] = 1;
-
 
     list[5] = "Perform Backup";
     list[6] = NULL;
@@ -837,7 +830,7 @@ void show_nandroid_advanced_backup_menu(){
         else
             list[4] = "Backup cache: No";   
 
-        int chosen_item = get_menu_selection (advancedheaders, list, 0, 0);
+        int chosen_item = get_menu_selection(advancedheaders, list, 0, 0);
         switch (chosen_item) {
             case GO_BACK: return;
             case 0: backup_list[0] = !backup_list[0];
@@ -858,22 +851,21 @@ void show_nandroid_advanced_backup_menu(){
     char backup_path[PATH_MAX];
     time_t t = time(NULL);
     struct tm *tmp = localtime(&t);
-    if (tmp == NULL){
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
-   }else{
-    strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
-   }
+    if (tmp == NULL) {
+        struct timeval tp;
+        gettimeofday(&tp, NULL);
+        sprintf(backup_path, "%s/clockworkmod/backup/%d", path, tp.tv_sec);
+    }
+    else
+        strftime(backup_path, sizeof(backup_path), "%s/clockworkmod/backup/%F.%H.%M.%S", path, tmp);
 
-   return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
-     
+    return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
 }
 
-void show_nandroid_advanced_restore_menu()
+void show_nandroid_advanced_restore_menu(const char* path)
 {
-    if (ensure_path_mounted("/sdcard") != 0) {
-        LOGE ("Can't mount /sdcard\n");
+    if (ensure_path_mounted(path) != 0) {
+        LOGE ("Can't mount sdcard\n");
         return;
     }
 
@@ -886,7 +878,9 @@ void show_nandroid_advanced_restore_menu()
                                 NULL
     };
 
-    char* file = choose_file_menu("/sdcard/clockworkmod/backup/", NULL, advancedheaders);
+    char tmp[PATH_MAX];
+    sprintf(tmp, "%s/clockworkmod/backup/", path);
+    char* file = choose_file_menu(tmp, NULL, advancedheaders);
     if (file == NULL)
         return;
 
@@ -902,7 +896,6 @@ void show_nandroid_advanced_restore_menu()
                             NULL
     };
     
-    char tmp[PATH_MAX];
     if (0 != get_partition_device("wimax", tmp)) {
         // disable wimax restore option
         list[5] = NULL;
@@ -944,12 +937,18 @@ void show_nandroid_menu()
                             "Advanced Backup",
                             "Advanced Restore",
                             "Toggle backup and restore of internal storage (/data/media)",
+                            "Switch to internal storage",
                             NULL
     };
 
     int chosen_item, repeat;
     do
     {
+        if (force_use_data_media)
+            list[5] = "Switch to SD card";
+        else
+            list[5] = "Switch to internal storage";
+
         repeat = 0;
         chosen_item = get_menu_selection(headers, list, 0, 0);
         switch (chosen_item)
@@ -976,17 +975,21 @@ void show_nandroid_menu()
                 }
                 break;
             case 1:
-                show_nandroid_restore_menu();
+                show_nandroid_restore_menu("/sdcard");
                 break;
             case 2:
                 if (!is_data_media() || confirm_simple("It is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
-                    show_nandroid_advanced_backup_menu();
+                    show_nandroid_advanced_backup_menu("/sdcard");
                 break;
             case 3:
-                show_nandroid_advanced_restore_menu();
+                show_nandroid_advanced_restore_menu("/sdcard");
                 break;
             case 4:
                 toggle_ignore_data_media();
+                repeat = 1;
+                break;
+            case 5:
+                toggle_force_use_data_media();
                 repeat = 1;
                 break;
         }
@@ -1049,9 +1052,7 @@ void show_advanced_menu()
             }
             case 4:
             {
-                if (is_data_media())
-                    ui_print("Paritioning disabled with internal storage.\n");
-                else if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
+                if (confirm_selection("The SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
                                                  "128M",
@@ -1107,7 +1108,7 @@ void show_advanced_menu()
             }
             case 6:
             {
-                if (confirm_selection("All data on the internal SD card will be wiped. Continue?", "Yes - Partition"))
+                if (confirm_selection("The internal SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
                                                  "128M",
@@ -1190,9 +1191,8 @@ void create_fstab()
          write_fstab_root("/boot", file);
     write_fstab_root("/cache", file);
     write_fstab_root("/data", file);
-    if (has_datadata()) {
-        write_fstab_root("/datadata", file);
-    }
+    write_fstab_root("/datadata", file);
+    write_fstab_root("/emmc", file);
     write_fstab_root("/system", file);
     write_fstab_root("/sdcard", file);
     write_fstab_root("/sd-ext", file);

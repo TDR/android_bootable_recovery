@@ -1,7 +1,5 @@
 extern int signature_check_enabled;
 extern int script_assert_enabled;
-extern int ignore_data_media;
-extern int force_use_data_media;
 
 void toggle_signature_check();
 
@@ -13,7 +11,9 @@ int do_nandroid_backup(const char* backup_name);
 
 int do_nandroid_restore();
 
-void show_nandroid_restore_menu();
+void show_nandroid_restore_menu(const char* path);
+
+void show_nandroid_advanced_restore_menu(const char* path);
 
 void show_nandroid_menu();
 

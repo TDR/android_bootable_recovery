@@ -795,22 +795,22 @@ print_property(const char *key, const char *name, void *cookie) {
 
 int
 main(int argc, char **argv) {
-    if (strstr(argv[0], "recovery") == NULL)
-    {
-        if (strstr(argv[0], "flash_image") != NULL)
-            return flash_image_main(argc, argv);
-        if (strstr(argv[0], "volume") != NULL)
-            return volume_main(argc, argv);
-        if (strstr(argv[0], "edify") != NULL)
-            return edify_main(argc, argv);
-        if (strstr(argv[0], "dump_image") != NULL)
-            return dump_image_main(argc, argv);
-        if (strstr(argv[0], "erase_image") != NULL)
-            return erase_image_main(argc, argv);
-        if (strstr(argv[0], "mkyaffs2image") != NULL)
-            return mkyaffs2image_main(argc, argv);
-        if (strstr(argv[0], "unyaffs") != NULL)
-            return unyaffs_main(argc, argv);
+	if (strcmp(basename(argv[0]), "recovery") != 0)
+	{
+	    if (strstr(argv[0], "flash_image") != NULL)
+	        return flash_image_main(argc, argv);
+	    if (strstr(argv[0], "volume") != NULL)
+	        return volume_main(argc, argv);
+	    if (strstr(argv[0], "edify") != NULL)
+	        return edify_main(argc, argv);
+	    if (strstr(argv[0], "dump_image") != NULL)
+	        return dump_image_main(argc, argv);
+	    if (strstr(argv[0], "erase_image") != NULL)
+	        return erase_image_main(argc, argv);
+	    if (strstr(argv[0], "mkyaffs2image") != NULL)
+	        return mkyaffs2image_main(argc, argv);
+	    if (strstr(argv[0], "unyaffs") != NULL)
+	        return unyaffs_main(argc, argv);
         if (strstr(argv[0], "nandroid"))
             return nandroid_main(argc, argv);
         if (strstr(argv[0], "reboot"))
