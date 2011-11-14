@@ -870,10 +870,10 @@ void show_nandroid_advanced_backup_menu(const char* path)
     if (tmp == NULL) {
         struct timeval tp;
         gettimeofday(&tp, NULL);
-        sprintf(backup_path, "%s/clockworkmod/backup/%d", path, tp.tv_sec);
+        sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
     }
     else
-        strftime(backup_path, sizeof(backup_path), "%s/clockworkmod/backup/%F.%H.%M.%S", path, tmp);
+        strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
 
     return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
 }
