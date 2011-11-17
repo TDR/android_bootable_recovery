@@ -738,17 +738,18 @@ void show_nandroid_advanced_backup_menu(const char* path)
                                        NULL
     };
 
-    int backup_list[5];
-    char* list[7];
+    int backup_list[6];
+    char* list[8];
 
     backup_list[0] = 1;
     backup_list[1] = 1;
     backup_list[2] = 1;
     backup_list[3] = 1;
     backup_list[4] = 1;
+	backup_list[5] = 1;
 
-    list[5] = "Perform Backup";
-    list[6] = NULL;
+    list[6] = "Perform Backup";
+    list[7] = NULL;
 
     int cont = 1;
     for (;cont;) {
@@ -756,12 +757,12 @@ void show_nandroid_advanced_backup_menu(const char* path)
             list[0] = "Backup boot: Yes";
         else
             list[0] = "Backup boot: No";
-    
+
         if (backup_list[1] == 1)
             list[1] = "Backup recovery: Yes";
         else
             list[1] = "Backup recovery: No";
-    
+
         if (backup_list[2] == 1)
             list[2] = "Backup system: Yes";
         else
@@ -770,12 +771,17 @@ void show_nandroid_advanced_backup_menu(const char* path)
         if (backup_list[3] == 1)
             list[3] = "Backup data: Yes";
         else
-            list[3] = "Backup data: No";   
+            list[3] = "Backup data: No";
 
         if (backup_list[4] == 1)
             list[4] = "Backup cache: Yes";
         else
-            list[4] = "Backup cache: No";   
+            list[4] = "Backup cache: No";
+
+        if (backup_list[5] == 1)
+            list[5] = "Backup wimax: Yes";
+        else
+            list[5] = "Backup wimax: No";
 
         int chosen_item = get_menu_selection(advancedheaders, list, 0, 0);
         switch (chosen_item) {
@@ -789,6 +795,8 @@ void show_nandroid_advanced_backup_menu(const char* path)
             case 3: backup_list[3] = !backup_list[3];
                 break;
             case 4: backup_list[4] = !backup_list[4];
+                break;
+            case 5: backup_list[5] = !backup_list[5];
                 break;
             default: cont = 0;
                 break;
@@ -809,7 +817,7 @@ void show_nandroid_advanced_backup_menu(const char* path)
         sprintf(backup_path, "%s/%s", path, backup_path);
     }
 
-    return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
+    return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], 0, backup_list[5]); // No sdext here
 }
 
 void show_nandroid_advanced_restore_menu(const char* path)
