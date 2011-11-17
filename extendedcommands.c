@@ -813,7 +813,7 @@ void show_nandroid_advanced_backup_menu(const char* path)
     }
     else
     {
-        strftime(backup_path, sizeof(backup_path), "clockworkmod/backup/%F.%H.%M.%S", path, tmp);
+        strftime(backup_path, sizeof(backup_path), "clockworkmod/backup/%F.%H.%M.%S", tmp);
         sprintf(backup_path, "%s/%s", path, backup_path);
     }
 
