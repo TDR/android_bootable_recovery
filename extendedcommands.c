@@ -343,7 +343,7 @@ void show_nandroid_restore_menu(const char* path)
         return;
 
     if (confirm_selection("Are you sure you want to restore?", "Yes - Restore"))
-        nandroid_restore(file, 1, 1, 1, 1, 1, 0);
+        nandroid_restore(file, 1, 1, 1, 1, 0, 0); // Skip sdext, don't auto restore wimax
 }
 
 #ifndef BOARD_UMS_LUNFILE
