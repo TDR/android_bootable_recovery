@@ -798,11 +798,11 @@ void show_nandroid_advanced_backup_menu(const char* path)
         gettimeofday(&tp, NULL);
         sprintf(backup_path, "%s/clockworkmod/backup/%d", path, tp.tv_sec);
     }
-	else
-	{
+    else
+    {
         strftime(backup_path, sizeof(backup_path), "clockworkmod/backup/%F.%H.%M.%S", path, tmp);
-		sprintf(backup_path, "%s/%s", path, backup_path);
-	}
+        sprintf(backup_path, "%s/%s", path, backup_path);
+    }
 
     return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
 }
@@ -838,7 +838,7 @@ void show_nandroid_advanced_restore_menu(const char* path)
                             "Restore system",
                             "Restore data",
                             "Restore cache",
-							"Restore wimax",
+                            "Restore wimax",
                             NULL
     };
     
@@ -879,7 +879,7 @@ void show_nandroid_menu()
 {
     int use_sdcard = 1;
     int chosen_item;
-	int repeat_menu = 0;
+    int repeat_menu = 0;
     static char* headers[] = {  "Nandroid",
                                 "",
                                 NULL
@@ -889,72 +889,72 @@ void show_nandroid_menu()
                             "Restore",
                             "Advanced Backup",
                             "Advanced Restore",
-							"Switch to internal storage",
+                            "Switch to internal storage",
                             NULL
     };
 
     if (volume_for_path("/emmc") == NULL)
         list[4] = NULL;
-	else if (volume_for_path("/sdcard") == NULL && volume_for_path("/emmc") != NULL)
-	{
+    else if (volume_for_path("/sdcard") == NULL && volume_for_path("/emmc") != NULL)
+    {
         use_sdcard = 0;
-		list[4] = NULL;
+        list[4] = NULL;
     }
 
     do
     {
-		chosen_item = get_menu_selection(headers, list, 0, 0);
-		repeat_menu = 0;
-		switch (chosen_item)
-		{
-			case 0:
-				{
-					char backup_path[PATH_MAX];
-					time_t t = time(NULL);
-					struct tm *tmp = localtime(&t);
-					if (tmp == NULL)
-					{
-						struct timeval tp;
-						gettimeofday(&tp, NULL);
-						if (use_sdcard) sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
-						else sprintf(backup_path, "/emmc/clockworkmod/backup/%d", tp.tv_sec);
-					}
-					else
-					{
-						if (use_sdcard) strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
-						else strftime(backup_path, sizeof(backup_path), "/emmc/clockworkmod/backup/%F.%H.%M.%S", tmp);
-					}
-					nandroid_backup(backup_path);
-				}
-				break;
-			case 1:
-				if (use_sdcard) show_nandroid_restore_menu("/sdcard");
-				else show_nandroid_restore_menu("/emmc");
-				break;
-			case 2:
-				if (use_sdcard) show_nandroid_advanced_backup_menu("/sdcard");
-				else show_nandroid_advanced_backup_menu("/emmc");
-				break;
-			case 3:
-				if (use_sdcard) show_nandroid_advanced_restore_menu("/sdcard");
-				else show_nandroid_advanced_restore_menu("/emmc");
-				break;
-			case 4:
-				use_sdcard = !use_sdcard;
-				if (use_sdcard)
-				{
-					list[4] = "Switch to internal storage";
-					ui_print("Nandroid to/from: SD card\n");
-				}
-				else
-				{
-					list[4] = "Switch to SD card";
-					ui_print("Nandroid to/from: internal storage\n");
-				}
-				repeat_menu = 1;
-				break;
-		}
-	} while (repeat_menu);
+        chosen_item = get_menu_selection(headers, list, 0, 0);
+        repeat_menu = 0;
+        switch (chosen_item)
+        {
+            case 0:
+                {
+                    char backup_path[PATH_MAX];
+                    time_t t = time(NULL);
+                    struct tm *tmp = localtime(&t);
+                    if (tmp == NULL)
+                    {
+                        struct timeval tp;
+                        gettimeofday(&tp, NULL);
+                        if (use_sdcard) sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
+                        else sprintf(backup_path, "/emmc/clockworkmod/backup/%d", tp.tv_sec);
+                    }
+                    else
+                    {
+                        if (use_sdcard) strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
+                        else strftime(backup_path, sizeof(backup_path), "/emmc/clockworkmod/backup/%F.%H.%M.%S", tmp);
+                    }
+                    nandroid_backup(backup_path);
+                }
+                break;
+            case 1:
+                if (use_sdcard) show_nandroid_restore_menu("/sdcard");
+                else show_nandroid_restore_menu("/emmc");
+                break;
+            case 2:
+                if (use_sdcard) show_nandroid_advanced_backup_menu("/sdcard");
+                else show_nandroid_advanced_backup_menu("/emmc");
+                break;
+            case 3:
+                if (use_sdcard) show_nandroid_advanced_restore_menu("/sdcard");
+                else show_nandroid_advanced_restore_menu("/emmc");
+                break;
+            case 4:
+                use_sdcard = !use_sdcard;
+                if (use_sdcard)
+                {
+                    list[4] = "Switch to internal storage";
+                    ui_print("Nandroid to/from: SD card\n");
+                }
+                else
+                {
+                    list[4] = "Switch to SD card";
+                    ui_print("Nandroid to/from: internal storage\n");
+                }
+                repeat_menu = 1;
+                break;
+        }
+    } while (repeat_menu);
 }
 
 void show_advanced_menu()
