@@ -350,10 +350,10 @@ void show_nandroid_restore_menu(const char* path)
 #define BOARD_UMS_LUNFILE    "/sys/devices/platform/usb_mass_storage/lun0/file"
 #endif
 
-void show_mount_usb_storage_menu()
+void show_mount_usb_storage_menu(const char* path)
 {
     int fd;
-    Volume *vol = volume_for_path("/sdcard");
+    Volume *vol = volume_for_path(path);
     if ((fd = open(BOARD_UMS_LUNFILE, O_WRONLY)) < 0) {
         LOGE("Unable to open ums lunfile (%s)", strerror(errno));
         return -1;
@@ -367,7 +367,7 @@ void show_mount_usb_storage_menu()
     }
     static char* headers[] = {  "USB Mass Storage mode",
                                 "Leaving this menu will unmount",
-                                "your SD card from your PC.",
+                                "your device from your PC.",
                                 "",
                                 NULL
     };
@@ -678,15 +678,20 @@ void show_partition_menu()
             options[mountable_volumes+i] = e->txt;
         }
 
-        options[mountable_volumes+formatable_volumes] = "Mount USB storage (USB Mass Storage mode)";
-        options[mountable_volumes+formatable_volumes + 1] = NULL;
+        options[mountable_volumes+formatable_volumes] = "USB Mass Storage mode (SD card)";
+        options[mountable_volumes+formatable_volumes + 1] = "USB Mass Storage mode (internal storage)";
+        options[mountable_volumes+formatable_volumes + 2] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);
         if (chosen_item == GO_BACK)
             break;
         if (chosen_item == (mountable_volumes+formatable_volumes))
         {
-            show_mount_usb_storage_menu();
+            show_mount_usb_storage_menu("/sdcard");
+        }
+        if (chosen_item == (mountable_volumes+formatable_volumes+1))
+        {
+            show_mount_usb_storage_menu("/emmc");
         }
         else if (chosen_item < mountable_volumes)
         {
