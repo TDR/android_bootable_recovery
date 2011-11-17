@@ -78,7 +78,7 @@ int install_zip(const char* packagefilepath)
 }
 
 char* INSTALL_MENU_ITEMS[] = {  "Choose zip file from SD card",
-                                "Choose zip file from internal SD card",
+                                "Choose zip file from internal storage",
                                 "Toggle signature verification",
                                 "Toggle script asserts",
                                 NULL };
@@ -746,7 +746,7 @@ void show_nandroid_advanced_backup_menu(const char* path)
     backup_list[2] = 1;
     backup_list[3] = 1;
     backup_list[4] = 1;
-	backup_list[5] = 1;
+    backup_list[5] = 1;
 
     list[6] = "Perform Backup";
     list[7] = NULL;
@@ -823,7 +823,7 @@ void show_nandroid_advanced_backup_menu(const char* path)
 void show_nandroid_advanced_restore_menu(const char* path)
 {
     if (ensure_path_mounted(path) != 0) {
-        LOGE ("Can't mount sdcard\n");
+        LOGE("Can't mount %s\n", path);
         return;
     }
 
@@ -957,12 +957,12 @@ void show_nandroid_menu()
                 if (use_sdcard)
                 {
                     list[4] = "Switch to internal storage";
-                    ui_print("Nandroid to/from: SD card\n");
+                    ui_print("Nandroid storage: SD card\n");
                 }
                 else
                 {
                     list[4] = "Switch to SD card";
-                    ui_print("Nandroid to/from: internal storage\n");
+                    ui_print("Nandroid storage: internal storage\n");
                 }
                 repeat_menu = 1;
                 break;
@@ -985,7 +985,7 @@ void show_advanced_menu()
                             "Partition SD card",
                             "Fix permissions",
 #ifdef BOARD_HAS_SDCARD_INTERNAL
-                            "Partition internal SD card",
+                            "Partition internal storage",
 #endif
 #endif
                             NULL
@@ -1026,7 +1026,7 @@ void show_advanced_menu()
             }
             case 4:
             {
-                if (confirm_selection("The SD card will be wiped. Continue?", "Yes - Partition"))
+                if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
                                                  "128M",
@@ -1082,7 +1082,7 @@ void show_advanced_menu()
             }
             case 6:
             {
-                if (confirm_selection("The internal SD card will be wiped. Continue?", "Yes - Partition"))
+                if (confirm_selection("All data in internal storage will be wiped. Continue?", "Yes - Partition"))
                 {
                     static char* ext_sizes[] = { "0M",
                                                  "128M",
@@ -1119,11 +1119,11 @@ void show_advanced_menu()
                     char cmd[PATH_MAX];
                     setenv("SDPATH", sddevice, 1);
                     sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
-                    ui_print("Partitioning internal SD card...\n");
+                    ui_print("Partitioning internal storage...\n");
                     if (0 == __system(cmd))
                         ui_print("Done!\n");
                     else
-                        ui_print("An error occured while partitioning your internal SD card. Please check the recovery log for more details.\n");
+                        ui_print("An error occured while partitioning your internal storage. Please check the recovery log for more details.\n");
                 }
                 break;
             }
