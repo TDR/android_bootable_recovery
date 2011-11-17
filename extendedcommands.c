@@ -799,7 +799,10 @@ void show_nandroid_advanced_backup_menu(const char* path)
         sprintf(backup_path, "%s/clockworkmod/backup/%d", path, tp.tv_sec);
     }
 	else
-        strftime(backup_path, sizeof(backup_path), "%s/clockworkmod/backup/%F.%H.%M.%S", path, tmp);
+	{
+        strftime(backup_path, sizeof(backup_path), "clockworkmod/backup/%F.%H.%M.%S", path, tmp);
+		sprintf(backup_path, "%s/%s", path, backup_path);
+	}
 
     return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
 }
