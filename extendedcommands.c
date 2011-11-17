@@ -838,12 +838,13 @@ void show_nandroid_advanced_restore_menu(const char* path)
                             "Restore system",
                             "Restore data",
                             "Restore cache",
+							"Restore wimax",
                             NULL
     };
     
     if (0 != get_partition_device("wimax", tmp)) {
         // disable wimax restore option
-        list[5] = NULL;
+        list[4] = NULL;
     }
 
     static char* confirm_restore  = "Are you sure you want to restore?";
@@ -866,6 +867,10 @@ void show_nandroid_advanced_restore_menu(const char* path)
         case 3:
             if (confirm_selection(confirm_restore, "Yes - Restore cache"))
                 nandroid_restore(file, 0, 0, 0, 1, 0, 0);
+            break;
+        case 4:
+            if (confirm_selection(confirm_restore, "Yes - Restore wimax"))
+                nandroid_restore(file, 0, 0, 0, 0, 0, 1);
             break;
     }
 }
