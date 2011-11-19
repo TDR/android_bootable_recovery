@@ -343,7 +343,7 @@ void show_nandroid_restore_menu(const char* path)
         return;
 
     if (confirm_selection("Are you sure you want to restore?", "Yes - Restore"))
-        nandroid_restore(file, 1, 1, 1, 1, 0, 0); // Skip sdext, don't auto restore wimax
+        nandroid_restore(file, 1, 1, 1, 1, 0, 0); // Skip sdext, wimax
 }
 
 #ifndef BOARD_UMS_LUNFILE
@@ -738,18 +738,17 @@ void show_nandroid_advanced_backup_menu(const char* path)
                                        NULL
     };
 
-    int backup_list[6];
-    char* list[8];
+    int backup_list[5];
+    char* list[7];
 
     backup_list[0] = 1;
     backup_list[1] = 1;
     backup_list[2] = 1;
     backup_list[3] = 1;
     backup_list[4] = 1;
-    backup_list[5] = 1;
 
-    list[6] = "Perform Backup";
-    list[7] = NULL;
+    list[5] = "Perform Backup";
+    list[6] = NULL;
 
     int cont = 1;
     for (;cont;) {
@@ -778,11 +777,6 @@ void show_nandroid_advanced_backup_menu(const char* path)
         else
             list[4] = "Backup cache: No";
 
-        if (backup_list[5] == 1)
-            list[5] = "Backup wimax: Yes";
-        else
-            list[5] = "Backup wimax: No";
-
         int chosen_item = get_menu_selection(advancedheaders, list, 0, 0);
         switch (chosen_item) {
             case GO_BACK: return;
@@ -795,8 +789,6 @@ void show_nandroid_advanced_backup_menu(const char* path)
             case 3: backup_list[3] = !backup_list[3];
                 break;
             case 4: backup_list[4] = !backup_list[4];
-                break;
-            case 5: backup_list[5] = !backup_list[5];
                 break;
             default: cont = 0;
                 break;
@@ -817,7 +809,7 @@ void show_nandroid_advanced_backup_menu(const char* path)
         sprintf(backup_path, "%s/%s", path, backup_path);
     }
 
-    return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], 0, backup_list[5]); // No sdext here
+    return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], 0, 0);
 }
 
 void show_nandroid_advanced_restore_menu(const char* path)
