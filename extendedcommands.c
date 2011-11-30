@@ -891,10 +891,11 @@ void show_nandroid_menu()
     };
 
     chosen_item = get_menu_selection(headers, list, 0, 0);
-    repeat_menu = 0;
+
     switch (chosen_item)
     {
         case 0:
+        {
             char backup_path[PATH_MAX];
             time_t t = time(NULL);
             struct tm *tmp = localtime(&t);
@@ -910,6 +911,7 @@ void show_nandroid_menu()
             }
             nandroid_backup(backup_path);
             break;
+        }
         case 1:
             show_nandroid_restore_menu("/sdcard");
             break;
