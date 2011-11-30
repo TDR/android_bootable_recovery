@@ -684,50 +684,56 @@ void show_wipe_menu()
                             NULL
     };
 
-    int chosen_item = get_menu_selection(headers, list, 0, 0);
-    switch (chosen_item)
+    for (;;)
     {
-        case 0:
-            wipe_data(ui_text_visible());
-            if (!ui_text_visible()) return;
+        int chosen_item = get_menu_selection(headers, list, 0, 0);
+        if (chosen_item == GO_BACK)
             break;
-
-        case 1:
-            if (confirm_selection("Are you sure you want to wipe cache?", "Yes - Wipe Cache"))
-            {
-                erase_volume("/cache");
-                ui_print("Cache wipe complete.\n");
+        switch (chosen_item)
+        {
+            case 0:
+                wipe_data(ui_text_visible());
                 if (!ui_text_visible()) return;
-            }
-            break;
-        case 2:
-        {
-            if (confirm_selection( "Are you sure you want to wipe dalvik-cache?", "Yes - Wipe Dalvik Cache")) 
-            {
-                if (0 != ensure_path_mounted("/data"))
+                break;
+
+            case 1:
+                if (confirm_selection("Are you sure you want to wipe cache?", "Yes - Wipe Cache"))
                 {
-                    ui_print("Error mounting /data!\n");
-                    break;
+                    erase_volume("/cache");
+                    ui_print("Cache wipe complete.\n");
+                    if (!ui_text_visible()) return;
                 }
-                //ensure_path_mounted("/sd-ext");
-                ensure_path_mounted("/cache");
-                __system("rm -r /data/dalvik-cache");
-                __system("rm -r /cache/dalvik-cache");
-                //__system("rm -r /sd-ext/dalvik-cache");
-                ui_print("Dalvik cache wipe complete.\n");
-            }
-            ensure_path_unmounted("/data");
-            break;
-        }
-        case 3:
-        {
-            if (confirm_selection( "Are you sure you want to wipe battery stats?", "Yes - Wipe Battery Stats"))
+                break;
+            case 2:
             {
-                wipe_battery_stats();
-                ui_print("Battery stats wipe complete.\n");
+                if (confirm_selection( "Are you sure you want to wipe dalvik-cache?", "Yes - Wipe Dalvik Cache")) 
+                {
+                    if (0 != ensure_path_mounted("/data"))
+                    {
+                        ui_print("Error mounting /data!\n");
+                        break;
+                    }
+                    //ensure_path_mounted("/sd-ext");
+                    ensure_path_mounted("/cache");
+                    __system("rm -r /data/dalvik-cache");
+                    __system("rm -r /cache/dalvik-cache");
+                    //__system("rm -r /sd-ext/dalvik-cache");
+                    ui_print("Dalvik cache wipe complete.\n");
+                }
+                ensure_path_unmounted("/data");
+                break;
             }
-            break;
+            case 3:
+            {
+                if (confirm_selection( "Are you sure you want to wipe battery stats?", "Yes - Wipe Battery Stats"))
+                {
+                    wipe_battery_stats();
+                    ui_print("Battery stats wipe complete.\n");
+                }
+                break;
+            }
         }
+		ui_reset_progress();
     }
 }
 
@@ -789,22 +795,22 @@ print_property(const char *key, const char *name, void *cookie) {
 
 int
 main(int argc, char **argv) {
-    if (strstr(argv[0], "recovery") == NULL)
-    {
-        if (strstr(argv[0], "flash_image") != NULL)
-            return flash_image_main(argc, argv);
-        if (strstr(argv[0], "volume") != NULL)
-            return volume_main(argc, argv);
-        if (strstr(argv[0], "edify") != NULL)
-            return edify_main(argc, argv);
-        if (strstr(argv[0], "dump_image") != NULL)
-            return dump_image_main(argc, argv);
-        if (strstr(argv[0], "erase_image") != NULL)
-            return erase_image_main(argc, argv);
-        if (strstr(argv[0], "mkyaffs2image") != NULL)
-            return mkyaffs2image_main(argc, argv);
-        if (strstr(argv[0], "unyaffs") != NULL)
-            return unyaffs_main(argc, argv);
+	if (strcmp(basename(argv[0]), "recovery") != 0)
+	{
+	    if (strstr(argv[0], "flash_image") != NULL)
+	        return flash_image_main(argc, argv);
+	    if (strstr(argv[0], "volume") != NULL)
+	        return volume_main(argc, argv);
+	    if (strstr(argv[0], "edify") != NULL)
+	        return edify_main(argc, argv);
+	    if (strstr(argv[0], "dump_image") != NULL)
+	        return dump_image_main(argc, argv);
+	    if (strstr(argv[0], "erase_image") != NULL)
+	        return erase_image_main(argc, argv);
+	    if (strstr(argv[0], "mkyaffs2image") != NULL)
+	        return mkyaffs2image_main(argc, argv);
+	    if (strstr(argv[0], "unyaffs") != NULL)
+	        return unyaffs_main(argc, argv);
         if (strstr(argv[0], "nandroid"))
             return nandroid_main(argc, argv);
         if (strstr(argv[0], "reboot"))

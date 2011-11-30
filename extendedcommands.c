@@ -41,6 +41,7 @@
 #include "edify/expr.h"
 #include <libgen.h>
 #include "mtdutils/mtdutils.h"
+#include "bmlutils/bmlutils.h"
 
 int signature_check_enabled = 1;
 int script_assert_enabled = 1;
@@ -315,10 +316,10 @@ void show_choose_zip_menu(const char *mount_point)
         install_zip(file);
 }
 
-void show_nandroid_restore_menu()
+void show_nandroid_restore_menu(const char* path)
 {
-    if (ensure_path_mounted("/sdcard") != 0) {
-        LOGE ("Can't mount /sdcard\n");
+    if (ensure_path_mounted(path) != 0) {
+        LOGE("Can't mount %s\n", path);
         return;
     }
 
@@ -327,22 +328,24 @@ void show_nandroid_restore_menu()
                                 NULL
     };
 
-    char* file = choose_file_menu("/sdcard/clockworkmod/backup/", NULL, headers);
+    char tmp[PATH_MAX];
+    sprintf(tmp, "%s/clockworkmod/backup/", path);
+    char* file = choose_file_menu(tmp, NULL, headers);
     if (file == NULL)
         return;
 
     if (confirm_selection("Are you sure you want to restore?", "Yes - Restore"))
-        nandroid_restore(file, 1, 1, 1, 1, 1, 0);
+        nandroid_restore(file, 1, 1, 1, 1, 0, 0); // Skip sdext, don't auto restore wimax
 }
 
 #ifndef BOARD_UMS_LUNFILE
 #define BOARD_UMS_LUNFILE    "/sys/devices/platform/usb_mass_storage/lun0/file"
 #endif
 
-void show_mount_usb_storage_menu()
+void show_mount_usb_storage_menu(const char* path)
 {
     int fd;
-    Volume *vol = volume_for_path("/sdcard");
+    Volume *vol = volume_for_path(path);
     if ((fd = open(BOARD_UMS_LUNFILE, O_WRONLY)) < 0) {
         LOGE("Unable to open ums lunfile (%s)", strerror(errno));
         return -1;
@@ -356,7 +359,7 @@ void show_mount_usb_storage_menu()
     }
     static char* headers[] = {  "USB Mass Storage mode",
                                 "Leaving this menu will unmount",
-                                "your SD card from your PC.",
+                                "your device from your PC.",
                                 "",
                                 NULL
     };
@@ -442,6 +445,18 @@ int format_device(const char *device, const char *path, const char *fs_type) {
         return -1;
     }
 
+    if (strcmp(fs_type, "rfs") == 0) {
+        if (ensure_path_unmounted(path) != 0) {
+            LOGE("format_volume failed to unmount \"%s\"\n", v->mount_point);
+            return -1;
+        }
+        if (0 != format_rfs_device(device, path)) {
+            LOGE("format_volume: format_rfs_device failed on %s\n", device);
+            return -1;
+        }
+        return 0;
+    }
+ 
     if (strcmp(v->mount_point, path) != 0) {
         return format_unknown_device(v->device, path, NULL);
     }
@@ -658,15 +673,20 @@ void show_partition_menu()
             options[mountable_volumes+i] = e->txt;
         }
 
-        options[mountable_volumes+formatable_volumes] = "Mount USB storage (USB Mass Storage mode)";
-        options[mountable_volumes+formatable_volumes + 1] = NULL;
+        options[mountable_volumes+formatable_volumes] = "USB Mass Storage mode (SD card)";
+        options[mountable_volumes+formatable_volumes + 1] = "USB Mass Storage mode (internal storage)";
+        options[mountable_volumes+formatable_volumes + 2] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);
         if (chosen_item == GO_BACK)
             break;
         if (chosen_item == (mountable_volumes+formatable_volumes))
         {
-            show_mount_usb_storage_menu();
+            show_mount_usb_storage_menu("/sdcard");
+        }
+        if (chosen_item == (mountable_volumes+formatable_volumes+1))
+        {
+            show_mount_usb_storage_menu("/emmc");
         }
         else if (chosen_item < mountable_volumes)
         {
@@ -707,9 +727,10 @@ void show_partition_menu()
 
 }
 
-void show_nandroid_advanced_backup_menu(){
+void show_nandroid_advanced_backup_menu(const char* path)
+{
     static char* advancedheaders[] = { "Choose the partitions to backup.",
-                    NULL
+                                       NULL
     };
 
     int backup_list[5];
@@ -720,7 +741,6 @@ void show_nandroid_advanced_backup_menu(){
     backup_list[2] = 1;
     backup_list[3] = 1;
     backup_list[4] = 1;
-
 
     list[5] = "Perform Backup";
     list[6] = NULL;
@@ -752,7 +772,7 @@ void show_nandroid_advanced_backup_menu(){
         else
             list[4] = "Backup cache: No";   
 
-        int chosen_item = get_menu_selection (advancedheaders, list, 0, 0);
+        int chosen_item = get_menu_selection(advancedheaders, list, 0, 0);
         switch (chosen_item) {
             case GO_BACK: return;
             case 0: backup_list[0] = !backup_list[0];
@@ -773,22 +793,24 @@ void show_nandroid_advanced_backup_menu(){
     char backup_path[PATH_MAX];
     time_t t = time(NULL);
     struct tm *tmp = localtime(&t);
-    if (tmp == NULL){
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
-   }else{
-    strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
-   }
+    if (tmp == NULL) {
+        struct timeval tp;
+        gettimeofday(&tp, NULL);
+        sprintf(backup_path, "%s/clockworkmod/backup/%d", path, tp.tv_sec);
+    }
+    else
+    {
+        strftime(backup_path, sizeof(backup_path), "clockworkmod/backup/%F.%H.%M.%S", path, tmp);
+        sprintf(backup_path, "%s/%s", path, backup_path);
+    }
 
-   return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
-     
+    return nandroid_advanced_backup(backup_path, backup_list[0], backup_list[1], backup_list[2], backup_list[3], backup_list[4], backup_list[5], 0);
 }
 
-void show_nandroid_advanced_restore_menu()
+void show_nandroid_advanced_restore_menu(const char* path)
 {
-    if (ensure_path_mounted("/sdcard") != 0) {
-        LOGE ("Can't mount /sdcard\n");
+    if (ensure_path_mounted(path) != 0) {
+        LOGE ("Can't mount sdcard\n");
         return;
     }
 
@@ -801,7 +823,9 @@ void show_nandroid_advanced_restore_menu()
                                 NULL
     };
 
-    char* file = choose_file_menu("/sdcard/clockworkmod/backup/", NULL, advancedheaders);
+    char tmp[PATH_MAX];
+    sprintf(tmp, "%s/clockworkmod/backup/", path);
+    char* file = choose_file_menu(tmp, NULL, advancedheaders);
     if (file == NULL)
         return;
 
@@ -814,13 +838,13 @@ void show_nandroid_advanced_restore_menu()
                             "Restore system",
                             "Restore data",
                             "Restore cache",
+                            "Restore wimax",
                             NULL
     };
     
-    char tmp[PATH_MAX];
     if (0 != get_partition_device("wimax", tmp)) {
         // disable wimax restore option
-        list[5] = NULL;
+        list[4] = NULL;
     }
 
     static char* confirm_restore  = "Are you sure you want to restore?";
@@ -844,11 +868,16 @@ void show_nandroid_advanced_restore_menu()
             if (confirm_selection(confirm_restore, "Yes - Restore cache"))
                 nandroid_restore(file, 0, 0, 0, 1, 0, 0);
             break;
+        case 4:
+            if (confirm_selection(confirm_restore, "Yes - Restore wimax"))
+                nandroid_restore(file, 0, 0, 0, 0, 0, 1);
+            break;
     }
 }
 
 void show_nandroid_menu()
 {
+    int chosen_item;
     static char* headers[] = {  "Nandroid",
                                 "",
                                 NULL
@@ -861,35 +890,34 @@ void show_nandroid_menu()
                             NULL
     };
 
-    int chosen_item = get_menu_selection(headers, list, 0, 0);
+    chosen_item = get_menu_selection(headers, list, 0, 0);
+    repeat_menu = 0;
     switch (chosen_item)
     {
         case 0:
+            char backup_path[PATH_MAX];
+            time_t t = time(NULL);
+            struct tm *tmp = localtime(&t);
+            if (tmp == NULL)
             {
-                char backup_path[PATH_MAX];
-                time_t t = time(NULL);
-                struct tm *tmp = localtime(&t);
-                if (tmp == NULL)
-                {
-                    struct timeval tp;
-                    gettimeofday(&tp, NULL);
-                    sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
-                }
-                else
-                {
-                    strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
-                }
-                nandroid_backup(backup_path);
+                struct timeval tp;
+                gettimeofday(&tp, NULL);
+                sprintf(backup_path, "/sdcard/clockworkmod/backup/%d", tp.tv_sec);
             }
+            else
+            {
+                strftime(backup_path, sizeof(backup_path), "/sdcard/clockworkmod/backup/%F.%H.%M.%S", tmp);
+            }
+            nandroid_backup(backup_path);
             break;
         case 1:
-            show_nandroid_restore_menu();
+            show_nandroid_restore_menu("/sdcard");
             break;
         case 2:
-            show_nandroid_advanced_backup_menu();
+            show_nandroid_advanced_backup_menu("/sdcard");
             break;
         case 3:
-            show_nandroid_advanced_restore_menu();
+            show_nandroid_advanced_restore_menu("/sdcard");
             break;
     }
 }
@@ -1089,9 +1117,8 @@ void create_fstab()
          write_fstab_root("/boot", file);
     write_fstab_root("/cache", file);
     write_fstab_root("/data", file);
-    if (has_datadata()) {
-        write_fstab_root("/datadata", file);
-    }
+    write_fstab_root("/datadata", file);
+    write_fstab_root("/emmc", file);
     write_fstab_root("/system", file);
     write_fstab_root("/sdcard", file);
     write_fstab_root("/sd-ext", file);

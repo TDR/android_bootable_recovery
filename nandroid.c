@@ -105,7 +105,6 @@ typedef void (*file_event_callback)(const char* filename);
 typedef int (*nandroid_backup_handler)(const char* backup_path, const char* backup_file_image, int callback);
 
 static int mkyaffs2image_wrapper(const char* backup_path, const char* backup_file_image, int callback) {
-    LOGI("Using mkyaffs2image on %s\n", backup_path);
     char backup_file_image_with_extension[PATH_MAX];
     sprintf(backup_file_image_with_extension, "%s.img", backup_file_image);
     return mkyaffs2image(backup_path, backup_file_image_with_extension, 0, callback ? yaffs_callback : NULL);
@@ -114,6 +113,7 @@ static int mkyaffs2image_wrapper(const char* backup_path, const char* backup_fil
 static int tar_compress_wrapper(const char* backup_path, const char* backup_file_image, int callback) {
     LOGI("Using tar_compress on %s\n", backup_path);
     char tmp[PATH_MAX];
+
     if (strcmp(backup_path, "/data") == 0 && volume_for_path("/sdcard") == NULL)
       sprintf(tmp, "cd $(dirname %s) ; tar cvf %s.tar --exclude 'media' $(basename %s) ; exit $?", backup_path, backup_file_image, backup_path);
     else
@@ -236,20 +236,25 @@ int nandroid_backup(const char* backup_path)
     ui_set_background(BACKGROUND_ICON_INSTALLING);
     ui_show_progress(1, 0);
 
-    if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Error mounting /sdcard!\n");
+    if (ensure_path_mounted(backup_path) != 0)
+        return print_and_error("Error mounting backup path!\n");
 
+    Volume* volume = volume_for_path(backup_path);
+    if (NULL == volume)
+        return print_and_error("Failed to find volume for backup path.\n");
     int ret;
     struct statfs s;
-    if (0 != (ret = statfs("/sdcard", &s)))
-        return print_and_error("Failed to stat /sdcard!\n");
+
+    if (0 != (ret = statfs(volume->mount_point, &s)))
+        return print_and_error("Failed to stat backup path.\n");
+
     uint64_t bavail = s.f_bavail;
     uint64_t bsize = s.f_bsize;
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
     ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
     if (sdcard_free_mb < 1000) {
-        if (!confirm_simple("You are running low on free space. Continue?", "Yes - Continue backup"))
+        if (!confirm_simple("There may not be enough free space. Continue?", "Yes - Continue backup"))
             return print_and_error("Backup aborted.\n");
     }
 
@@ -334,20 +339,25 @@ int nandroid_advanced_backup(const char* backup_path, int boot, int recovery, in
     ui_set_background(BACKGROUND_ICON_INSTALLING);
     ui_show_indeterminate_progress();
 
-    if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Error mounting /sdcard!\n");
+    if (ensure_path_mounted(backup_path) != 0)
+        return print_and_error("Error mounting backup path!\n");
 
+    Volume* volume = volume_for_path(backup_path);
+    if (NULL == volume)
+        return print_and_error("Failed to find volume for backup path.\n");
     int ret;
     struct statfs s;
-    if (0 != (ret = statfs("/sdcard", &s)))
-        return print_and_error("Failed to stat /sdcard!\n");
+
+    if (0 != (ret = statfs(volume->mount_point, &s)))
+        return print_and_error("Failed to stat backup path.\n");
+
     uint64_t bavail = s.f_bavail;
     uint64_t bsize = s.f_bsize;
     uint64_t sdcard_free = bavail * bsize;
     uint64_t sdcard_free_mb = sdcard_free / (uint64_t)(1024 * 1024);
     ui_print("(Free space: %lluMB)\n", sdcard_free_mb);
     if (sdcard_free_mb < 1000) {
-        if (!confirm_simple("You are running low on free space. Continue?", "Yes - Continue backup"))
+        if (!confirm_simple("There may not be enough free space. Continue?", "Yes - Continue backup"))
             return print_and_error("Backup aborted.\n");
     }
 
@@ -567,6 +577,7 @@ int nandroid_restore_partition_extended(const char* backup_path, const char* mou
 
     if (restore_handler == NULL)
         restore_handler = get_restore_handler(mount_point);
+
     if (restore_handler == NULL) {
         ui_print("Error finding an appropriate restore handler.\n");
         return -2;
@@ -619,8 +630,8 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
     ui_show_progress(1, 0);
     yaffs_files_total = 0;
 
-    if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Error mounting /sdcard!\n");
+    if (ensure_path_mounted(backup_path) != 0)
+        return print_and_error("Error mounting backup path!\n");
 
     char tmp[PATH_MAX];
 
