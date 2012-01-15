@@ -29,13 +29,26 @@
 
 #include <pixelflinger/pixelflinger.h>
 
-#ifndef BOARD_LDPI_RECOVERY
-	#include "font_10x18.h"
+#if defined(BOARD_XHDPI_RECOVERY)
+    #include "roboto_15x24.h"
+#elif defined(BOARD_HDPI_RECOVERY)
+    //#include "roboto_10x18.h"
+    #include "roboto_15x24.h" // Try big font for now
+#elif defined(BOARD_LDPI_RECOVERY)
+    #include "font_7x16.h"
 #else
-	#include "font_7x16.h"
+    #include "roboto_10x18.h"
 #endif
 
 #include "minui.h"
+
+#if defined(RECOVERY_BGRA)
+#define PIXEL_FORMAT GGL_PIXEL_FORMAT_BGRA_8888
+#define PIXEL_SIZE   4
+#elif defined(RECOVERY_RGBX)
+#define PIXEL_FORMAT GGL_PIXEL_FORMAT_RGBX_8888
+#define PIXEL_SIZE   4
+#endif
 
 typedef struct {
     GGLSurface texture;
