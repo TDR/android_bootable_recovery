@@ -99,6 +99,7 @@ static char menu[MENU_MAX_ROWS][MENU_MAX_COLS];
 static int show_menu = 0;
 static int menu_top = 0, menu_items = 0, menu_sel = 0;
 static int menu_show_start = 0;             // this is line which menu display is starting at
+static int max_menu_rows;
 
 // Key event input queue
 static pthread_mutex_t key_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -203,8 +204,8 @@ static void draw_screen_locked(void)
                 row++;
             }
 
-            if (menu_items - menu_show_start + menu_top >= MAX_ROWS)
-                j = MAX_ROWS - menu_top;
+            if (menu_items - menu_show_start + menu_top >= max_menu_rows)
+                j = max_menu_rows - menu_top;
             else
                 j = menu_items - menu_show_start;
 
@@ -219,11 +220,13 @@ static void draw_screen_locked(void)
                     draw_text_line(i - menu_show_start, menu[i]);
                 }
                 row++;
+                if (row >= max_menu_rows)
+                    break;
             }
 
-            if (menu_items <= MAX_ROWS)
+            if (menu_items <= max_menu_rows)
                 offset = 1;
-                    
+
             gr_fill(0, (row-offset)*CHAR_HEIGHT+CHAR_HEIGHT/2-1,
                     gr_fb_width(), (row-offset)*CHAR_HEIGHT+CHAR_HEIGHT/2+1);
         }
@@ -364,6 +367,9 @@ void ui_init(void)
 
     text_col = text_row = 0;
     text_rows = gr_fb_height() / CHAR_HEIGHT;
+    max_menu_rows = text_rows - MIN_LOG_ROWS;
+    if (max_menu_rows > MENU_MAX_ROWS)
+        max_menu_rows = MENU_MAX_ROWS;
     if (text_rows > MAX_ROWS) text_rows = MAX_ROWS;
     text_top = 1;
 
@@ -578,8 +584,8 @@ int ui_menu_select(int sel) {
             menu_show_start = menu_sel;
         }
 
-        if (menu_sel - menu_show_start + menu_top >= text_rows) {
-            menu_show_start = menu_sel + menu_top - text_rows + 1;
+        if (menu_sel - menu_show_start + menu_top >= max_menu_rows) {
+            menu_show_start = menu_sel + menu_top - max_menu_rows + 1;
         }
 
         sel = menu_sel;
