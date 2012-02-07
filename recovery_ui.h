@@ -88,6 +88,8 @@ int ui_menu_level;
 #define MENU_ICON_XL		2
 #define MENU_ICON_XR		3
 
+extern int TOUCH_CONTROL_DEBUG;
+
 extern int maxX;
 extern int maxY;
 
