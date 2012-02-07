@@ -83,10 +83,18 @@ extern char* MENU_ITEMS[];
 // Loosely track the depth of the current menu
 int ui_menu_level;
 
-int
-get_menu_selection(char** headers, char** items, int menu_only, int initial_selection);
+#define MENU_ICON_X			0
+#define MENU_ICON_Y			1
+#define MENU_ICON_XL		2
+#define MENU_ICON_XR		3
 
-void
-set_sdcard_update_bootloader_message();
+extern int maxX;
+extern int maxY;
+
+int get_menu_icon_info(int indx1, int indx2);
+
+int get_menu_selection(char** headers, char** items, int menu_only, int initial_selection);
+
+void set_sdcard_update_bootloader_message();
 
 #endif
