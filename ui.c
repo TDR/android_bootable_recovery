@@ -75,9 +75,6 @@ static int gShowBackButton = 0;
 #define PROGRESSBAR_INDETERMINATE_STATES 6
 #define PROGRESSBAR_INDETERMINATE_FPS 24
 
-extern int MENU_MAX_HEIGHT;
-extern int resX;
-extern int resY;
 
 static pthread_mutex_t gUpdateMutex = PTHREAD_MUTEX_INITIALIZER;
 static gr_surface gBackgroundIcon[NUM_BACKGROUND_ICONS];
@@ -411,6 +408,11 @@ int device_handle_mouse(struct keyStruct *key, int visible)
 	return NO_ACTION;
 }
 
+int touched_row(int positionY)
+{
+	return (positionY / 24);
+}
+
 // handle the user input events (mainly the touch events) inside the ui handler
 static void ui_handle_mouse_input(int* curPos)
 {
@@ -424,48 +426,55 @@ static void ui_handle_mouse_input(int* curPos)
 		{  get_menu_icon_info(MENU_SELECT,MENU_ICON_X),	get_menu_icon_info(MENU_SELECT,MENU_ICON_Y), get_menu_icon_info(MENU_SELECT,MENU_ICON_XL), get_menu_icon_info(MENU_SELECT,MENU_ICON_XR) },
 	};
 
-if(TOUCH_CONTROL_DEBUG)
-{
-	ui_print("Touch gr_fb_width:\t%d,\tgr_fb_height:\t%d\n",gr_fb_width(),gr_fb_height());
-	ui_print("Touch X:\t%d,\tY:\t%d\n",curPos[1],curPos[2]);
-}
+	if (TOUCH_CONTROL_DEBUG) {
+		ui_print("Touch gr_fb_width:\t%d,\tgr_fb_height:\t%d\n",gr_fb_width(),gr_fb_height());
+		ui_print("Touch X:\t%d,\tY:\t%d\n",curPos[1],curPos[2]);
+	}
 
   if (show_menu) {
-    if (curPos[0] > 0 && curPos[2] > (resY-MENU_MAX_HEIGHT)) {
-		int position;
+		if (curPos[0] > 0) {
+			int position;
+			if (curPos[2] < (resY-MENU_MAX_HEIGHT)) { // Above buttons
+				position = curPos[2];
+				if (menu_items > 0) {
+					if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items)
+						ui_menu_select(touched_row(position));
+				}
+			} else {
+				position = curPos[1];
 
-		position = curPos[1];
+				pthread_mutex_lock(&gUpdateMutex);
+				if (position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR) {
+					draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );
+					draw_icon_locked(gMenuIcon[MENU_BACK_M], MENU_ICON[MENU_BACK].x, MENU_ICON[MENU_BACK].y );
+					selMenuIcon = MENU_BACK;
+					gr_flip();
+				}
+				else if (position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR) {			
+					draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );
+					draw_icon_locked(gMenuIcon[MENU_DOWN_M], MENU_ICON[MENU_DOWN].x, MENU_ICON[MENU_DOWN].y);
+					selMenuIcon = MENU_DOWN;
+					gr_flip();
+				}
+				else if (position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR) {
+					draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );			
+					draw_icon_locked(gMenuIcon[MENU_UP_M], MENU_ICON[MENU_UP].x, MENU_ICON[MENU_UP].y );
+					selMenuIcon = MENU_UP;
+					gr_flip();
+				}
+				else if (position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR) {
+					draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );			
+					draw_icon_locked(gMenuIcon[MENU_SELECT_M], MENU_ICON[MENU_SELECT].x, MENU_ICON[MENU_SELECT].y );
+					selMenuIcon = MENU_SELECT;
+					gr_flip();
+				}
+				key_queue_len_back = key_queue_len;
+				pthread_mutex_unlock(&gUpdateMutex);
+			}
+		}
+	}
 
-		pthread_mutex_lock(&gUpdateMutex);
-		if(position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR ) {
-			draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );
-			draw_icon_locked(gMenuIcon[MENU_BACK_M], MENU_ICON[MENU_BACK].x, MENU_ICON[MENU_BACK].y );
-			selMenuIcon = MENU_BACK;
-			gr_flip();
-		}
-		else if(position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR ) {			
-			draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );
-			draw_icon_locked(gMenuIcon[MENU_DOWN_M], MENU_ICON[MENU_DOWN].x, MENU_ICON[MENU_DOWN].y);
-			selMenuIcon = MENU_DOWN;
-			gr_flip();
-		}
-		else if(position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR ) {
-			draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );			
-			draw_icon_locked(gMenuIcon[MENU_UP_M], MENU_ICON[MENU_UP].x, MENU_ICON[MENU_UP].y );
-			selMenuIcon = MENU_UP;
-			gr_flip();
-		}
-		else if(position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR ) {
-			draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );			
-			draw_icon_locked(gMenuIcon[MENU_SELECT_M], MENU_ICON[MENU_SELECT].x, MENU_ICON[MENU_SELECT].y );
-			selMenuIcon = MENU_SELECT;
-			gr_flip();
-		}
-		key_queue_len_back = key_queue_len;
-		pthread_mutex_unlock(&gUpdateMutex);
-     }
-  }
-  pthread_mutex_unlock(&key_queue_mutex);
+	pthread_mutex_unlock(&key_queue_mutex);
 }
 
 // Reads input events, handles special hot keys, and adds to the key queue.
@@ -854,6 +863,10 @@ int ui_menu_select(int sel) {
     return sel;
 }
 
+int ui_get_menu_select() {
+	return menu_sel;
+}
+
 void ui_end_menu() {
     int i;
     pthread_mutex_lock(&gUpdateMutex);
@@ -889,8 +902,8 @@ struct keyStruct *ui_wait_key()
 	key.code = key_queue[0];
     memcpy(&key_queue[0], &key_queue[1], sizeof(int) * --key_queue_len);
 
-if(TOUCH_CONTROL_DEBUG)
-	ui_print("[UI_WAIT_KEY] key code:\t%d\n",key.code);
+	if (TOUCH_CONTROL_DEBUG)
+		ui_print("[UI_WAIT_KEY] key code:\t%d\n",key.code);
 
 	if((key.code == BTN_GEAR_UP || key.code == BTN_MOUSE) && !actPos.pressure && oldMousePos[actPos.num].pressure && key_queue_len_back != (key_queue_len -1))
 	{	

@@ -89,14 +89,18 @@ int ui_menu_level;
 #define MENU_ICON_XR		3
 
 extern int TOUCH_CONTROL_DEBUG;
-
-extern int maxX;
-extern int maxY;
+extern const int MENU_MAX_HEIGHT;
+extern const int maxX;
+extern const int maxY;
+extern const int resX;
+extern const int resY;
 
 int get_menu_icon_info(int indx1, int indx2);
 
 int get_menu_selection(char** headers, char** items, int menu_only, int initial_selection);
 
 void set_sdcard_update_bootloader_message();
+
+int ui_get_menu_select();
 
 #endif

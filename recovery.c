@@ -472,12 +472,12 @@ get_menu_selection(char** headers, char** items, int menu_only,
         int visible = ui_text_visible();
 
 		int action;
-		if(key->code == ABS_MT_POSITION_X)
+		if(key->code == ABS_MT_POSITION_X) {
 	        action = device_handle_mouse(key, visible);
+			selected = ui_get_menu_select(); // Cursor might have moved
+		}
 		else
 	        action = device_handle_key(key->code, visible);
-
-        int old_selected = selected;
 
         if (action < 0) {
             switch (action) {
