@@ -537,7 +537,7 @@ void ui_reset_text_col()
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-#define MENU_ITEM_HEADER " - "
+#define MENU_ITEM_HEADER ""
 #define MENU_ITEM_HEADER_LENGTH strlen(MENU_ITEM_HEADER)
 
 int ui_start_menu(char** headers, char** items, int initial_selection) {
