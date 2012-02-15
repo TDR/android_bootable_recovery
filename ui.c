@@ -410,7 +410,7 @@ int device_handle_mouse(struct keyStruct *key, int visible)
 
 int touched_row(int positionY)
 {
-	return (positionY / 24);
+	return (positionY / CHAR_HEIGHT) - 1;
 }
 
 // handle the user input events (mainly the touch events) inside the ui handler
@@ -437,7 +437,7 @@ static void ui_handle_mouse_input(int* curPos)
 			if (curPos[2] < (resY-MENU_MAX_HEIGHT)) { // Above buttons
 				position = curPos[2];
 				if (menu_items > 0) {
-					if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items)
+					if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items - 1)
 						ui_menu_select(touched_row(position));
 				}
 			} else {
@@ -445,27 +445,23 @@ static void ui_handle_mouse_input(int* curPos)
 
 				pthread_mutex_lock(&gUpdateMutex);
 				if (position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR) {
-					draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );
-					draw_icon_locked(gMenuIcon[MENU_BACK_M], MENU_ICON[MENU_BACK].x, MENU_ICON[MENU_BACK].y );
 					selMenuIcon = MENU_BACK;
+					draw_icon_locked(gMenuIcon[MENU_BACK_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
 					gr_flip();
 				}
 				else if (position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR) {			
-					draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );
-					draw_icon_locked(gMenuIcon[MENU_DOWN_M], MENU_ICON[MENU_DOWN].x, MENU_ICON[MENU_DOWN].y);
 					selMenuIcon = MENU_DOWN;
+					draw_icon_locked(gMenuIcon[MENU_DOWN_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
 					gr_flip();
 				}
 				else if (position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR) {
-					draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );			
-					draw_icon_locked(gMenuIcon[MENU_UP_M], MENU_ICON[MENU_UP].x, MENU_ICON[MENU_UP].y );
 					selMenuIcon = MENU_UP;
+					draw_icon_locked(gMenuIcon[MENU_UP_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
 					gr_flip();
 				}
 				else if (position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR) {
-					draw_icon_locked(gMenuIcon[selMenuIcon], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y );			
-					draw_icon_locked(gMenuIcon[MENU_SELECT_M], MENU_ICON[MENU_SELECT].x, MENU_ICON[MENU_SELECT].y );
 					selMenuIcon = MENU_SELECT;
+					draw_icon_locked(gMenuIcon[MENU_SELECT_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
 					gr_flip();
 				}
 				key_queue_len_back = key_queue_len;
@@ -796,7 +792,7 @@ void ui_reset_text_col()
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-#define MENU_ITEM_HEADER ""
+#define MENU_ITEM_HEADER " "
 #define MENU_ITEM_HEADER_LENGTH strlen(MENU_ITEM_HEADER)
 
 int ui_start_menu(char** headers, char** items, int initial_selection) {
@@ -817,7 +813,7 @@ int ui_start_menu(char** headers, char** items, int initial_selection) {
         }
 
         if (gShowBackButton && ui_menu_level > 0) {
-            strcpy(menu[i], " [Go Back]");
+            strcpy(menu[i], "  [Go Back]");
             ++i;
         }
         
