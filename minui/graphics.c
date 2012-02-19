@@ -29,16 +29,7 @@
 
 #include <pixelflinger/pixelflinger.h>
 
-#if defined(BOARD_XHDPI_RECOVERY)
-    #include "roboto_15x24.h"
-#elif defined(BOARD_HDPI_RECOVERY)
-    //#include "roboto_10x18.h"
-    #include "roboto_15x24.h" // Try big font for now
-#elif defined(BOARD_LDPI_RECOVERY)
-    #include "font_7x16.h"
-#else
-    #include "roboto_10x18.h"
-#endif
+#include "roboto_10x18.h"
 
 #include "minui.h"
 
