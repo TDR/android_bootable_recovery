@@ -544,7 +544,7 @@ int ui_start_menu(char** headers, char** items, int initial_selection) {
         }
 
         if (gShowBackButton && ui_menu_level > 0) {
-            strcpy(menu[i], " - +++++Go Back+++++");
+            strcpy(menu[i], " [Go Back]");
             ++i;
         }
         
