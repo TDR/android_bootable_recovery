@@ -22,6 +22,7 @@
 #include <unistd.h>
 
 #include "expr.h"
+int asserts = 1;
 
 // Functions should:
 //
@@ -138,6 +139,7 @@ Value* AbortFn(const char* name, State* state, int argc, Expr* argv[]) {
 }
 
 Value* AssertFn(const char* name, State* state, int argc, Expr* argv[]) {
+    if (!asserts) return StringValue(strdup(""));
     int i;
     for (i = 0; i < argc; ++i) {
         char* v = Evaluate(state, argv[i]);
@@ -504,4 +506,8 @@ Value* ErrorAbort(State* state, char* format, ...) {
     free(state->errmsg);
     state->errmsg = buffer;
     return NULL;
+}
+
+void SetScriptAssert(int val) {
+    asserts = val;
 }

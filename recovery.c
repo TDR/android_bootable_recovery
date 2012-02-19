@@ -35,6 +35,7 @@
 #include "bootloader.h"
 #include "common.h"
 #include "cutils/properties.h"
+#include "edify/expr.h"
 #include "install.h"
 #include "minui/minui.h"
 #include "minzip/DirUtil.h"
@@ -963,6 +964,7 @@ main(int argc, char **argv) {
         // let's set up some default options
         signature_check_enabled = 0;
         script_assert_enabled = 0;
+        SetScriptAssert(0);
         is_user_initiated_recovery = 1;
         ui_set_show_text(1);
         ui_set_background(BACKGROUND_ICON_CLOCKWORK);

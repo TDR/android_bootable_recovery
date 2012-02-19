@@ -23,6 +23,8 @@
 
 #define MAX_STRING_LEN 1024
 
+int script_assert_enabled;
+
 typedef struct Expr Expr;
 
 typedef struct {
@@ -159,5 +161,7 @@ Value* StringValue(char* str);
 
 // Free a Value object.
 void FreeValue(Value* v);
+
+void SetScriptAssert(int val);
 
 #endif  // _EXPRESSION_H
