@@ -123,8 +123,8 @@ int install_zip(const char* packagefilepath)
 
 char* INSTALL_MENU_ITEMS[] = {  "Choose zip file from SD card",
                                 "Choose zip file from internal storage",
-                                "Toggle signature verification",
-                                "Toggle script asserts",
+                                "Signature verification: Disabled",
+                                "Script asserts: Enabled",
                                 NULL };
 #define ITEM_CHOOSE_ZIP       0
 #define ITEM_CHOOSE_ZIP_INT   1
@@ -140,6 +140,16 @@ void show_install_update_menu()
 
     for (;;)
     {
+        if (signature_check_enabled)
+            INSTALL_MENU_ITEMS[ITEM_SIG_CHECK] = "Signature verification: Enabled";
+        else
+            INSTALL_MENU_ITEMS[ITEM_SIG_CHECK] = "Signature verification: Disabled";
+
+        if (script_assert_enabled)
+            INSTALL_MENU_ITEMS[ITEM_ASSERTS] = "Script asserts: Enabled";
+        else
+            INSTALL_MENU_ITEMS[ITEM_ASSERTS] = "Script asserts: Disabled";
+
         int chosen_item = get_menu_selection(headers, INSTALL_MENU_ITEMS, 0, 0);
         switch (chosen_item)
         {
