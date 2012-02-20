@@ -52,13 +52,11 @@ static const char *SDCARD_UPDATE_FILE = "/sdcard/update.zip";
 void toggle_signature_check()
 {
     signature_check_enabled = !signature_check_enabled;
-    ui_print("Signature Check: %s\n", signature_check_enabled ? "Enabled" : "Disabled");
 }
 
 void toggle_script_asserts()
 {
     script_assert_enabled = !script_assert_enabled;
-    ui_print("Script Asserts: %s\n", script_assert_enabled ? "Enabled" : "Disabled");
 }
 
 void toggle_ignore_data_media()
@@ -99,8 +97,6 @@ void toggle_force_use_data_media()
         use_data_media_as_sdcard();
     else
         revert_to_sdcard();
-
-    ui_print("Use internal storage as /sdcard: %s\n", force_use_data_media ? "Enabled" : "Disabled");
 }
 
 int install_zip(const char* packagefilepath)
@@ -962,8 +958,7 @@ void show_nandroid_menu()
                             "Restore",
                             "Advanced Backup",
                             "Advanced Restore",
-                            "Toggle backup and restore of internal storage (/data/media)",
-                            "Switch to internal storage",
+                            "Nandroid storage: SD card",
                             NULL
     };
 
@@ -1011,11 +1006,11 @@ void show_nandroid_menu()
                 show_nandroid_advanced_restore_menu("/sdcard");
                 break;
             case 4:
-                toggle_ignore_data_media();
-                repeat = 1;
-                break;
-            case 5:
                 toggle_force_use_data_media();
+                if (force_use_data_media)
+                    list[4] = "Nandroid storage: internal storage";
+                else
+                    list[4] = "Nandroid storage: SD card";
                 repeat = 1;
                 break;
         }
