@@ -50,13 +50,13 @@ static const char *SDCARD_UPDATE_FILE = "/sdcard/update.zip";
 void toggle_signature_check()
 {
     signature_check_enabled = !signature_check_enabled;
-    SetScriptAssert(signature_check_enabled);
     ui_print("Signature Check: %s\n", signature_check_enabled ? "Enabled" : "Disabled");
 }
 
 void toggle_script_asserts()
 {
     script_assert_enabled = !script_assert_enabled;
+	SetScriptAssert(script_assert_enabled);
     ui_print("Script Asserts: %s\n", script_assert_enabled ? "Enabled" : "Disabled");
 }
 
