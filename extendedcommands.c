@@ -348,7 +348,7 @@ void show_nandroid_restore_menu(const char* path)
 }
 
 #ifndef BOARD_UMS_LUNFILE
-#define BOARD_UMS_LUNFILE    "/sys/devices/platform/usb_mass_storage/lun0/file"
+#define BOARD_UMS_LUNFILE    "/sys/class/android_usb/f_mass_storage/lun0/file"
 #endif
 
 void show_mount_usb_storage_menu(const char* path)
