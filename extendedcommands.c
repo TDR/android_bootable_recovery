@@ -506,12 +506,10 @@ int format_device(const char *device, const char *path, const char *fs_type) {
 
     if (strcmp(fs_type, "ext4") == 0) {
         int length = 0;
-        if (strcmp(v->fs_type, "ext4") == 0) {
-            // Our desired filesystem matches the one in fstab, respect v->length
-            length = v->length;
-        }
         reset_ext4fs_info();
-        int result = make_ext4fs(device, length);
+        int result = make_ext4fs(device, NULL, NULL, 0, 0, 0);
+        if (strcmp(path, "/data") == 0)
+            set_ext4fs_len(-16384);
         if (result != 0) {
             LOGE("format_volume: make_extf4fs failed on %s\n", device);
             return -1;
