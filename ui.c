@@ -47,10 +47,8 @@ static int gShowBackButton = 0;
     #define CHAR_WIDTH 15
     #define CHAR_HEIGHT 24
 #elif defined(BOARD_HDPI_RECOVERY)
-  //#define CHAR_WIDTH 10
-  //#define CHAR_HEIGHT 18
-	#define CHAR_WIDTH 15
-	#define CHAR_HEIGHT 24
+  #define CHAR_WIDTH 10
+  #define CHAR_HEIGHT 18
 #elif defined(BOARD_LDPI_RECOVERY)
   #define CHAR_WIDTH 7
   #define CHAR_HEIGHT 16
@@ -58,6 +56,8 @@ static int gShowBackButton = 0;
   #define CHAR_WIDTH 10
   #define CHAR_HEIGHT 18
 #endif
+
+#define MIN_LOG_ROWS 3
 
 #define PROGRESSBAR_INDETERMINATE_STATES 6
 #define PROGRESSBAR_INDETERMINATE_FPS 15
