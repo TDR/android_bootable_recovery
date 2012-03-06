@@ -1029,11 +1029,7 @@ void show_advanced_menu()
                             "Key test",
                             "Show log",
 #ifndef BOARD_HAS_SMALL_RECOVERY
-                            "Partition SD card",
                             "Fix permissions",
-#ifdef BOARD_HAS_SDCARD_INTERNAL
-                            "Partition internal SD card",
-#endif
 #endif
                             NULL
     };
@@ -1073,107 +1069,11 @@ void show_advanced_menu()
             }
             case 4:
             {
-                if (is_data_media())
-                    ui_print("Paritioning disabled with internal storage.\n");
-                else if (confirm_selection("All data on the SD card will be wiped. Continue?", "Yes - Partition"))
-                {
-                    static char* ext_sizes[] = { "0M",
-                                                 "128M",
-                                                 "256M",
-                                                 "512M",
-                                                 "1024M",
-                                                 "2048M",
-                                                 "4096M",
-                                                 NULL };
-
-                    static char* swap_sizes[] = { "0M",
-                                                  "32M",
-                                                  "64M",
-                                                  "128M",
-                                                  "256M",
-                                                  NULL };
-
-                    static char* ext_headers[] = { "Ext Size", "", NULL };
-                    static char* swap_headers[] = { "Swap Size", "", NULL };
-
-                    int ext_size = get_menu_selection(ext_headers, ext_sizes, 0, 0);
-                    if (ext_size == GO_BACK)
-                        continue;
-
-                    int swap_size = get_menu_selection(swap_headers, swap_sizes, 0, 0);
-                    if (swap_size == GO_BACK)
-                        continue;
-
-                    char sddevice[256];
-                    Volume *vol = volume_for_path("/sdcard");
-                    strcpy(sddevice, vol->device);
-                    // we only want the mmcblk, not the partition
-                    sddevice[strlen("/dev/block/mmcblkX")] = NULL;
-                    char cmd[PATH_MAX];
-                    setenv("SDPATH", sddevice, 1);
-                    sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
-                    ui_print("Partitioning SD card...\n");
-                    if (0 == __system(cmd))
-                        ui_print("Done!\n");
-                    else
-                        ui_print("An error occured while partitioning your SD card. Please check the recovery log for more details.\n");
-                }
-                break;
-            }
-            case 5:
-            {
                 ensure_path_mounted("/system");
                 ensure_path_mounted("/data");
                 ui_print("Fixing permissions...\n");
                 __system("fix_permissions");
                 ui_print("Done!\n");
-                break;
-            }
-            case 6:
-            {
-                if (confirm_selection("All data on the internal SD card will be wiped. Continue?", "Yes - Partition"))
-                {
-                    static char* ext_sizes[] = { "0M",
-                                                 "128M",
-                                                 "256M",
-                                                 "512M",
-                                                 "1024M",
-                                                 "2048M",
-                                                 "4096M",
-                                                 NULL };
-
-                    static char* swap_sizes[] = { "0M",
-                                                  "32M",
-                                                  "64M",
-                                                  "128M",
-                                                  "256M",
-                                                  NULL };
-
-                    static char* ext_headers[] = { "Data Size", "", NULL };
-                    static char* swap_headers[] = { "Swap Size", "", NULL };
-
-                    int ext_size = get_menu_selection(ext_headers, ext_sizes, 0, 0);
-                    if (ext_size == GO_BACK)
-                        continue;
-
-                    int swap_size = 0;
-                    if (swap_size == GO_BACK)
-                        continue;
-
-                    char sddevice[256];
-                    Volume *vol = volume_for_path("/emmc");
-                    strcpy(sddevice, vol->device);
-                    // we only want the mmcblk, not the partition
-                    sddevice[strlen("/dev/block/mmcblkX")] = NULL;
-                    char cmd[PATH_MAX];
-                    setenv("SDPATH", sddevice, 1);
-                    sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
-                    ui_print("Partitioning internal SD card...\n");
-                    if (0 == __system(cmd))
-                        ui_print("Done!\n");
-                    else
-                        ui_print("An error occured while partitioning your internal SD card. Please check the recovery log for more details.\n");
-                }
                 break;
             }
         }
