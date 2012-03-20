@@ -985,7 +985,6 @@ void show_advanced_menu()
 
     static char* list[] = { "Reboot recovery",
                             "Reboot to download mode",
-                            "Reboot to stock recovery",
                             "Report error",
                             "Key test",
                             "Show log",
@@ -1014,17 +1013,10 @@ void show_advanced_menu()
             }
             case 2:
             {
-                ensure_path_mounted("/cache");
-                __system("touch /cache/.stock_recovery");
-                reboot_wrapper("recovery");
-                break;
-            }
-            case 3:
-            {
                 handle_failure(1);
                 break;
             }
-            case 4:
+            case 3:
             {
                 ui_print("Outputting key codes.\n");
                 ui_print("Go back to end debugging.\n");
@@ -1039,12 +1031,12 @@ void show_advanced_menu()
                 while (action != GO_BACK);
                 break;
             }
-            case 5:
+            case 4:
             {
                 ui_printlogtail(12);
                 break;
             }
-            case 6:
+            case 5:
             {
                 ensure_path_mounted("/system");
                 ensure_path_mounted("/data");
