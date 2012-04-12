@@ -284,6 +284,7 @@ int run_script_from_buffer(char* script_data, int script_len, char* filename)
         state.cookie = NULL;
         state.script = script_data;
         state.errmsg = NULL;
+        state.flags = 0;
 
         char* result = Evaluate(&state, root);
         if (result == NULL) {
@@ -392,6 +393,7 @@ int edify_main(int argc, char** argv) {
         state.cookie = NULL;
         state.script = buffer;
         state.errmsg = NULL;
+        state.flags = 0;
 
         char* result = Evaluate(&state, root);
         if (result == NULL) {
