@@ -75,6 +75,10 @@ static int gShowBackButton = 0;
 #define PROGRESSBAR_INDETERMINATE_STATES 6
 #define PROGRESSBAR_INDETERMINATE_FPS 24
 
+extern int MENU_MAX_HEIGHT;
+extern int resX;
+extern int resY;
+
 static pthread_mutex_t gUpdateMutex = PTHREAD_MUTEX_INITIALIZER;
 static gr_surface gBackgroundIcon[NUM_BACKGROUND_ICONS];
 static gr_surface gMenuIcon[NUM_MENU_ICON];
@@ -389,6 +393,9 @@ int device_handle_mouse(struct keyStruct *key, int visible)
 
 	if (visible) {
 	int position;
+    position = key->y;
+    if (position < (resY-MENU_MAX_HEIGHT))
+        return NO_ACTION;
 
 	position = key->x;
 
@@ -424,7 +431,7 @@ if(TOUCH_CONTROL_DEBUG)
 }
 
   if (show_menu) {
-    if (curPos[0] > 0) {
+    if (curPos[0] > 0 && curPos[2] > (resY-MENU_MAX_HEIGHT)) {
 		int position;
 
 		position = curPos[1];
