@@ -50,11 +50,11 @@ static int gShowBackButton = 1;
 static int gShowBackButton = 0;
 #endif
 
-#define MAX_COLS 96
-#define MAX_ROWS 40
+#define MAX_COLS 85
+#define MAX_ROWS 32
 
-#define MENU_MAX_COLS 64
-#define MENU_MAX_ROWS 250
+#define MENU_MAX_COLS 85
+#define MENU_MAX_ROWS 320
 
 #if defined(BOARD_XHDPI_RECOVERY)
     #define CHAR_WIDTH 15
@@ -73,7 +73,7 @@ static int gShowBackButton = 0;
 #define MIN_LOG_ROWS 3
 
 #define PROGRESSBAR_INDETERMINATE_STATES 6
-#define PROGRESSBAR_INDETERMINATE_FPS 24
+#define PROGRESSBAR_INDETERMINATE_FPS 60
 
 
 static pthread_mutex_t gUpdateMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -137,6 +137,10 @@ static int show_menu = 0;
 static int menu_top = 0, menu_items = 0, menu_sel = 0;
 static int menu_show_start = 0;             // this is line which menu display is starting at
 
+static int show_buttons = 1;
+static int user_show_buttons = 1;
+static int user_tap_select = 1;
+
 // Key event input queue
 static pthread_mutex_t key_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t key_queue_cond = PTHREAD_COND_INITIALIZER;
@@ -150,7 +154,7 @@ static volatile int pt_ui_thread_active = 1;
 static volatile int pt_input_thread_active = 1;
 
 // Desire/Nexus and similar have 2, SGS has 5, SGT has 10, we take the max as it's cool. We'll only use 1 however
-#define MAX_MT_POINTS 10
+#define MAX_MT_POINTS 8
 
 // Struct to store mouse events
 static struct mousePosStruct {
@@ -277,11 +281,20 @@ static void draw_screen_locked(void)
         int offset = 0;         // offset of separating bar under menus
         int row = 0;            // current row that we are drawing on
         if (show_menu) {
+            if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
+                j = MAX_ROWS - menu_top;
+				show_buttons = 0;
+            } else {
+                j = menu_items - menu_show_start;
+				show_buttons = user_show_buttons;
+			}
 
-			draw_icon_locked(gMenuIcon[MENU_BACK], MENU_ICON[MENU_BACK].x, MENU_ICON[MENU_BACK].y );
-			draw_icon_locked(gMenuIcon[MENU_DOWN], MENU_ICON[MENU_DOWN].x, MENU_ICON[MENU_DOWN].y);
-			draw_icon_locked(gMenuIcon[MENU_UP], MENU_ICON[MENU_UP].x, MENU_ICON[MENU_UP].y );
-			draw_icon_locked(gMenuIcon[MENU_SELECT], MENU_ICON[MENU_SELECT].x, MENU_ICON[MENU_SELECT].y );
+			if (show_buttons) {
+				draw_icon_locked(gMenuIcon[MENU_BACK], MENU_ICON[MENU_BACK].x, MENU_ICON[MENU_BACK].y );
+				draw_icon_locked(gMenuIcon[MENU_DOWN], MENU_ICON[MENU_DOWN].x, MENU_ICON[MENU_DOWN].y);
+				draw_icon_locked(gMenuIcon[MENU_UP], MENU_ICON[MENU_UP].x, MENU_ICON[MENU_UP].y );
+				draw_icon_locked(gMenuIcon[MENU_SELECT], MENU_ICON[MENU_SELECT].x, MENU_ICON[MENU_SELECT].y );
+			}
             gr_color(MENU_TEXT_COLOR);
             gr_fill(0, (menu_top + menu_sel - menu_show_start) * CHAR_HEIGHT,
                     gr_fb_width(), (menu_top + menu_sel - menu_show_start + 1)*CHAR_HEIGHT+1);
@@ -292,20 +305,40 @@ static void draw_screen_locked(void)
                 row++;
             }
 
-            if (menu_items - menu_show_start + menu_top >= MAX_ROWS)
-                j = MAX_ROWS - menu_top;
-            else
-                j = menu_items - menu_show_start;
+			char* menu_item;
+			int padding;
+			const char* menu_up_available = "(^^^)";
+			const char* menu_down_available = "(vvv)";
 
             gr_color(MENU_TEXT_COLOR);
             for (i = menu_show_start + menu_top; i < (menu_show_start + menu_top + j); ++i) {
                 if (i == menu_top + menu_sel) {
                     gr_color(SELECTED_TEXT_COLOR);
-                    draw_text_line(i - menu_show_start , menu[i]);
+					if (menu_show_start > 0 && i == menu_show_start + menu_top) {
+						padding = MAX_COLS - strlen(menu[i]) - 5;
+						asprintf(&menu_item, "%s%*s", menu[i], padding, menu_up_available);
+						draw_text_line(i - menu_show_start , menu_item);
+					}
+					else if (menu_items > MAX_ROWS && i == (menu_show_start + menu_top + j - 1) && i != menu_items) {
+						padding = MAX_COLS - strlen(menu[i]) - 5;
+						asprintf(&menu_item, "%s%*s", menu[i], padding, menu_down_available);
+						draw_text_line(i - menu_show_start , menu_item);
+					}
+                    else draw_text_line(i - menu_show_start , menu[i]);
                     gr_color(MENU_TEXT_COLOR);
                 } else {
                     gr_color(MENU_TEXT_COLOR);
-                    draw_text_line(i - menu_show_start, menu[i]);
+					if (menu_show_start > 0 && i == menu_show_start + menu_top) {
+						padding = MAX_COLS - strlen(menu[i]) - 5;
+						asprintf(&menu_item, "%s%*s", menu[i], padding, menu_up_available);
+						draw_text_line(i - menu_show_start , menu_item);
+					}
+					else if (menu_items > MAX_ROWS && i == (menu_show_start + menu_top + j - 1) && i != menu_items) {
+						padding = MAX_COLS - strlen(menu[i]) - 5;
+						asprintf(&menu_item, "%s%*s", menu[i], padding, menu_down_available);
+						draw_text_line(i - menu_show_start , menu_item);
+					}
+                    else draw_text_line(i - menu_show_start , menu[i]);
                 }
                 row++;
             }
@@ -377,6 +410,11 @@ static void *progress_thread(void *cookie)
     return NULL;
 }
 
+int touched_row(int positionY)
+{
+	return menu_show_start + (positionY / CHAR_HEIGHT) - menu_top;
+}
+
 // handle the action associated with user input touch events inside the ui handler
 int device_handle_mouse(struct keyStruct *key, int visible)
 {
@@ -389,28 +427,36 @@ int device_handle_mouse(struct keyStruct *key, int visible)
 	};
 
 	if (visible) {
-	int position;
-    position = key->y;
-    if (position < (resY-MENU_MAX_HEIGHT))
-        return NO_ACTION;
-
-	position = key->x;
-
-		if(position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR)
-			return GO_BACK;
-		else if(position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR)
-			return HIGHLIGHT_DOWN;
-		else if(position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR)
-			return HIGHLIGHT_UP;
-		else if(position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR)
+		int position = key->y;
+		if (user_tap_select && touched_row(position) == menu_sel)
 			return SELECT_ITEM;
+
+		if (show_buttons) {
+			if (position < (resY-MENU_MAX_HEIGHT))
+				return NO_ACTION;
+
+			position = key->x;
+
+			if(position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR)
+				return GO_BACK;
+			else if(position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR)
+				return HIGHLIGHT_DOWN;
+			else if(position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR)
+				return HIGHLIGHT_UP;
+			else if(position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR)
+				return SELECT_ITEM;
+		} else {
+			if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
+				if (position < MENU_MAX_HEIGHT) {
+					ui_menu_select(menu_show_start - menu_top);
+					return HIGHLIGHT_UP;
+				}
+				if (position > (resY-MENU_MAX_HEIGHT))
+					return HIGHLIGHT_DOWN;
+			}
+		}
     }
 	return NO_ACTION;
-}
-
-int touched_row(int positionY)
-{
-	return (positionY / CHAR_HEIGHT) - 1;
 }
 
 // handle the user input events (mainly the touch events) inside the ui handler
@@ -431,41 +477,49 @@ static void ui_handle_mouse_input(int* curPos)
 		ui_print("Touch X:\t%d,\tY:\t%d\n",curPos[1],curPos[2]);
 	}
 
-  if (show_menu) {
+    if (show_menu) {
 		if (curPos[0] > 0) {
 			int position;
-			if (curPos[2] < (resY-MENU_MAX_HEIGHT)) { // Above buttons
+			if (show_buttons) {
+				if (curPos[2] < (resY-MENU_MAX_HEIGHT)) { // Above buttons
+					position = curPos[2];
+					if (menu_items > 0) {
+						if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items - 1)
+							ui_menu_select(touched_row(position));
+					}
+				} else {
+					position = curPos[1];
+
+					pthread_mutex_lock(&gUpdateMutex);
+					if (position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR) {
+						selMenuIcon = MENU_BACK;
+						draw_icon_locked(gMenuIcon[MENU_BACK_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
+						gr_flip();
+					}
+					else if (position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR) {			
+						selMenuIcon = MENU_DOWN;
+						draw_icon_locked(gMenuIcon[MENU_DOWN_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
+						gr_flip();
+					}
+					else if (position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR) {
+						selMenuIcon = MENU_UP;
+						draw_icon_locked(gMenuIcon[MENU_UP_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
+						gr_flip();
+					}
+					else if (position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR) {
+						selMenuIcon = MENU_SELECT;
+						draw_icon_locked(gMenuIcon[MENU_SELECT_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
+						gr_flip();
+					}
+					key_queue_len_back = key_queue_len;
+					pthread_mutex_unlock(&gUpdateMutex);
+				}
+			} else {
 				position = curPos[2];
 				if (menu_items > 0) {
 					if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items - 1)
 						ui_menu_select(touched_row(position));
 				}
-			} else {
-				position = curPos[1];
-
-				pthread_mutex_lock(&gUpdateMutex);
-				if (position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR) {
-					selMenuIcon = MENU_BACK;
-					draw_icon_locked(gMenuIcon[MENU_BACK_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
-					gr_flip();
-				}
-				else if (position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR) {			
-					selMenuIcon = MENU_DOWN;
-					draw_icon_locked(gMenuIcon[MENU_DOWN_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
-					gr_flip();
-				}
-				else if (position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR) {
-					selMenuIcon = MENU_UP;
-					draw_icon_locked(gMenuIcon[MENU_UP_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
-					gr_flip();
-				}
-				else if (position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR) {
-					selMenuIcon = MENU_SELECT;
-					draw_icon_locked(gMenuIcon[MENU_SELECT_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
-					gr_flip();
-				}
-				key_queue_len_back = key_queue_len;
-				pthread_mutex_unlock(&gUpdateMutex);
 			}
 		}
 	}
@@ -625,8 +679,7 @@ void ui_init(void)
     ev_init();
 
     text_col = text_row = 0;
-    text_rows = gr_fb_height() / CHAR_HEIGHT;
-    if (text_rows > MAX_ROWS) text_rows = MAX_ROWS;
+	text_rows = MAX_ROWS;
     text_top = 1;
 
     text_cols = gr_fb_width() / CHAR_WIDTH;

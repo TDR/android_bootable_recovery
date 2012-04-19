@@ -27,7 +27,7 @@
 int TOUCH_CONTROL_DEBUG = 0;
 
 //In this case MENU_SELECT icon has maximum possible height.
-const int MENU_MAX_HEIGHT = 80; //gr_get_height(gMenuIcon[MENU_SELECT])		//Maximum allowed height for navigation icons
+const int MENU_MAX_HEIGHT = 60; //gr_get_height(gMenuIcon[MENU_SELECT])		//Maximum allowed height for navigation icons
 
 //Device specific boundaries for touch recognition
 /*	
@@ -137,7 +137,7 @@ int get_menu_icon_info(int indx1, int indx2) {
 //ToDo: Following switch case should be replaced by array or structure
 
 int caseN = indx1*4 + indx2;
-const int buttonX = 160;
+const int buttonX = 400;
 /*
 int MENU_ICON1[] = {
 		{  1*resX/8,	(resY - MENU_MAX_HEIGHT/2), 0*resX/4, 1*resX/4 },
