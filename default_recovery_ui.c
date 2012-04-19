@@ -50,11 +50,11 @@ const int resY = 800;		//Value obtained from function 'gr_fb_height()'
 char* MENU_HEADERS[] = { NULL };
 
 char* MENU_ITEMS[] = { "Reboot system",
-                       "Install from zip file",
-                       "Wipe",
-                       "Backup and Restore",
-                       "Mounts and Storage",
-                       "Advanced",
+                       "Install from zip file  -->",
+                       "Wipe  -->",
+                       "Backup and Restore  -->",
+                       "Mounts and Storage  -->",
+                       "Advanced  -->",
                        "Power off",
                        NULL };
 

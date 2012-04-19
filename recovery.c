@@ -466,18 +466,18 @@ get_menu_selection(char** headers, char** items, int menu_only,
     int wrap_count = 0;
 
     while (chosen_item < 0 && chosen_item != GO_BACK) {
-		struct keyStruct *key;
-		key = ui_wait_key();
+        struct keyStruct *key;
+        key = ui_wait_key();
 
         int visible = ui_text_visible();
 
-		int action;
-		if(key->code == ABS_MT_POSITION_X) {
-	        action = device_handle_mouse(key, visible);
-			selected = ui_get_menu_select(); // Cursor might have moved
-		}
-		else
-	        action = device_handle_key(key->code, visible);
+        int action;
+        if(key->code == ABS_MT_POSITION_X) {
+            action = device_handle_mouse(key, visible);
+            selected = ui_get_menu_select(); // Cursor might have moved
+        }
+        else
+            action = device_handle_key(key->code, visible);
 
         if (action < 0) {
             switch (action) {
@@ -716,6 +716,7 @@ void show_wipe_menu()
             {
                 if (confirm_selection( "Are you sure you want to wipe dalvik-cache?", "Yes - Wipe Dalvik Cache")) 
                 {
+                    ui_print("Wiping dalvik-cache...\n");
                     if (0 != ensure_path_mounted("/data"))
                     {
                         ui_print("Error mounting /data!\n");
@@ -741,7 +742,7 @@ void show_wipe_menu()
                 break;
             }
         }
-		ui_reset_progress();
+        ui_reset_progress();
     }
 }
 
@@ -804,22 +805,22 @@ print_property(const char *key, const char *name, void *cookie) {
 
 int
 main(int argc, char **argv) {
-	if (strcmp(basename(argv[0]), "recovery") != 0)
-	{
-	    if (strstr(argv[0], "flash_image") != NULL)
-	        return flash_image_main(argc, argv);
-	    if (strstr(argv[0], "volume") != NULL)
-	        return volume_main(argc, argv);
-	    if (strstr(argv[0], "edify") != NULL)
-	        return edify_main(argc, argv);
-	    if (strstr(argv[0], "dump_image") != NULL)
-	        return dump_image_main(argc, argv);
-	    if (strstr(argv[0], "erase_image") != NULL)
-	        return erase_image_main(argc, argv);
-	    if (strstr(argv[0], "mkyaffs2image") != NULL)
-	        return mkyaffs2image_main(argc, argv);
-	    if (strstr(argv[0], "unyaffs") != NULL)
-	        return unyaffs_main(argc, argv);
+    if (strcmp(basename(argv[0]), "recovery") != 0)
+    {
+        if (strstr(argv[0], "flash_image") != NULL)
+            return flash_image_main(argc, argv);
+        if (strstr(argv[0], "volume") != NULL)
+            return volume_main(argc, argv);
+        if (strstr(argv[0], "edify") != NULL)
+            return edify_main(argc, argv);
+        if (strstr(argv[0], "dump_image") != NULL)
+            return dump_image_main(argc, argv);
+        if (strstr(argv[0], "erase_image") != NULL)
+            return erase_image_main(argc, argv);
+        if (strstr(argv[0], "mkyaffs2image") != NULL)
+            return mkyaffs2image_main(argc, argv);
+        if (strstr(argv[0], "unyaffs") != NULL)
+            return unyaffs_main(argc, argv);
         if (strstr(argv[0], "nandroid"))
             return nandroid_main(argc, argv);
         if (strstr(argv[0], "reboot"))

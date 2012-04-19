@@ -119,10 +119,10 @@ int install_zip(const char* packagefilepath)
     return 0;
 }
 
-char* INSTALL_MENU_ITEMS[] = {  "Choose zip file from SD card",
-                                "Choose zip file from internal storage",
-                                "Signature verification: Disabled",
-                                "Script asserts: Enabled",
+char* INSTALL_MENU_ITEMS[] = {  "Choose zip file from SD card  -->",
+                                "Choose zip file from internal storage  -->",
+                                "Signature verification  [Disabled]",
+                                "Script asserts  [Enabled]",
                                 NULL };
 #define ITEM_CHOOSE_ZIP       0
 #define ITEM_CHOOSE_ZIP_INT   1
@@ -139,14 +139,14 @@ void show_install_update_menu()
     for (;;)
     {
         if (signature_check_enabled)
-            INSTALL_MENU_ITEMS[ITEM_SIG_CHECK] = "Signature verification: Enabled";
+            INSTALL_MENU_ITEMS[ITEM_SIG_CHECK] = "Signature verification  [Enabled]";
         else
-            INSTALL_MENU_ITEMS[ITEM_SIG_CHECK] = "Signature verification: Disabled";
+            INSTALL_MENU_ITEMS[ITEM_SIG_CHECK] = "Signature verification  [Disabled]";
 
         if (script_assert_enabled)
-            INSTALL_MENU_ITEMS[ITEM_ASSERTS] = "Script asserts: Enabled";
+            INSTALL_MENU_ITEMS[ITEM_ASSERTS] = "Script asserts  [Enabled]";
         else
-            INSTALL_MENU_ITEMS[ITEM_ASSERTS] = "Script asserts: Disabled";
+            INSTALL_MENU_ITEMS[ITEM_ASSERTS] = "Script asserts  [Disabled]";
 
         int chosen_item = get_menu_selection(headers, INSTALL_MENU_ITEMS, 0, 0);
         switch (chosen_item)
@@ -158,11 +158,7 @@ void show_install_update_menu()
                 toggle_signature_check();
                 break;
             case ITEM_CHOOSE_ZIP:
-                if (force_use_data_media)
-                {
-                    revert_to_sdcard();
-                    ui_print("Use internal storage as /sdcard: Disabled\n");
-                }
+                if (force_use_data_media) revert_to_sdcard();
                 show_choose_zip_menu("/sdcard/");
                 break;
             case ITEM_CHOOSE_ZIP_INT:
@@ -957,10 +953,10 @@ void show_nandroid_menu()
     };
 
     static char* list[] = { "Backup",
-                            "Restore",
-                            "Advanced Backup",
-                            "Advanced Restore",
-                            "Nandroid storage: SD card",
+                            "Restore  -->",
+                            "Advanced Backup  -->",
+                            "Advanced Restore  -->",
+                            "Nandroid storage  [SD card]",
                             NULL
     };
 
@@ -968,9 +964,9 @@ void show_nandroid_menu()
     do
     {
         if (force_use_data_media)
-            list[5] = "Switch to SD card";
+            list[5] = "Use SD card";
         else
-            list[5] = "Switch to internal storage";
+            list[5] = "Use internal storage";
 
         repeat = 0;
         chosen_item = get_menu_selection(headers, list, 0, 0);
@@ -978,7 +974,7 @@ void show_nandroid_menu()
         {
             case 0:
                 {
-                    if (!is_data_media() || confirm_simple("It is not recommended to backup to internal storage. Continue?", "Yes - Backup"))
+                    if ((!is_data_media() && confirm_simple("Are you sure you want to backup?", "Yes - Backup")) || (is_data_media() && confirm_simple("It is not recommended to backup to internal storage. Continue?", "Yes - Backup")))
                     {
                         char backup_path[PATH_MAX];
                         time_t t = time(NULL);
@@ -1010,9 +1006,9 @@ void show_nandroid_menu()
             case 4:
                 toggle_force_use_data_media();
                 if (force_use_data_media)
-                    list[4] = "Nandroid storage: internal storage";
+                    list[4] = "Nandroid storage  [internal storage]";
                 else
-                    list[4] = "Nandroid storage: SD card";
+                    list[4] = "Nandroid storage  [SD card]";
                 repeat = 1;
                 break;
         }
