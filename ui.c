@@ -92,13 +92,13 @@ static const struct { gr_surface* surface; const char *name; } BITMAPS[] = {
     { &gBackgroundIcon[BACKGROUND_ICON_CLOCKWORK],  "icon_clockwork" },
     { &gBackgroundIcon[BACKGROUND_ICON_FIRMWARE_INSTALLING], "icon_firmware_install" },
     { &gBackgroundIcon[BACKGROUND_ICON_FIRMWARE_ERROR], "icon_firmware_error" },
-	{ &gMenuIcon[MENU_BACK],      "icon_back" },
-    { &gMenuIcon[MENU_DOWN],  	  "icon_down" },
-    { &gMenuIcon[MENU_UP], 		  "icon_up" },
+    { &gMenuIcon[MENU_BACK],      "icon_back" },
+    { &gMenuIcon[MENU_DOWN],        "icon_down" },
+    { &gMenuIcon[MENU_UP],           "icon_up" },
     { &gMenuIcon[MENU_SELECT],    "icon_select" },
-	{ &gMenuIcon[MENU_BACK_M],    "icon_backM" },
+    { &gMenuIcon[MENU_BACK_M],    "icon_backM" },
     { &gMenuIcon[MENU_DOWN_M],    "icon_downM" },
-    { &gMenuIcon[MENU_UP_M], 	  "icon_upM" },
+    { &gMenuIcon[MENU_UP_M],       "icon_upM" },
     { &gMenuIcon[MENU_SELECT_M],  "icon_selectM" },
     { &gProgressBarIndeterminate[0],    "indeterminate1" },
     { &gProgressBarIndeterminate[1],    "indeterminate2" },
@@ -158,12 +158,12 @@ static volatile int pt_input_thread_active = 1;
 
 // Struct to store mouse events
 static struct mousePosStruct {
-  int x;
-  int y;
-  int pressure; // 0:up or 255:down
-  int size;
-  int num;
-  int length; // length of the line drawn while in touch state
+    int x;
+    int y;
+    int pressure; // 0:up or 255:down
+    int size;
+    int num;
+    int length; // length of the line drawn while in touch state
 } actPos, grabPos, oldMousePos[MAX_MT_POINTS], mousePos[MAX_MT_POINTS];
 //Struct to return key events to recovery.c through ui_wait_key()
 volatile struct keyStruct key;
@@ -171,8 +171,7 @@ volatile struct keyStruct key;
 
 // Clear the screen and draw the currently selected background icon (if any).
 // Should only be called with gUpdateMutex locked.
-static void draw_background_locked(gr_surface icon)
-{
+static void draw_background_locked(gr_surface icon) {
     gPagesIdentical = 0;
     gr_color(0, 0, 0, 255);
     gr_fill(0, 0, gr_fb_width(), gr_fb_height());
@@ -188,8 +187,7 @@ static void draw_background_locked(gr_surface icon)
 
 // Draw the currently selected icon (if any) at given location.
 // Should only be called with gUpdateMutex locked.
-static void draw_icon_locked(gr_surface icon,int locX, int locY)
-{
+static void draw_icon_locked(gr_surface icon,int locX, int locY) {
     gPagesIdentical = 0;
 
     if (icon) {
@@ -203,8 +201,7 @@ static void draw_icon_locked(gr_surface icon,int locX, int locY)
 
 // Draw the progress bar (if any) on the screen.  Does not flip pages.
 // Should only be called with gUpdateMutex locked.
-static void draw_progress_locked()
-{
+static void draw_progress_locked() {
     if (gProgressBarType == PROGRESSBAR_TYPE_NONE) return;
 
     int iconHeight = gr_get_height(gBackgroundIcon[BACKGROUND_ICON_INSTALLING]);
@@ -238,9 +235,9 @@ static void draw_progress_locked()
 }
 
 static void draw_text_line(int row, const char* t) {
-  if (t[0] != '\0') {
-    gr_text(0, (row+1)*CHAR_HEIGHT-1, t);
-  }
+    if (t[0] != '\0') {
+        gr_text(0, (row+1)*CHAR_HEIGHT-1, t);
+    }
 }
 
 #define COLOR_RGBA_BLACK     0, 0, 0, 255
@@ -257,17 +254,16 @@ static void draw_text_line(int row, const char* t) {
 
 // Redraw everything on the screen.  Does not flip pages.
 // Should only be called with gUpdateMutex locked.
-static void draw_screen_locked(void)
-{
+static void draw_screen_locked(void) {
     if (!ui_has_initialized) return;
 
 //ToDo: Following structure should be global
-	struct { int x; int y; int xL; int xR; } MENU_ICON[] = {
-		{  get_menu_icon_info(MENU_BACK,MENU_ICON_X),	get_menu_icon_info(MENU_BACK,MENU_ICON_Y), get_menu_icon_info(MENU_BACK,MENU_ICON_XL), get_menu_icon_info(MENU_BACK,MENU_ICON_XR) },
-		{  get_menu_icon_info(MENU_DOWN,MENU_ICON_X),	get_menu_icon_info(MENU_DOWN,MENU_ICON_Y), get_menu_icon_info(MENU_DOWN,MENU_ICON_XL), get_menu_icon_info(MENU_DOWN,MENU_ICON_XR) },
-		{  get_menu_icon_info(MENU_UP,MENU_ICON_X),	get_menu_icon_info(MENU_UP,MENU_ICON_Y), get_menu_icon_info(MENU_UP,MENU_ICON_XL), get_menu_icon_info(MENU_UP,MENU_ICON_XR) },
-		{  get_menu_icon_info(MENU_SELECT,MENU_ICON_X),	get_menu_icon_info(MENU_SELECT,MENU_ICON_Y), get_menu_icon_info(MENU_SELECT,MENU_ICON_XL), get_menu_icon_info(MENU_SELECT,MENU_ICON_XR) },
-	};
+    struct { int x; int y; int xL; int xR; } MENU_ICON[] = {
+        {  get_menu_icon_info(MENU_BACK,MENU_ICON_X),    get_menu_icon_info(MENU_BACK,MENU_ICON_Y), get_menu_icon_info(MENU_BACK,MENU_ICON_XL), get_menu_icon_info(MENU_BACK,MENU_ICON_XR) },
+        {  get_menu_icon_info(MENU_DOWN,MENU_ICON_X),    get_menu_icon_info(MENU_DOWN,MENU_ICON_Y), get_menu_icon_info(MENU_DOWN,MENU_ICON_XL), get_menu_icon_info(MENU_DOWN,MENU_ICON_XR) },
+        {  get_menu_icon_info(MENU_UP,MENU_ICON_X),    get_menu_icon_info(MENU_UP,MENU_ICON_Y), get_menu_icon_info(MENU_UP,MENU_ICON_XL), get_menu_icon_info(MENU_UP,MENU_ICON_XR) },
+        {  get_menu_icon_info(MENU_SELECT,MENU_ICON_X),    get_menu_icon_info(MENU_SELECT,MENU_ICON_Y), get_menu_icon_info(MENU_SELECT,MENU_ICON_XL), get_menu_icon_info(MENU_SELECT,MENU_ICON_XR) },
+    };
 
     draw_background_locked(gCurrentIcon);
     draw_progress_locked();
@@ -283,21 +279,21 @@ static void draw_screen_locked(void)
         if (show_menu) {
             if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
                 j = MAX_ROWS - menu_top;
-				show_buttons = 0;
+                show_buttons = 0;
             } else {
                 j = menu_items - menu_show_start;
-				show_buttons = user_show_buttons;
-			}
+                show_buttons = user_show_buttons;
+            }
 
-			if (show_buttons) {
-				draw_icon_locked(gMenuIcon[MENU_BACK], MENU_ICON[MENU_BACK].x, MENU_ICON[MENU_BACK].y );
-				draw_icon_locked(gMenuIcon[MENU_DOWN], MENU_ICON[MENU_DOWN].x, MENU_ICON[MENU_DOWN].y);
-				draw_icon_locked(gMenuIcon[MENU_UP], MENU_ICON[MENU_UP].x, MENU_ICON[MENU_UP].y );
-				draw_icon_locked(gMenuIcon[MENU_SELECT], MENU_ICON[MENU_SELECT].x, MENU_ICON[MENU_SELECT].y );
-			}
+            if (show_buttons) {
+                draw_icon_locked(gMenuIcon[MENU_BACK], MENU_ICON[MENU_BACK].x, MENU_ICON[MENU_BACK].y);
+                draw_icon_locked(gMenuIcon[MENU_DOWN], MENU_ICON[MENU_DOWN].x, MENU_ICON[MENU_DOWN].y);
+                draw_icon_locked(gMenuIcon[MENU_UP], MENU_ICON[MENU_UP].x, MENU_ICON[MENU_UP].y);
+                draw_icon_locked(gMenuIcon[MENU_SELECT], MENU_ICON[MENU_SELECT].x, MENU_ICON[MENU_SELECT].y);
+            }
             gr_color(MENU_TEXT_COLOR);
             gr_fill(0, (menu_top + menu_sel - menu_show_start) * CHAR_HEIGHT,
-                    gr_fb_width(), (menu_top + menu_sel - menu_show_start + 1)*CHAR_HEIGHT+1);
+                    gr_fb_width(), (menu_top + menu_sel - menu_show_start + 1)*CHAR_HEIGHT + 1);
 
             gr_color(HEADER_TEXT_COLOR);
             for (i = 0; i < menu_top; ++i) {
@@ -305,39 +301,39 @@ static void draw_screen_locked(void)
                 row++;
             }
 
-			char* menu_item;
-			int padding;
-			const char* menu_up_available = "(^^^)";
-			const char* menu_down_available = "(vvv)";
+            char* menu_item;
+            int padding;
+            const char* menu_up_available = "(^^^)";
+            const char* menu_down_available = "(vvv)";
 
             gr_color(MENU_TEXT_COLOR);
             for (i = menu_show_start + menu_top; i < (menu_show_start + menu_top + j); ++i) {
                 if (i == menu_top + menu_sel) {
                     gr_color(SELECTED_TEXT_COLOR);
-					if (menu_show_start > 0 && i == menu_show_start + menu_top) {
-						padding = MAX_COLS - strlen(menu[i]) - 5;
-						asprintf(&menu_item, "%s%*s", menu[i], padding, menu_up_available);
-						draw_text_line(i - menu_show_start , menu_item);
-					}
-					else if (menu_items > MAX_ROWS && i == (menu_show_start + menu_top + j - 1) && i != menu_items) {
-						padding = MAX_COLS - strlen(menu[i]) - 5;
-						asprintf(&menu_item, "%s%*s", menu[i], padding, menu_down_available);
-						draw_text_line(i - menu_show_start , menu_item);
-					}
+                    if (menu_show_start > 0 && i == menu_show_start + menu_top) {
+                        padding = MAX_COLS - strlen(menu[i]) - 5;
+                        asprintf(&menu_item, "%s%*s", menu[i], padding, menu_up_available);
+                        draw_text_line(i - menu_show_start , menu_item);
+                    }
+                    else if (menu_items > MAX_ROWS && i == (menu_show_start + menu_top + j - 1) && i != menu_items) {
+                        padding = MAX_COLS - strlen(menu[i]) - 5;
+                        asprintf(&menu_item, "%s%*s", menu[i], padding, menu_down_available);
+                        draw_text_line(i - menu_show_start , menu_item);
+                    }
                     else draw_text_line(i - menu_show_start , menu[i]);
                     gr_color(MENU_TEXT_COLOR);
                 } else {
                     gr_color(MENU_TEXT_COLOR);
-					if (menu_show_start > 0 && i == menu_show_start + menu_top) {
-						padding = MAX_COLS - strlen(menu[i]) - 5;
-						asprintf(&menu_item, "%s%*s", menu[i], padding, menu_up_available);
-						draw_text_line(i - menu_show_start , menu_item);
-					}
-					else if (menu_items > MAX_ROWS && i == (menu_show_start + menu_top + j - 1) && i != menu_items) {
-						padding = MAX_COLS - strlen(menu[i]) - 5;
-						asprintf(&menu_item, "%s%*s", menu[i], padding, menu_down_available);
-						draw_text_line(i - menu_show_start , menu_item);
-					}
+                    if (menu_show_start > 0 && i == menu_show_start + menu_top) {
+                        padding = MAX_COLS - strlen(menu[i]) - 5;
+                        asprintf(&menu_item, "%s%*s", menu[i], padding, menu_up_available);
+                        draw_text_line(i - menu_show_start , menu_item);
+                    }
+                    else if (menu_items > MAX_ROWS && i == (menu_show_start + menu_top + j - 1) && i != menu_items) {
+                        padding = MAX_COLS - strlen(menu[i]) - 5;
+                        asprintf(&menu_item, "%s%*s", menu[i], padding, menu_down_available);
+                        draw_text_line(i - menu_show_start , menu_item);
+                    }
                     else draw_text_line(i - menu_show_start , menu[i]);
                 }
                 row++;
@@ -359,8 +355,7 @@ static void draw_screen_locked(void)
 
 // Redraw everything on the screen and flip the screen (make it visible).
 // Should only be called with gUpdateMutex locked.
-static void update_screen_locked(void)
-{
+static void update_screen_locked(void) {
     if (!ui_has_initialized) return;
     draw_screen_locked();
     gr_flip();
@@ -368,8 +363,7 @@ static void update_screen_locked(void)
 
 // Updates only the progress bar, if possible, otherwise redraws the screen.
 // Should only be called with gUpdateMutex locked.
-static void update_progress_locked(void)
-{
+static void update_progress_locked(void) {
     if (!ui_has_initialized) return;
     if (show_text || !gPagesIdentical) {
         draw_screen_locked();    // Must redraw the whole screen
@@ -381,8 +375,7 @@ static void update_progress_locked(void)
 }
 
 // Keeps the progress bar updated, even when the process is otherwise busy.
-static void *progress_thread(void *cookie)
-{
+static void *progress_thread(void *cookie) {
     for (;;) {
         usleep(1000000 / PROGRESSBAR_INDETERMINATE_FPS);
         pthread_mutex_lock(&gUpdateMutex);
@@ -412,124 +405,121 @@ static void *progress_thread(void *cookie)
 
 int touched_row(int positionY)
 {
-	return menu_show_start + (positionY / CHAR_HEIGHT) - menu_top;
+    return menu_show_start + (positionY / CHAR_HEIGHT) - menu_top;
 }
 
 // handle the action associated with user input touch events inside the ui handler
-int device_handle_mouse(struct keyStruct *key, int visible)
-{
-//ToDo: Following structure should be global
-	struct { int x; int y; int xL; int xR; } MENU_ICON[] = {
-		{  get_menu_icon_info(MENU_BACK,MENU_ICON_X),	get_menu_icon_info(MENU_BACK,MENU_ICON_Y), get_menu_icon_info(MENU_BACK,MENU_ICON_XL), get_menu_icon_info(MENU_BACK,MENU_ICON_XR) },
-		{  get_menu_icon_info(MENU_DOWN,MENU_ICON_X),	get_menu_icon_info(MENU_DOWN,MENU_ICON_Y), get_menu_icon_info(MENU_DOWN,MENU_ICON_XL), get_menu_icon_info(MENU_DOWN,MENU_ICON_XR) },
-		{  get_menu_icon_info(MENU_UP,MENU_ICON_X),	get_menu_icon_info(MENU_UP,MENU_ICON_Y), get_menu_icon_info(MENU_UP,MENU_ICON_XL), get_menu_icon_info(MENU_UP,MENU_ICON_XR) },
-		{  get_menu_icon_info(MENU_SELECT,MENU_ICON_X),	get_menu_icon_info(MENU_SELECT,MENU_ICON_Y), get_menu_icon_info(MENU_SELECT,MENU_ICON_XL), get_menu_icon_info(MENU_SELECT,MENU_ICON_XR) },
-	};
+int device_handle_mouse(struct keyStruct *key, int visible) {
+    //ToDo: Following structure should be global
+    struct { int x; int y; int xL; int xR; } MENU_ICON[] = {
+        {  get_menu_icon_info(MENU_BACK,MENU_ICON_X),    get_menu_icon_info(MENU_BACK,MENU_ICON_Y), get_menu_icon_info(MENU_BACK,MENU_ICON_XL), get_menu_icon_info(MENU_BACK,MENU_ICON_XR) },
+        {  get_menu_icon_info(MENU_DOWN,MENU_ICON_X),    get_menu_icon_info(MENU_DOWN,MENU_ICON_Y), get_menu_icon_info(MENU_DOWN,MENU_ICON_XL), get_menu_icon_info(MENU_DOWN,MENU_ICON_XR) },
+        {  get_menu_icon_info(MENU_UP,MENU_ICON_X),    get_menu_icon_info(MENU_UP,MENU_ICON_Y), get_menu_icon_info(MENU_UP,MENU_ICON_XL), get_menu_icon_info(MENU_UP,MENU_ICON_XR) },
+        {  get_menu_icon_info(MENU_SELECT,MENU_ICON_X),    get_menu_icon_info(MENU_SELECT,MENU_ICON_Y), get_menu_icon_info(MENU_SELECT,MENU_ICON_XL), get_menu_icon_info(MENU_SELECT,MENU_ICON_XR) },
+    };
 
-	if (visible) {
-		int position = key->y;
-		if (user_tap_select && touched_row(position) == menu_sel)
-			return SELECT_ITEM;
+    if (visible) {
+        int position = key->y;
+        if (user_tap_select && touched_row(position) == menu_sel)
+            return SELECT_ITEM;
 
-		if (show_buttons) {
-			if (position < (resY-MENU_MAX_HEIGHT))
-				return NO_ACTION;
+        if (show_buttons) {
+            if (position < (resY-MENU_MAX_HEIGHT))
+                return NO_ACTION;
 
-			position = key->x;
+            position = key->x;
 
-			if(position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR)
-				return GO_BACK;
-			else if(position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR)
-				return HIGHLIGHT_DOWN;
-			else if(position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR)
-				return HIGHLIGHT_UP;
-			else if(position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR)
-				return SELECT_ITEM;
-		} else {
-			if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
-				if (position < MENU_MAX_HEIGHT) {
-					ui_menu_select(menu_show_start - menu_top);
-					return HIGHLIGHT_UP;
-				}
-				if (position > (resY-MENU_MAX_HEIGHT))
-					return HIGHLIGHT_DOWN;
-			}
-		}
+            if(position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR)
+                return GO_BACK;
+            else if(position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR)
+                return HIGHLIGHT_DOWN;
+            else if(position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR)
+                return HIGHLIGHT_UP;
+            else if(position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR)
+                return SELECT_ITEM;
+        } else {
+            if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
+                if (position < MENU_MAX_HEIGHT) {
+                    ui_menu_select(menu_show_start - menu_top);
+                    return HIGHLIGHT_UP;
+                }
+                if (position > (resY-MENU_MAX_HEIGHT))
+                    return HIGHLIGHT_DOWN;
+            }
+        }
     }
-	return NO_ACTION;
+    return NO_ACTION;
 }
 
 // handle the user input events (mainly the touch events) inside the ui handler
-static void ui_handle_mouse_input(int* curPos)
-{
-	pthread_mutex_lock(&key_queue_mutex);
+static void ui_handle_mouse_input(int* curPos) {
+    pthread_mutex_lock(&key_queue_mutex);
 
-//ToDo: Following structure should be global
-	struct { int x; int y; int xL; int xR; } MENU_ICON[] = {
-		{  get_menu_icon_info(MENU_BACK,MENU_ICON_X),	get_menu_icon_info(MENU_BACK,MENU_ICON_Y), get_menu_icon_info(MENU_BACK,MENU_ICON_XL), get_menu_icon_info(MENU_BACK,MENU_ICON_XR) },
-		{  get_menu_icon_info(MENU_DOWN,MENU_ICON_X),	get_menu_icon_info(MENU_DOWN,MENU_ICON_Y), get_menu_icon_info(MENU_DOWN,MENU_ICON_XL), get_menu_icon_info(MENU_DOWN,MENU_ICON_XR) },
-		{  get_menu_icon_info(MENU_UP,MENU_ICON_X),	get_menu_icon_info(MENU_UP,MENU_ICON_Y), get_menu_icon_info(MENU_UP,MENU_ICON_XL), get_menu_icon_info(MENU_UP,MENU_ICON_XR) },
-		{  get_menu_icon_info(MENU_SELECT,MENU_ICON_X),	get_menu_icon_info(MENU_SELECT,MENU_ICON_Y), get_menu_icon_info(MENU_SELECT,MENU_ICON_XL), get_menu_icon_info(MENU_SELECT,MENU_ICON_XR) },
-	};
+    //ToDo: Following structure should be global
+    struct { int x; int y; int xL; int xR; } MENU_ICON[] = {
+        {  get_menu_icon_info(MENU_BACK,MENU_ICON_X),    get_menu_icon_info(MENU_BACK,MENU_ICON_Y), get_menu_icon_info(MENU_BACK,MENU_ICON_XL), get_menu_icon_info(MENU_BACK,MENU_ICON_XR) },
+        {  get_menu_icon_info(MENU_DOWN,MENU_ICON_X),    get_menu_icon_info(MENU_DOWN,MENU_ICON_Y), get_menu_icon_info(MENU_DOWN,MENU_ICON_XL), get_menu_icon_info(MENU_DOWN,MENU_ICON_XR) },
+        {  get_menu_icon_info(MENU_UP,MENU_ICON_X),    get_menu_icon_info(MENU_UP,MENU_ICON_Y), get_menu_icon_info(MENU_UP,MENU_ICON_XL), get_menu_icon_info(MENU_UP,MENU_ICON_XR) },
+        {  get_menu_icon_info(MENU_SELECT,MENU_ICON_X),    get_menu_icon_info(MENU_SELECT,MENU_ICON_Y), get_menu_icon_info(MENU_SELECT,MENU_ICON_XL), get_menu_icon_info(MENU_SELECT,MENU_ICON_XR) },
+    };
 
-	if (TOUCH_CONTROL_DEBUG) {
-		ui_print("Touch gr_fb_width:\t%d,\tgr_fb_height:\t%d\n",gr_fb_width(),gr_fb_height());
-		ui_print("Touch X:\t%d,\tY:\t%d\n",curPos[1],curPos[2]);
-	}
+    if (TOUCH_CONTROL_DEBUG) {
+        ui_print("Touch gr_fb_width:\t%d,\tgr_fb_height:\t%d\n",gr_fb_width(),gr_fb_height());
+        ui_print("Touch X:\t%d,\tY:\t%d\n",curPos[1],curPos[2]);
+    }
 
     if (show_menu) {
-		if (curPos[0] > 0) {
-			int position;
-			if (show_buttons) {
-				if (curPos[2] < (resY-MENU_MAX_HEIGHT)) { // Above buttons
-					position = curPos[2];
-					if (menu_items > 0) {
-						if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items - 1)
-							ui_menu_select(touched_row(position));
-					}
-				} else {
-					position = curPos[1];
+        if (curPos[0] > 0) {
+            int position;
+            if (show_buttons) {
+                if (curPos[2] < (resY-MENU_MAX_HEIGHT)) { // Above buttons
+                    position = curPos[2];
+                    if (menu_items > 0) {
+                        if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items - 1)
+                            ui_menu_select(touched_row(position));
+                    }
+                } else {
+                    position = curPos[1];
 
-					pthread_mutex_lock(&gUpdateMutex);
-					if (position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR) {
-						selMenuIcon = MENU_BACK;
-						draw_icon_locked(gMenuIcon[MENU_BACK_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
-						gr_flip();
-					}
-					else if (position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR) {			
-						selMenuIcon = MENU_DOWN;
-						draw_icon_locked(gMenuIcon[MENU_DOWN_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
-						gr_flip();
-					}
-					else if (position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR) {
-						selMenuIcon = MENU_UP;
-						draw_icon_locked(gMenuIcon[MENU_UP_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
-						gr_flip();
-					}
-					else if (position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR) {
-						selMenuIcon = MENU_SELECT;
-						draw_icon_locked(gMenuIcon[MENU_SELECT_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
-						gr_flip();
-					}
-					key_queue_len_back = key_queue_len;
-					pthread_mutex_unlock(&gUpdateMutex);
-				}
-			} else {
-				position = curPos[2];
-				if (menu_items > 0) {
-					if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items - 1)
-						ui_menu_select(touched_row(position));
-				}
-			}
-		}
-	}
+                    pthread_mutex_lock(&gUpdateMutex);
+                    if (position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR) {
+                        selMenuIcon = MENU_BACK;
+                        draw_icon_locked(gMenuIcon[MENU_BACK_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
+                        gr_flip();
+                    }
+                    else if (position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR) {            
+                        selMenuIcon = MENU_DOWN;
+                        draw_icon_locked(gMenuIcon[MENU_DOWN_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
+                        gr_flip();
+                    }
+                    else if (position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR) {
+                        selMenuIcon = MENU_UP;
+                        draw_icon_locked(gMenuIcon[MENU_UP_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
+                        gr_flip();
+                    }
+                    else if (position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR) {
+                        selMenuIcon = MENU_SELECT;
+                        draw_icon_locked(gMenuIcon[MENU_SELECT_M], MENU_ICON[selMenuIcon].x, MENU_ICON[selMenuIcon].y);
+                        gr_flip();
+                    }
+                    key_queue_len_back = key_queue_len;
+                    pthread_mutex_unlock(&gUpdateMutex);
+                }
+            } else {
+                position = curPos[2];
+                if (menu_items > 0) {
+                    if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items - 1)
+                        ui_menu_select(touched_row(position));
+                }
+            }
+        }
+    }
 
-	pthread_mutex_unlock(&key_queue_mutex);
+    pthread_mutex_unlock(&key_queue_mutex);
 }
 
 // Reads input events, handles special hot keys, and adds to the key queue.
-static void *input_thread(void *cookie)
-{
+static void *input_thread(void *cookie) {
     int rel_sum_x = 0;
     int rel_sum_y = 0;
     int fake_key = 0;
@@ -538,84 +528,84 @@ static void *input_thread(void *cookie)
         // wait for the next key event
         struct input_event ev;
         do {
-          do {
-            got_data = ev_get(&ev, 1000/PROGRESSBAR_INDETERMINATE_FPS);
-            if (!pt_input_thread_active) {
-              pthread_exit(NULL);
-              return NULL;
-            }
-          } while (got_data==-1);
+            do {
+                got_data = ev_get(&ev, 1000/PROGRESSBAR_INDETERMINATE_FPS);
+                if (!pt_input_thread_active) {
+                    pthread_exit(NULL);
+                    return NULL;
+                }
+            } while (got_data==-1);
 
             if (ev.type == EV_SYN) {
                 // end of a multitouch point
                 if (ev.code == SYN_MT_REPORT) {
-                  if (actPos.num>=0 && actPos.num<MAX_MT_POINTS) {
-                    // create a fake keyboard event. We will use BTN_WHEEL, BTN_GEAR_DOWN and BTN_GEAR_UP key events to fake
-                    // TOUCH_MOVE, TOUCH_DOWN and TOUCH_UP in this order
-                    int type = BTN_WHEEL;
-                    // new and old pressure state are not consistent --> we have touch down or up event
-                    if ((mousePos[actPos.num].pressure!=0) != (actPos.pressure!=0)) {
-                      if (actPos.pressure == 0) {
-                        type = BTN_GEAR_UP;
-                        if (actPos.num==0) {
-                          if (mousePos[0].length<15) {
-                            // consider this a mouse click
-                            type = BTN_MOUSE;
-                          }
-                          memset(&grabPos,0,sizeof(grabPos));
+                    if (actPos.num>=0 && actPos.num<MAX_MT_POINTS) {
+                        // create a fake keyboard event. We will use BTN_WHEEL, BTN_GEAR_DOWN and BTN_GEAR_UP key events to fake
+                        // TOUCH_MOVE, TOUCH_DOWN and TOUCH_UP in this order
+                        int type = BTN_WHEEL;
+                        // new and old pressure state are not consistent --> we have touch down or up event
+                        if ((mousePos[actPos.num].pressure!=0) != (actPos.pressure!=0)) {
+                            if (actPos.pressure == 0) {
+                                type = BTN_GEAR_UP;
+                                if (actPos.num==0) {
+                                    if (mousePos[0].length<15) {
+                                        // consider this a mouse click
+                                        type = BTN_MOUSE;
+                                    }
+                                    memset(&grabPos,0,sizeof(grabPos));
+                                }
+                            } else if (actPos.pressure != 0) {
+                                type == BTN_GEAR_DOWN;
+                                if (actPos.num==0) {
+                                    grabPos = actPos;
+                                }
+                            }
                         }
-                      } else if (actPos.pressure != 0) {
-                        type == BTN_GEAR_DOWN;
-                        if (actPos.num==0) {
-                          grabPos = actPos;
+                        fake_key = 1;
+                        ev.type = EV_KEY;
+                        ev.code = type;
+                        ev.value = actPos.num+1;
+
+                        // this should be locked, but that causes ui events to get dropped, as the screen drawing takes too much time
+                        // this should be solved by making the critical section inside the drawing much much smaller
+                        if (actPos.pressure) {
+                            if (mousePos[actPos.num].pressure) {
+                                actPos.length = mousePos[actPos.num].length + abs(mousePos[actPos.num].x-actPos.x) + abs(mousePos[actPos.num].y-actPos.y);
+                            } else {
+                                actPos.length = 0;
+                            }
+                        } else {
+                            actPos.length = 0;
                         }
-                      }
+                        oldMousePos[actPos.num] = mousePos[actPos.num];
+                        mousePos[actPos.num] = actPos;
+                        int curPos[] = {actPos.pressure, actPos.x, actPos.y};
+                        ui_handle_mouse_input(curPos);
                     }
-                    fake_key = 1;
-                    ev.type = EV_KEY;
-                    ev.code = type;
-                    ev.value = actPos.num+1;
 
-                    // this should be locked, but that causes ui events to get dropped, as the screen drawing takes too much time
-                    // this should be solved by making the critical section inside the drawing much much smaller
-                    if (actPos.pressure) {
-                      if (mousePos[actPos.num].pressure) {
-                        actPos.length = mousePos[actPos.num].length + abs(mousePos[actPos.num].x-actPos.x) + abs(mousePos[actPos.num].y-actPos.y);
-                      } else {
-                        actPos.length = 0;
-                      }
-                    } else {
-                      actPos.length = 0;
-                    }
-                    oldMousePos[actPos.num] = mousePos[actPos.num];
-                    mousePos[actPos.num] = actPos;
-					int curPos[] = {actPos.pressure, actPos.x, actPos.y};
-                    ui_handle_mouse_input(curPos);
-                  }
-
-                  memset(&actPos,0,sizeof(actPos));
+                    memset(&actPos,0,sizeof(actPos));
                 } else {
-                  continue;
+                    continue;
                 }
             } else if (ev.type == EV_ABS) {
-              // multitouch records are sent as ABS events. Well at least on the SGS-i9000
-              if (ev.code == ABS_MT_POSITION_X) {
-                actPos.x = MT_X(ev.value);
-              } else if (ev.code == ABS_MT_POSITION_Y) {
-                actPos.y = MT_Y(ev.value);
-              } else if (ev.code == ABS_MT_TOUCH_MAJOR) {
-                actPos.pressure = ev.value; // on SGS-i9000 this is 0 for not-pressed and 40 for pressed
-              } else if (ev.code == ABS_MT_WIDTH_MAJOR) {
-                // num is stored inside the high byte of width. Well at least on SGS-i9000
-                if (actPos.num==0) {
-                  // only update if it was not already set. On a normal device MT_TRACKING_ID is sent
-                  actPos.num = ev.value >> 8;
+                // multitouch records are sent as ABS events. Well at least on the SGS-i9000
+                if (ev.code == ABS_MT_POSITION_X) {
+                    actPos.x = MT_X(ev.value);
+                } else if (ev.code == ABS_MT_POSITION_Y) {
+                    actPos.y = MT_Y(ev.value);
+                } else if (ev.code == ABS_MT_TOUCH_MAJOR) {
+                    actPos.pressure = ev.value; // on SGS-i9000 this is 0 for not-pressed and 40 for pressed
+                } else if (ev.code == ABS_MT_WIDTH_MAJOR) {
+                    // num is stored inside the high byte of width. Well at least on SGS-i9000
+                    if (actPos.num==0) {
+                        // only update if it was not already set. On a normal device MT_TRACKING_ID is sent
+                        actPos.num = ev.value >> 8;
+                    }
+                    actPos.size = ev.value & 0xFF;
+                } else if (ev.code == ABS_MT_TRACKING_ID) {
+                    // on a normal device, the num is got from this value
+                    actPos.num = ev.value;
                 }
-                actPos.size = ev.value & 0xFF;
-              } else if (ev.code == ABS_MT_TRACKING_ID) {
-                // on a normal device, the num is got from this value
-                actPos.num = ev.value;
-              }
             } else if (ev.type == EV_REL) {
                 if (ev.code == REL_Y) {
                 // accumulate the up or down motion reported by
@@ -623,15 +613,19 @@ static void *input_thread(void *cookie)
                 // (positive or negative), fake an up/down
                 // key event.
                     rel_sum_y += ev.value;
-                    if (rel_sum_y > 3) { fake_key = 1; ev.type = EV_KEY; ev.code = KEY_DOWN; ev.value = 1; rel_sum_y = 0;
-                    } else if (rel_sum_y < -3) { fake_key = 1; ev.type = EV_KEY; ev.code = KEY_UP; ev.value = 1; rel_sum_y = 0;
+                    if (rel_sum_y > 3) {
+					    fake_key = 1; ev.type = EV_KEY; ev.code = KEY_DOWN; ev.value = 1; rel_sum_y = 0;
+                    } else if (rel_sum_y < -3) {
+					    fake_key = 1; ev.type = EV_KEY; ev.code = KEY_UP; ev.value = 1; rel_sum_y = 0;
                     }
                 }
                 // do the same for the X axis
                 if (ev.code == REL_X) {
                     rel_sum_x += ev.value;
-                    if (rel_sum_x > 3) { fake_key = 1; ev.type = EV_KEY; ev.code = KEY_RIGHT; ev.value = 1; rel_sum_x = 0;
-                    } else if (rel_sum_x < -3) { fake_key = 1; ev.type = EV_KEY; ev.code = KEY_LEFT; ev.value = 1; rel_sum_x = 0;
+                    if (rel_sum_x > 3) {
+					    fake_key = 1; ev.type = EV_KEY; ev.code = KEY_RIGHT; ev.value = 1; rel_sum_x = 0;
+                    } else if (rel_sum_x < -3) {
+					    fake_key = 1; ev.type = EV_KEY; ev.code = KEY_LEFT; ev.value = 1; rel_sum_x = 0;
                     }
                 }
             } else {
@@ -650,11 +644,11 @@ static void *input_thread(void *cookie)
         fake_key = 0;
         const int queue_max = sizeof(key_queue) / sizeof(key_queue[0]);
         if (ev.value > 0 && key_queue_len < queue_max) {
-          // we don't want to pollute the queue with mouse move events
-          if (ev.code!=BTN_WHEEL || key_queue_len==0 || key_queue[key_queue_len-1]!=BTN_WHEEL) {
-            key_queue[key_queue_len++] = ev.code;
-          }
-          pthread_cond_signal(&key_queue_cond);
+            // we don't want to pollute the queue with mouse move events
+            if (ev.code!=BTN_WHEEL || key_queue_len==0 || key_queue[key_queue_len-1]!=BTN_WHEEL) {
+                key_queue[key_queue_len++] = ev.code;
+            }
+            pthread_cond_signal(&key_queue_cond);
         }
         pthread_mutex_unlock(&key_queue_mutex);
 
@@ -672,14 +666,13 @@ static void *input_thread(void *cookie)
     return NULL;
 }
 
-void ui_init(void)
-{
+void ui_init(void) {
     ui_has_initialized = 1;
     gr_init();
     ev_init();
 
     text_col = text_row = 0;
-	text_rows = MAX_ROWS;
+    text_rows = MAX_ROWS;
     text_top = 1;
 
     text_cols = gr_fb_width() / CHAR_WIDTH;
@@ -727,16 +720,14 @@ char *ui_copy_image(int icon, int *width, int *height, int *bpp) {
     return ret;
 }
 
-void ui_set_background(int icon)
-{
+void ui_set_background(int icon) {
     pthread_mutex_lock(&gUpdateMutex);
     gCurrentIcon = gBackgroundIcon[icon];
     update_screen_locked();
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-void ui_show_indeterminate_progress()
-{
+void ui_show_indeterminate_progress() {
     pthread_mutex_lock(&gUpdateMutex);
     if (gProgressBarType != PROGRESSBAR_TYPE_INDETERMINATE) {
         gProgressBarType = PROGRESSBAR_TYPE_INDETERMINATE;
@@ -745,8 +736,7 @@ void ui_show_indeterminate_progress()
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-void ui_show_progress(float portion, int seconds)
-{
+void ui_show_progress(float portion, int seconds) {
     pthread_mutex_lock(&gUpdateMutex);
     gProgressBarType = PROGRESSBAR_TYPE_NORMAL;
     gProgressScopeStart += gProgressScopeSize;
@@ -758,8 +748,7 @@ void ui_show_progress(float portion, int seconds)
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-void ui_set_progress(float fraction)
-{
+void ui_set_progress(float fraction) {
     pthread_mutex_lock(&gUpdateMutex);
     if (fraction < 0.0) fraction = 0.0;
     if (fraction > 1.0) fraction = 1.0;
@@ -775,8 +764,7 @@ void ui_set_progress(float fraction)
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-void ui_reset_progress()
-{
+void ui_reset_progress() {
     pthread_mutex_lock(&gUpdateMutex);
     gProgressBarType = PROGRESSBAR_TYPE_NONE;
     gProgressScopeStart = gProgressScopeSize = 0;
@@ -786,8 +774,7 @@ void ui_reset_progress()
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-void ui_print(const char *fmt, ...)
-{
+void ui_print(const char *fmt, ...) {
     char buf[256];
     va_list ap;
     va_start(ap, fmt);
@@ -838,8 +825,7 @@ void ui_printlogtail(int nb_lines) {
     ui_log_stdout=1;
 }
 
-void ui_reset_text_col()
-{
+void ui_reset_text_col() {
     pthread_mutex_lock(&gUpdateMutex);
     text_col = 0;
     pthread_mutex_unlock(&gUpdateMutex);
@@ -869,7 +855,7 @@ int ui_start_menu(char** headers, char** items, int initial_selection) {
             strcpy(menu[i], "  [Go Back]");
             ++i;
         }
-        
+
         strcpy(menu[i], " ");
         ++i;
 
@@ -895,7 +881,6 @@ int ui_menu_select(int sel) {
         if (menu_sel < 0) menu_sel = menu_items-1 + menu_sel;
         if (menu_sel >= menu_items-1) menu_sel = menu_sel - menu_items+1;
 
-
         if (menu_sel < menu_show_start && menu_show_start > 0) {
             menu_show_start = menu_sel;
         }
@@ -913,7 +898,7 @@ int ui_menu_select(int sel) {
 }
 
 int ui_get_menu_select() {
-	return menu_sel;
+    return menu_sel;
 }
 
 void ui_end_menu() {
@@ -926,47 +911,42 @@ void ui_end_menu() {
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-int ui_text_visible()
-{
+int ui_text_visible() {
     pthread_mutex_lock(&gUpdateMutex);
     int visible = show_text;
     pthread_mutex_unlock(&gUpdateMutex);
     return visible;
 }
 
-void ui_show_text(int visible)
-{
+void ui_show_text(int visible) {
     pthread_mutex_lock(&gUpdateMutex);
     show_text = visible;
     update_screen_locked();
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-struct keyStruct *ui_wait_key()
-{
+struct keyStruct *ui_wait_key() {
     pthread_mutex_lock(&key_queue_mutex);
     while (key_queue_len == 0) {
         pthread_cond_wait(&key_queue_cond, &key_queue_mutex);
     }
-	key.code = key_queue[0];
+    key.code = key_queue[0];
     memcpy(&key_queue[0], &key_queue[1], sizeof(int) * --key_queue_len);
 
-	if (TOUCH_CONTROL_DEBUG)
-		ui_print("[UI_WAIT_KEY] key code:\t%d\n",key.code);
+    if (TOUCH_CONTROL_DEBUG)
+        ui_print("[UI_WAIT_KEY] key code:\t%d\n",key.code);
 
-	if((key.code == BTN_GEAR_UP || key.code == BTN_MOUSE) && !actPos.pressure && oldMousePos[actPos.num].pressure && key_queue_len_back != (key_queue_len -1))
-	{	
-		key.code = ABS_MT_POSITION_X;
-		key.x = oldMousePos[actPos.num].x;
-		key.y = oldMousePos[actPos.num].y;
-	}
+    if((key.code == BTN_GEAR_UP || key.code == BTN_MOUSE) && !actPos.pressure && oldMousePos[actPos.num].pressure && key_queue_len_back != (key_queue_len -1)) {
+        key.code = ABS_MT_POSITION_X;
+        key.x = oldMousePos[actPos.num].x;
+        key.y = oldMousePos[actPos.num].y;
+    }
 
     pthread_mutex_unlock(&key_queue_mutex);
-	return &key;
+    return &key;
 }
 
-int ui_key_pressed(int key)
-{
+int ui_key_pressed(int key) {
     // This is a volatile static array, don't bother locking
     return key_pressed[key];
 }
