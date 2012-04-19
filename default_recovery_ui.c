@@ -27,7 +27,7 @@
 int TOUCH_CONTROL_DEBUG = 0;
 
 //In this case MENU_SELECT icon has maximum possible height.
-const int MENU_MAX_HEIGHT = 80 //gr_get_height(gMenuIcon[MENU_SELECT])		//Maximum allowed height for navigation icons
+const int MENU_MAX_HEIGHT = 80; //gr_get_height(gMenuIcon[MENU_SELECT])		//Maximum allowed height for navigation icons
 
 //Device specific boundaries for touch recognition
 /*	
@@ -37,15 +37,15 @@ const int MENU_MAX_HEIGHT = 80 //gr_get_height(gMenuIcon[MENU_SELECT])		//Maximu
 	check the values returned by on screen touch output by click on the 
 	touch panel extremeties
 */
-const int maxX = 800;		//Set to 0 for debugging
-const int maxY = 1280;		//Set to 0 for debugging
+const int maxX = 2590;		//Set to 0 for debugging
+const int maxY = 1630;		//Set to 0 for debugging
 
 /*
 	the values of following two variables are dependent on specifc device resolution
 	and can be obtained using the outputs of the gr_fb functions
 */
-const int resX = 800;		//Value obtained from function 'gr_fb_width()'
-const int resY = 1280;		//Value obtained from function 'gr_fb_height()'
+const int resX = 1280;		//Value obtained from function 'gr_fb_width()'
+const int resY = 800;		//Value obtained from function 'gr_fb_height()'
 
 char* MENU_HEADERS[] = { NULL };
 
