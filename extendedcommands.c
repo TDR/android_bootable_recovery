@@ -742,7 +742,7 @@ void show_partition_menu()
             options[mountable_volumes+i] = e->txt;
         }
         
-        options[mountable_volumes+formatable_volumes] = "Mount USB OTG drive at /sdcard";
+        options[mountable_volumes+formatable_volumes] = "Use USB OTG drive instead of SD card";
         options[mountable_volumes+formatable_volumes + 1] = "Mount as USB storage (USB Mass Storage mode)";
         options[mountable_volumes+formatable_volumes + 2] = NULL;
 
@@ -826,29 +826,29 @@ void show_nandroid_advanced_backup_menu(const char* path)
     int cont = 1;
     for (;cont;) {
         if (backup_list[0] == 1)
-            list[0] = "Backup boot: Yes";
+            list[0] = "Backup boot  [Yes]";
         else
-            list[0] = "Backup boot: No";
+            list[0] = "Backup boot  [No]";
     
         if (backup_list[1] == 1)
-            list[1] = "Backup recovery: Yes";
+            list[1] = "Backup recovery  [Yes]";
         else
-            list[1] = "Backup recovery: No";
+            list[1] = "Backup recovery  [No]";
     
         if (backup_list[2] == 1)
-            list[2] = "Backup system: Yes";
+            list[2] = "Backup system  [Yes]";
         else
-            list[2] = "Backup system: No";
+            list[2] = "Backup system  [No]";
 
         if (backup_list[3] == 1)
-            list[3] = "Backup data: Yes";
+            list[3] = "Backup data  [Yes]";
         else
-            list[3] = "Backup data: No";   
+            list[3] = "Backup data  [No]";
 
         if (backup_list[4] == 1)
-            list[4] = "Backup cache: Yes";
+            list[4] = "Backup cache  [Yes]";
         else
-            list[4] = "Backup cache: No";   
+            list[4] = "Backup cache  [No]";
 
         int chosen_item = get_menu_selection(advancedheaders, list, 0, 0);
         switch (chosen_item) {
@@ -964,9 +964,9 @@ void show_nandroid_menu()
     do
     {
         if (force_use_data_media)
-            list[5] = "Use SD card";
+            list[4] = "Nandroid storage  [internal storage]";
         else
-            list[5] = "Use internal storage";
+            list[4] = "Nandroid storage  [SD card]";
 
         repeat = 0;
         chosen_item = get_menu_selection(headers, list, 0, 0);
@@ -1022,7 +1022,7 @@ void show_advanced_menu()
                                 NULL
     };
 
-    static char* list[] = { "Reboot recovery",
+    static char* list[] = { "Restart recovery",
                             "Reboot to bootloader",
                             "Report error",
                             "Key test",

@@ -617,7 +617,7 @@ sdcard_directory(const char* path) {
             strlcat(new_path, "/", PATH_MAX);
             strlcat(new_path, item, PATH_MAX);
 
-            ui_print("\n-- Install %s ...\n", path);
+            ui_print("\n-- Installing %s --\n", path);
             set_sdcard_update_bootloader_message();
             char* copy = copy_sideloaded_package(new_path);
             ensure_path_unmounted(SDCARD_ROOT);
@@ -656,8 +656,8 @@ wipe_data(int confirm) {
             title_headers = prepend_title((const char**)headers);
         }
 
-        char* items[] = { " No",
-                          " Yes -- delete all user data",   // [1]
+        char* items[] = { "No",
+                          "Yes - Wipe all user data",   // [1]
                           NULL };
 
         int chosen_item = get_menu_selection(title_headers, items, 1, 0);
@@ -666,7 +666,7 @@ wipe_data(int confirm) {
         }
     }
 
-    ui_print("\n-- Wiping data...\n");
+    ui_print("\n-- Wiping all user data --\n");
     device_wipe_data();
     erase_volume("/data");
     erase_volume("/cache");
@@ -705,7 +705,7 @@ void show_wipe_menu()
                 break;
 
             case 1:
-                if (confirm_selection("Are you sure you want to wipe cache?", "Yes - Wipe Cache"))
+                if (confirm_selection("Are you sure you want to wipe cache?", "Yes - Wipe cache"))
                 {
                     erase_volume("/cache");
                     ui_print("Cache wipe complete.\n");
@@ -714,7 +714,7 @@ void show_wipe_menu()
                 break;
             case 2:
             {
-                if (confirm_selection( "Are you sure you want to wipe dalvik-cache?", "Yes - Wipe Dalvik Cache")) 
+                if (confirm_selection("Are you sure you want to wipe dalvik-cache?", "Yes - Wipe dalvik cache"))
                 {
                     ui_print("Wiping dalvik-cache...\n");
                     if (0 != ensure_path_mounted("/data"))
@@ -734,7 +734,7 @@ void show_wipe_menu()
             }
             case 3:
             {
-                if (confirm_selection( "Are you sure you want to wipe battery stats?", "Yes - Wipe Battery Stats"))
+                if (confirm_selection("Are you sure you want to wipe battery stats?", "Yes - Wipe battery stats"))
                 {
                     wipe_battery_stats();
                     ui_print("Battery stats wipe complete.\n");
