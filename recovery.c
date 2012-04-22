@@ -685,7 +685,7 @@ void show_wipe_menu()
                                 NULL
     };
 
-    static char* list[] = { "Wipe data (factory reset)",
+    static char* list[] = { "Wipe all user data (factory reset)",
                             "Wipe cache",
                             "Wipe dalvik-cache",
                             "Wipe battery stats",
