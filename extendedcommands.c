@@ -307,7 +307,7 @@ char* choose_file_menu(const char* directory, const char* fileExtensionOrDirecto
     int total = numDirs + numFiles;
     if (total == 0)
     {
-        ui_print("No files found.\n");
+        ui_print("No valid files found!\n");
     }
     else
     {
@@ -369,7 +369,7 @@ void show_choose_zip_menu(const char *mount_point)
     char* file = choose_file_menu(mount_point, ".zip", headers);
     if (file == NULL)
         return;
-    static char* confirm_install  = "Are you sure you want to install?";
+    static char* confirm_install  = "Are you sure you want to install this package?";
     static char confirm[PATH_MAX];
     sprintf(confirm, "Yes - Install %s", basename(file));
     if (confirm_selection(confirm_install, confirm))
@@ -394,7 +394,7 @@ void show_nandroid_restore_menu(const char* path)
     if (file == NULL)
         return;
 
-    if (ignore_data_media ? confirm_selection("Are you sure you want to restore?", "Yes - Restore") : confirm_selection("This restore will affect internal storage! Continue?", "Yes - Restore"))
+    if (ignore_data_media ? confirm_selection("Are you sure you want to restore this backup?", "Yes - Restore") : confirm_selection("This restore will affect internal storage! Continue?", "Yes - Restore"))
         nandroid_restore(file, 1, 1, 1, 1, 1, 0);
 }
 
@@ -699,8 +699,8 @@ void show_partition_menu()
             Volume* v = &device_volumes[i];
             if(strcmp("ramdisk", v->fs_type) != 0 && strcmp("mtd", v->fs_type) != 0 && strcmp("emmc", v->fs_type) != 0 && strcmp("bml", v->fs_type) != 0)
             {
-                sprintf(&mount_menue[mountable_volumes].mount, "Mount %s", v->mount_point);
-                sprintf(&mount_menue[mountable_volumes].unmount, "Unmount %s", v->mount_point);
+                sprintf(&mount_menue[mountable_volumes].mount, "%s  [Unmounted]", v->mount_point);
+                sprintf(&mount_menue[mountable_volumes].unmount, "%s  [Mounted]", v->mount_point);
                 mount_menue[mountable_volumes].v = &device_volumes[i];
                 ++mountable_volumes;
                 if (is_safe_to_format(v->mount_point)) {
@@ -743,7 +743,7 @@ void show_partition_menu()
         }
         
         options[mountable_volumes+formatable_volumes] = "Use USB OTG drive instead of SD card";
-        options[mountable_volumes+formatable_volumes + 1] = "Mount as USB storage (USB Mass Storage mode)";
+        options[mountable_volumes+formatable_volumes + 1] = "Mount device as USB storage (USB Mass Storage mode)";
         options[mountable_volumes+formatable_volumes + 2] = NULL;
 
         int chosen_item = get_menu_selection(headers, &options, 0, 0);

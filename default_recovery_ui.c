@@ -52,7 +52,7 @@ char* MENU_HEADERS[] = { NULL };
 char* MENU_ITEMS[] = { "Reboot system",
                        "Install from zip file  -->",
                        "Wipe  -->",
-                       "Backup and Restore  -->",
+                       "Nandroid backup  -->",
                        "Mounts and Storage  -->",
                        "Advanced  -->",
                        "Power off",
