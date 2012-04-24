@@ -60,14 +60,14 @@ static int gShowBackButton = 0;
     #define CHAR_WIDTH 15
     #define CHAR_HEIGHT 24
 #elif defined(BOARD_HDPI_RECOVERY)
-  #define CHAR_WIDTH 10
-  #define CHAR_HEIGHT 18
+    #define CHAR_WIDTH 10
+    #define CHAR_HEIGHT 18
 #elif defined(BOARD_LDPI_RECOVERY)
-  #define CHAR_WIDTH 7
-  #define CHAR_HEIGHT 16
+    #define CHAR_WIDTH 7
+    #define CHAR_HEIGHT 16
 #else
-  #define CHAR_WIDTH 10
-  #define CHAR_HEIGHT 18
+    #define CHAR_WIDTH 10
+    #define CHAR_HEIGHT 18
 #endif
 
 #define MIN_LOG_ROWS 3
@@ -420,7 +420,7 @@ int device_handle_mouse(struct keyStruct *key, int visible) {
 
     if (visible) {
         int position = key->y;
-        if (user_tap_select && touched_row(position) == menu_sel)
+        if (user_tap_select && touched_row(position) == menu_sel && oldMousePos[actPos.num].length < CHAR_HEIGHT) // Try to ignore drags
             return SELECT_ITEM;
 
         if (show_buttons) {
@@ -470,16 +470,15 @@ static void ui_handle_mouse_input(int* curPos) {
 
     if (show_menu) {
         if (curPos[0] > 0) {
-            int position;
+            int position = curPos[2]; // y
             if (show_buttons) {
-                if (curPos[2] < (resY-MENU_MAX_HEIGHT)) { // Above buttons
-                    position = curPos[2];
+                if (position < (resY-MENU_MAX_HEIGHT)) { // Above buttons
                     if (menu_items > 0) {
                         if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items - 1)
                             ui_menu_select(touched_row(position));
                     }
                 } else {
-                    position = curPos[1];
+                    position = curPos[1]; // x
 
                     pthread_mutex_lock(&gUpdateMutex);
                     if (position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR) {
@@ -506,7 +505,6 @@ static void ui_handle_mouse_input(int* curPos) {
                     pthread_mutex_unlock(&gUpdateMutex);
                 }
             } else {
-                position = curPos[2];
                 if (menu_items > 0) {
                     if (touched_row(position) >= menu_show_start && touched_row(position) < menu_items - 1)
                         ui_menu_select(touched_row(position));
