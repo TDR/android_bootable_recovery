@@ -88,6 +88,8 @@ struct keyStruct{
 
 void ui_set_background(int icon);
 
+int ui_get_background();
+
 // Get a malloc'd copy of the screen image showing (only) the specified icon.
 // Also returns the width, height, and bits per pixel of the returned image.
 // TODO: Use some sort of "struct Bitmap" here instead of all these variables?

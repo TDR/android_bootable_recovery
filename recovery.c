@@ -320,6 +320,7 @@ finish_recovery(const char *send_intent) {
 
 static int
 erase_volume(const char *volume) {
+    int bg = ui_get_background();
     ui_set_background(BACKGROUND_ICON_INSTALLING);
     ui_show_indeterminate_progress();
     ui_print("Formatting %s...\n", volume);
@@ -332,7 +333,7 @@ erase_volume(const char *volume) {
     }
     int ret = format_volume(volume);
     if (ret) ui_set_background(BACKGROUND_ICON_ERROR);
-    else ui_set_background(BACKGROUND_ICON_CLOCKWORK);
+    else ui_set_background(bg);
     return ret;
 }
 
@@ -662,6 +663,8 @@ wipe_data(int confirm) {
     }
 
     ui_print("\n-- Wiping all user data --\n");
+    int bg = ui_get_background();
+    ui_set_background(BACKGROUND_ICON_INSTALLING);
     device_wipe_data();
     erase_volume("/data");
     erase_volume("/cache");
@@ -671,6 +674,7 @@ wipe_data(int confirm) {
     erase_volume("/sd-ext");
     erase_volume("/sdcard/.android_secure");
     ui_print("Data wipe complete.\n");
+    ui_set_background(bg);
 }
 
 void show_wipe_menu()
@@ -712,9 +716,12 @@ void show_wipe_menu()
                 if (confirm_selection("Are you sure you want to wipe dalvik-cache?", "Yes - Wipe dalvik cache"))
                 {
                     ui_print("Wiping dalvik-cache...\n");
+                    int bg = ui_get_background();
+                    ui_set_background(BACKGROUND_ICON_INSTALLING);
                     if (0 != ensure_path_mounted("/data"))
                     {
                         ui_print("Error mounting /data!\n");
+                        ui_set_background(BACKGROUND_ICON_ERROR);
                         break;
                     }
                     //ensure_path_mounted("/sd-ext");
@@ -723,6 +730,7 @@ void show_wipe_menu()
                     __system("rm -r /cache/dalvik-cache");
                     //__system("rm -r /sd-ext/dalvik-cache");
                     ui_print("Dalvik cache wipe complete.\n");
+                    ui_set_background(bg);
                 }
                 ensure_path_unmounted("/data");
                 break;

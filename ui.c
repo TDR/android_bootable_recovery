@@ -112,6 +112,7 @@ static const struct { gr_surface* surface; const char *name; } BITMAPS[] = {
 };
 
 static gr_surface gCurrentIcon = NULL;
+static int currentIcon = BACKGROUND_ICON_CLOCKWORK;
 
 static enum ProgressBarType {
     PROGRESSBAR_TYPE_NONE,
@@ -721,8 +722,13 @@ char *ui_copy_image(int icon, int *width, int *height, int *bpp) {
 void ui_set_background(int icon) {
     pthread_mutex_lock(&gUpdateMutex);
     gCurrentIcon = gBackgroundIcon[icon];
+    currentIcon = icon;
     update_screen_locked();
     pthread_mutex_unlock(&gUpdateMutex);
+}
+
+int ui_get_background() {
+    return currentIcon;
 }
 
 void ui_show_indeterminate_progress() {
