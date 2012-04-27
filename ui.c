@@ -419,32 +419,30 @@ int device_handle_mouse(struct keyStruct *key, int visible) {
         {  get_menu_icon_info(MENU_SELECT,MENU_ICON_X),    get_menu_icon_info(MENU_SELECT,MENU_ICON_Y), get_menu_icon_info(MENU_SELECT,MENU_ICON_XL), get_menu_icon_info(MENU_SELECT,MENU_ICON_XR) },
     };
 
+
     if (visible) {
-        int position = key->y;
-        if (user_tap_select && touched_row(position) == menu_sel && oldMousePos[actPos.num].length < CHAR_HEIGHT) // Try to ignore drags
+        if (user_tap_select && touched_row(key->y) == menu_sel && oldMousePos[actPos.num].length < CHAR_HEIGHT) // Try to ignore drags
             return SELECT_ITEM;
 
         if (show_buttons) {
-            if (position < (resY-MENU_MAX_HEIGHT))
+            if (key->y < (resY-MENU_MAX_HEIGHT))
                 return NO_ACTION;
 
-            position = key->x;
-
-            if(position > MENU_ICON[MENU_BACK].xL && position < MENU_ICON[MENU_BACK].xR)
+            if(key->x > MENU_ICON[MENU_BACK].xL && key->x < MENU_ICON[MENU_BACK].xR)
                 return GO_BACK;
-            else if(position > MENU_ICON[MENU_DOWN].xL && position < MENU_ICON[MENU_DOWN].xR)
+            else if(key->x > MENU_ICON[MENU_DOWN].xL && key->x < MENU_ICON[MENU_DOWN].xR)
                 return HIGHLIGHT_DOWN;
-            else if(position > MENU_ICON[MENU_UP].xL && position < MENU_ICON[MENU_UP].xR)
+            else if(key->x > MENU_ICON[MENU_UP].xL && key->x < MENU_ICON[MENU_UP].xR)
                 return HIGHLIGHT_UP;
-            else if(position > MENU_ICON[MENU_SELECT].xL && position < MENU_ICON[MENU_SELECT].xR)
+            else if(key->x > MENU_ICON[MENU_SELECT].xL && key->x < MENU_ICON[MENU_SELECT].xR)
                 return SELECT_ITEM;
         } else {
             if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
-                if (position < MENU_MAX_HEIGHT) {
+                if (key->y < MENU_MAX_HEIGHT) {
                     ui_menu_select(menu_show_start - menu_top);
                     return HIGHLIGHT_UP;
                 }
-                if (position > (resY-MENU_MAX_HEIGHT))
+                if (key->y > (resY-MENU_MAX_HEIGHT))
                     return HIGHLIGHT_DOWN;
             }
         }
@@ -547,7 +545,7 @@ static void *input_thread(void *cookie) {
                             if (actPos.pressure == 0) {
                                 type = BTN_GEAR_UP;
                                 if (actPos.num==0) {
-                                    if (mousePos[0].length<15) {
+                                    if (mousePos[0].length<CHAR_HEIGHT) {
                                         // consider this a mouse click
                                         type = BTN_MOUSE;
                                     }
