@@ -488,7 +488,7 @@ get_menu_selection(char** headers, char** items, int menu_only,
                 case SELECT_ITEM:
                     chosen_item = selected;
                     if (ui_get_showing_back_button()) {
-                        if (chosen_item == item_count-1) {
+                        if (chosen_item == item_count-1 && strcmp(items[0], "No")) {
                             --ui_menu_level;
                             chosen_item = GO_BACK;
                         }
@@ -684,10 +684,10 @@ void show_wipe_menu()
                                 NULL
     };
 
-    static char* list[] = { "Wipe all user data (factory reset)",
-                            "Wipe cache",
-                            "Wipe dalvik-cache",
+    static char* list[] = { "Wipe cache",
+                            "Wipe dalvik cache",
                             "Wipe battery stats",
+                            "Wipe all user data (factory reset)",
                             NULL
     };
 
@@ -699,11 +699,6 @@ void show_wipe_menu()
         switch (chosen_item)
         {
             case 0:
-                wipe_data(ui_text_visible());
-                if (!ui_text_visible()) return;
-                break;
-
-            case 1:
                 if (confirm_selection("Are you sure you want to wipe cache?", "Yes - Wipe cache"))
                 {
                     erase_volume("/cache");
@@ -711,7 +706,7 @@ void show_wipe_menu()
                     if (!ui_text_visible()) return;
                 }
                 break;
-            case 2:
+            case 1:
             {
                 if (confirm_selection("Are you sure you want to wipe dalvik-cache?", "Yes - Wipe dalvik cache"))
                 {
@@ -735,7 +730,7 @@ void show_wipe_menu()
                 ensure_path_unmounted("/data");
                 break;
             }
-            case 3:
+            case 2:
             {
                 if (confirm_selection("Are you sure you want to wipe battery stats?", "Yes - Wipe battery stats"))
                 {
@@ -744,6 +739,10 @@ void show_wipe_menu()
                 }
                 break;
             }
+            case 3:
+                wipe_data(ui_text_visible());
+                if (!ui_text_visible()) return;
+                break;
         }
         ui_reset_progress();
     }
@@ -775,10 +774,6 @@ prompt_and_wait() {
         chosen_item = device_perform_action(chosen_item);
 
         switch (chosen_item) {
-            case ITEM_REBOOT:
-                poweroff=0;
-                return;
-
             case ITEM_INSTALL_ZIP:
                 show_install_update_menu();
                 break;
@@ -794,6 +789,9 @@ prompt_and_wait() {
             case ITEM_ADVANCED:
                 show_advanced_menu();
                 break;
+            case ITEM_REBOOT:
+                poweroff=0;
+                return;
             case ITEM_POWEROFF:
                 poweroff=1;
                 return;

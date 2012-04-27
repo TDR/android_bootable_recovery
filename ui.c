@@ -86,6 +86,8 @@ static int ui_has_initialized = 0;
 static int ui_log_stdout = 1;
 static int selMenuIcon = 0;
 
+const char *goBackText = " <--  Go back";
+
 static const struct { gr_surface* surface; const char *name; } BITMAPS[] = {
     { &gBackgroundIcon[BACKGROUND_ICON_INSTALLING], "icon_installing" },
     { &gBackgroundIcon[BACKGROUND_ICON_ERROR],      "icon_error" },
@@ -853,8 +855,8 @@ int ui_start_menu(char** headers, char** items, int initial_selection) {
             menu[i][text_cols-1] = '\0';
         }
 
-        if (gShowBackButton && ui_menu_level > 0) {
-            strcpy(menu[i], " <--  Go Back");
+        if (gShowBackButton && ui_menu_level > 0 && strcmp(items[0], "No")) {
+            strcpy(menu[i], goBackText);
             ++i;
         }
 

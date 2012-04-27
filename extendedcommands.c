@@ -361,7 +361,7 @@ void show_choose_zip_menu(const char *mount_point)
         return;
     }
 
-    static char* headers[] = {  "Choose a zip file to apply",
+    static char* headers[] = {  "Choose a package to apply:",
                                 "",
                                 NULL
     };
@@ -417,6 +417,7 @@ void show_mount_usb_storage_menu()
         close(fd);
         return -1;
     }
+
     static char* headers[] = {  "USB Mass Storage mode",
                                 "Leaving this menu will unmount",
                                 "your SD card from your PC.",
@@ -906,6 +907,7 @@ void show_nandroid_advanced_restore_menu(const char* path)
 
     static char* headers[] = {  "Nandroid Advanced Restore",
                                 "",
+                                "Choose the partition to restore:",
                                 NULL
     };
 

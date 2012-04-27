@@ -49,12 +49,12 @@ const int resY = 800;		//Value obtained from function 'gr_fb_height()'
 
 char* MENU_HEADERS[] = { NULL };
 
-char* MENU_ITEMS[] = { "Reboot system",
-                       "Install from zip file  -->",
+char* MENU_ITEMS[] = { "Install from zip file  -->",
                        "Wipe  -->",
                        "Nandroid backup  -->",
                        "Mounts and Storage  -->",
                        "Advanced  -->",
+                       "Reboot",
                        "Power off",
                        NULL };
 

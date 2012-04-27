@@ -66,12 +66,12 @@ int device_wipe_data();
 #define SELECT_ITEM         -4
 #define GO_BACK             -5
 
-#define ITEM_REBOOT          0
-#define ITEM_INSTALL_ZIP     1
-#define ITEM_WIPE	     2
-#define ITEM_NANDROID        3
-#define ITEM_PARTITION       4
-#define ITEM_ADVANCED        5
+#define ITEM_INSTALL_ZIP     0
+#define ITEM_WIPE            1
+#define ITEM_NANDROID        2
+#define ITEM_PARTITION       3
+#define ITEM_ADVANCED        4
+#define ITEM_REBOOT          5
 #define ITEM_POWEROFF        6          
 
 // Header text to display above the main menu.
@@ -94,6 +94,7 @@ extern const int maxX;
 extern const int maxY;
 extern const int resX;
 extern const int resY;
+extern const char *goBackText;
 
 int get_menu_icon_info(int indx1, int indx2);
 
