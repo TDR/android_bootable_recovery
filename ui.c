@@ -51,7 +51,7 @@ static int gShowBackButton = 0;
 #endif
 
 #define MAX_COLS 85
-#define MAX_ROWS 32
+#define MAX_ROWS 31
 
 #define MENU_MAX_COLS 85
 #define MENU_MAX_ROWS 320
@@ -440,11 +440,11 @@ int device_handle_mouse(struct keyStruct *key, int visible) {
                 return SELECT_ITEM;
         } else {
             if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
-                if (key->y < MENU_MAX_HEIGHT) {
+                if (key->y < MENU_MAX_HEIGHT && menu_sel != menu_top) {
                     ui_menu_select(menu_show_start - menu_top);
                     return HIGHLIGHT_UP;
                 }
-                if (key->y > (resY-MENU_MAX_HEIGHT))
+                if (key->y > (resY-MENU_MAX_HEIGHT) && menu_sel != menu_items - menu_show_start + menu_top)
                     return HIGHLIGHT_DOWN;
             }
         }
