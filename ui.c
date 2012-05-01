@@ -310,7 +310,7 @@ static void draw_screen_locked(void) {
             const char* menu_down_available = "(vvv)";
 
             gr_color(MENU_TEXT_COLOR);
-            for (i = menu_show_start + menu_top; i < (menu_show_start + menu_top + j); ++i) {
+            for (i = menu_show_start + menu_top; i < (menu_show_start + menu_top + j - 1); ++i) {
                 if (i == menu_top + menu_sel) {
                     gr_color(SELECTED_TEXT_COLOR);
                     if (menu_show_start > 0 && i == menu_show_start + menu_top) {
@@ -430,13 +430,13 @@ int device_handle_mouse(struct keyStruct *key, int visible) {
             if (key->y < (resY-MENU_MAX_HEIGHT))
                 return NO_ACTION;
 
-            if(key->x > MENU_ICON[MENU_BACK].xL && key->x < MENU_ICON[MENU_BACK].xR)
+            if (key->x > MENU_ICON[MENU_BACK].xL && key->x < MENU_ICON[MENU_BACK].xR)
                 return GO_BACK;
-            else if(key->x > MENU_ICON[MENU_DOWN].xL && key->x < MENU_ICON[MENU_DOWN].xR)
+            else if (key->x > MENU_ICON[MENU_DOWN].xL && key->x < MENU_ICON[MENU_DOWN].xR)
                 return HIGHLIGHT_DOWN;
-            else if(key->x > MENU_ICON[MENU_UP].xL && key->x < MENU_ICON[MENU_UP].xR)
+            else if (key->x > MENU_ICON[MENU_UP].xL && key->x < MENU_ICON[MENU_UP].xR)
                 return HIGHLIGHT_UP;
-            else if(key->x > MENU_ICON[MENU_SELECT].xL && key->x < MENU_ICON[MENU_SELECT].xR)
+            else if (key->x > MENU_ICON[MENU_SELECT].xL && key->x < MENU_ICON[MENU_SELECT].xR)
                 return SELECT_ITEM;
         } else {
             if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
