@@ -51,7 +51,7 @@ static int gShowBackButton = 0;
 #endif
 
 #define MAX_COLS 85
-#define MAX_ROWS 31
+#define MAX_ROWS 30
 
 #define MENU_MAX_COLS 85
 #define MENU_MAX_ROWS 320
@@ -280,13 +280,10 @@ static void draw_screen_locked(void) {
         int offset = 0;         // offset of separating bar under menus
         int row = 0;            // current row that we are drawing on
         if (show_menu) {
-            if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
+            if (menu_items - menu_show_start + menu_top >= MAX_ROWS)
                 j = MAX_ROWS - menu_top;
-                show_buttons = 0;
-            } else {
+            else
                 j = menu_items - menu_show_start;
-                show_buttons = user_show_buttons;
-            }
 
             if (show_buttons) {
                 draw_icon_locked(gMenuIcon[MENU_BACK], MENU_ICON[MENU_BACK].x, MENU_ICON[MENU_BACK].y);
@@ -310,7 +307,7 @@ static void draw_screen_locked(void) {
             const char* menu_down_available = "(vvv)";
 
             gr_color(MENU_TEXT_COLOR);
-            for (i = menu_show_start + menu_top; i < (menu_show_start + menu_top + j - 1); ++i) {
+            for (i = menu_show_start + menu_top; i < (menu_show_start + menu_top + j); ++i) {
                 if (i == menu_top + menu_sel) {
                     gr_color(SELECTED_TEXT_COLOR);
                     if (menu_show_start > 0 && i == menu_show_start + menu_top) {
@@ -411,6 +408,14 @@ int touched_row(int positionY)
     return menu_show_start + (positionY / CHAR_HEIGHT) - menu_top;
 }
 
+int touched_row_clamp(int positionY)
+{
+    int row = touched_row(positionY);
+    if (row < 0) row = 0;
+    else if (row >= menu_items - 1) row = menu_items - 2;
+    return row;
+}
+
 // handle the action associated with user input touch events inside the ui handler
 int device_handle_mouse(struct keyStruct *key, int visible) {
     //ToDo: Following structure should be global
@@ -421,15 +426,11 @@ int device_handle_mouse(struct keyStruct *key, int visible) {
         {  get_menu_icon_info(MENU_SELECT,MENU_ICON_X),    get_menu_icon_info(MENU_SELECT,MENU_ICON_Y), get_menu_icon_info(MENU_SELECT,MENU_ICON_XL), get_menu_icon_info(MENU_SELECT,MENU_ICON_XR) },
     };
 
-
     if (visible) {
-        if (user_tap_select && touched_row(key->y) == menu_sel && oldMousePos[actPos.num].length < CHAR_HEIGHT) // Try to ignore drags
+        if (user_tap_select && touched_row(key->y) == menu_sel && oldMousePos[actPos.num].length < CHAR_HEIGHT) // Ignore drags
             return SELECT_ITEM;
 
-        if (show_buttons) {
-            if (key->y < (resY-MENU_MAX_HEIGHT))
-                return NO_ACTION;
-
+        else if (show_buttons && key->y > (resY-MENU_MAX_HEIGHT) && key->x > MENU_ICON[MENU_BACK].xL && key->x < MENU_ICON[MENU_SELECT].xR) {
             if (key->x > MENU_ICON[MENU_BACK].xL && key->x < MENU_ICON[MENU_BACK].xR)
                 return GO_BACK;
             else if (key->x > MENU_ICON[MENU_DOWN].xL && key->x < MENU_ICON[MENU_DOWN].xR)
@@ -438,17 +439,15 @@ int device_handle_mouse(struct keyStruct *key, int visible) {
                 return HIGHLIGHT_UP;
             else if (key->x > MENU_ICON[MENU_SELECT].xL && key->x < MENU_ICON[MENU_SELECT].xR)
                 return SELECT_ITEM;
-        } else {
-            if (menu_items - menu_show_start + menu_top >= MAX_ROWS) {
-                if (key->y < MENU_MAX_HEIGHT && menu_sel != menu_top) {
-                    ui_menu_select(menu_show_start - menu_top);
-                    return HIGHLIGHT_UP;
-                }
-                if (key->y > (resY-MENU_MAX_HEIGHT) && menu_sel != menu_items - menu_show_start + menu_top)
-                    return HIGHLIGHT_DOWN;
-            }
         }
+
+        else if ((grabPos.x - key->x) > (resX / 5) && oldMousePos[actPos.num].length > (resX / 5))
+            return GO_BACK;
+
+        else if (key->y < MENU_MAX_HEIGHT || key->y > (resY-MENU_MAX_HEIGHT))
+            ui_menu_select(touched_row_clamp(key->y));
     }
+
     return NO_ACTION;
 }
 
@@ -551,7 +550,7 @@ static void *input_thread(void *cookie) {
                                         // consider this a mouse click
                                         type = BTN_MOUSE;
                                     }
-                                    memset(&grabPos,0,sizeof(grabPos));
+                                    //memset(&grabPos,0,sizeof(grabPos));
                                 }
                             } else if (actPos.pressure != 0) {
                                 type == BTN_GEAR_DOWN;
@@ -613,18 +612,18 @@ static void *input_thread(void *cookie) {
                 // key event.
                     rel_sum_y += ev.value;
                     if (rel_sum_y > 3) {
-					    fake_key = 1; ev.type = EV_KEY; ev.code = KEY_DOWN; ev.value = 1; rel_sum_y = 0;
+                        fake_key = 1; ev.type = EV_KEY; ev.code = KEY_DOWN; ev.value = 1; rel_sum_y = 0;
                     } else if (rel_sum_y < -3) {
-					    fake_key = 1; ev.type = EV_KEY; ev.code = KEY_UP; ev.value = 1; rel_sum_y = 0;
+                        fake_key = 1; ev.type = EV_KEY; ev.code = KEY_UP; ev.value = 1; rel_sum_y = 0;
                     }
                 }
                 // do the same for the X axis
                 if (ev.code == REL_X) {
                     rel_sum_x += ev.value;
                     if (rel_sum_x > 3) {
-					    fake_key = 1; ev.type = EV_KEY; ev.code = KEY_RIGHT; ev.value = 1; rel_sum_x = 0;
+                        fake_key = 1; ev.type = EV_KEY; ev.code = KEY_RIGHT; ev.value = 1; rel_sum_x = 0;
                     } else if (rel_sum_x < -3) {
-					    fake_key = 1; ev.type = EV_KEY; ev.code = KEY_LEFT; ev.value = 1; rel_sum_x = 0;
+                        fake_key = 1; ev.type = EV_KEY; ev.code = KEY_LEFT; ev.value = 1; rel_sum_x = 0;
                     }
                 }
             } else {
